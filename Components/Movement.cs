@@ -6,6 +6,7 @@ namespace Servants_of_Arcana
     [Serializable]
     public class Movement : Component
     {
+        public event Action <Entity> onMovement;
         public List<int> moveTypes = new List<int>();
         public void Move(Vector newPosition)
         {
@@ -24,19 +25,8 @@ namespace Servants_of_Arcana
                         entity.GetComponent<Vector>().y = newPosition.y;
 
                         newTraversable.actor = entity;
-
-                        if (entity.GetComponent<PlayerController>() != null)
-                        {
-                            if (newTraversable.item != null)
-                            {
-                                Log.Add($"You see a {newTraversable.item.GetComponent<Description>().name}");
-                            }
-
-                            Program.MoveCamera(newPosition);
-
-                            Random random = new Random();
-                            entity.GetComponent<Draw>().fColor = new SadRogue.Primitives.Color(random.Next(255), random.Next(255), random.Next(255));
-                        }
+                        
+                        if (onMovement != null) { onMovement.Invoke(entity); }
 
                         entity.GetComponent<TurnComponent>().EndTurn();
                     }
@@ -51,7 +41,7 @@ namespace Servants_of_Arcana
                 }
                 else if (entity.GetComponent<PlayerController>() != null)
                 {
-                    Log.Add("You cannot move there.");
+                    Log.Add($"You cannot move there.");
                 }
             }
             else if (entity.GetComponent<PlayerController>() != null)

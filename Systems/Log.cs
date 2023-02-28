@@ -27,10 +27,11 @@ namespace Servants_of_Arcana
         public static void DisplayLog()
         {
             Program.logConsole.Clear();
+            Program.logConsole.Fill(Color.Black, Color.Black);
 
             int m = 0;
-            int y = 0;
-            int c = 1;
+            int y = 3;
+            int c = 3;
 
             string[] temp = log.ToArray<string>();
             //temp.Reverse();
@@ -44,7 +45,7 @@ namespace Servants_of_Arcana
                     string[] split = text.Split('*');
                     if (split.Count() == 1)
                     {
-                        if (split[0].Contains("+")) { y += 2 + m; c = 1; }
+                        if (split[0].Contains("+")) { y += 2 + m; c = 3; }
                         else
                         {
                             if (c + split[0].Length > Program.logConsole.Width - 5) { y += 2 + m; c = 1; }
@@ -54,7 +55,7 @@ namespace Servants_of_Arcana
                     }
                     else
                     {
-                        if (split[1].Contains("+")) { y += 2 + m; c = 1; }
+                        if (split[1].Contains("+")) { y += 2 + m; c = 3; }
                         else
                         {
                             if (c + split[0].Length > Program.logConsole.Width - 5) { y += 2 + m; c = 1; }
@@ -147,6 +148,12 @@ namespace Servants_of_Arcana
             switch (color) 
             {
                 case "Yellow": return Color.Yellow;
+                case "Red": return Color.Red;
+                case "Blue": return Color.Blue;
+                case "Orange": return Color.Orange;
+                case "Cyan": return Color.Cyan;
+                case "Gray": return Color.Gray;
+                case "LightGray": return Color.LightGray;
             }
             return Color.Magenta;
         }

@@ -39,6 +39,16 @@ namespace Servants_of_Arcana
             }
             return null;
         }
+        public Entity(List<Component> components)
+        {
+            foreach (Component component in components)
+            {
+                if (component != null)
+                {
+                    AddComponent(component);
+                }
+            }
+        }
         public Entity() { }
     }
 }

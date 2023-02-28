@@ -8,8 +8,8 @@ namespace Servants_of_Arcana
 {
     public class TurnComponent : Component
     {
-        public bool isAlive { get; private set; } = true;
-        public bool isTurnActive { get; private set; } = false;
+        public bool isAlive { get; set; } = true;
+        public bool isTurnActive { get; set; } = false;
         public float currentEnergy { get; set; }
         public Controller controller { get; set; }
         public void StartTurn()

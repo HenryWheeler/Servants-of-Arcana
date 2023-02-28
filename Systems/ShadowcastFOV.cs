@@ -101,6 +101,18 @@ namespace Servants_of_Arcana
                 }
             }
         }
+        public static void RevealAll()
+        {
+            foreach (Tile tile in Program.tiles)
+            {
+                if (tile != null)
+                {
+                    Vector vector2 = tile.GetComponent<Vector>();
+                    SetVisible(vector2, true, 1000, vector2.x, vector2.y, true);
+                }
+            }
+            Program.DrawMap();
+        }
         public static bool BlocksLight(Vector vector2)
         {
             if (Math.CheckBounds(vector2.x, vector2.y))

@@ -46,36 +46,63 @@ namespace Servants_of_Arcana
                     else if (info.IsKeyPressed(Keys.OemPlus))
                     {
                         Vector vector2 = Program.player.GetComponent<Vector>();
-                        //if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '>') { World.GenerateNewFloor(true); }
+                        if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '>') { Program.GenerateNewFloor(); }
                     }
-                    else if (info.IsKeyPressed(Keys.OemMinus))
+                    else if (info.IsKeyPressed(Keys.LeftShift) && info.IsKeyPressed(Keys.OemPeriod))
                     {
                         Vector vector2 = Program.player.GetComponent<Vector>();
-                        //if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '<') { World.GenerateNewFloor(false); }
+                        if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '<') { Program.GenerateNewFloor(); }
                     }
-                    //else if (info.IsKeyPressed(Keys.OemPeriod)) { Program.player.GetComponent<TurnFunction>().EndTurn(); }
-                    //else if (info.IsKeyPressed(Keys.L)) { Look.StartLooking(Program.player.GetComponent<Vector2>()); }
-                    //else if (info.IsKeyPressed(Keys.I)) { InventoryManager.OpenInventory(); }
+                    else if (info.IsKeyPressed(Keys.OemPeriod)) { Program.player.GetComponent<TurnComponent>().EndTurn(); }
+                    else if (info.IsKeyPressed(Keys.L)) { Look.StartLooking(); }
+                    else if (info.IsKeyPressed(Keys.I)) { InventoryManager.OpenInventory(); }
                     //else if (info.IsKeyPressed(Keys.E)) { InventoryManager.OpenEquipment(); }
-                    //else if (info.IsKeyPressed(Keys.G)) { InventoryManager.GetItem(Program.player); Log.DisplayLog(); }
+                    else if (info.IsKeyPressed(Keys.G)) { InventoryManager.GetItem(Program.player); }
                     //else if (info.IsKeyPressed(Keys.J)) { SaveDataManager.CreateSave(); Program.ExitProgram(); }
                     else if (info.IsKeyPressed(Keys.V))
                     {
-                        foreach (Tile tile in Program.tiles)
-                        {
-                            if (tile != null)
-                            {
-                                Vector vector2 = tile.GetComponent<Vector>();
-                                ShadowcastFOV.SetVisible(vector2, true, 1000, vector2.x, vector2.y, true);
-                            }
-                        }
-                        //Renderer.DrawMapToScreen();
+                        ShadowcastFOV.RevealAll();
                     }
+                }
+                else if (Look.looking)
+                {
+                    if (info.IsKeyPressed(Keys.Up)) { Look.MoveReticle(new Vector(0, -1)); }
+                    else if (info.IsKeyPressed(Keys.Down)) { Look.MoveReticle(new Vector(0, 1)); }
+                    else if (info.IsKeyPressed(Keys.Left)) { Look.MoveReticle(new Vector(-1, 0)); }
+                    else if (info.IsKeyPressed(Keys.Right)) { Look.MoveReticle(new Vector(1, 0)); }
+                    else if (info.IsKeyPressed(Keys.NumPad8)) { Look.MoveReticle(new Vector(0, -1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad9)) { Look.MoveReticle(new Vector(1, -1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad6)) { Look.MoveReticle(new Vector(1, 0)); }
+                    else if (info.IsKeyPressed(Keys.NumPad3)) { Look.MoveReticle(new Vector(1, 1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad2)) { Look.MoveReticle(new Vector(0, 1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad1)) { Look.MoveReticle(new Vector(-1, 1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad4)) { Look.MoveReticle(new Vector(-1, 0)); }
+                    else if (info.IsKeyPressed(Keys.NumPad7)) { Look.MoveReticle(new Vector(-1, -1)); }
+                    else if (info.IsKeyPressed(Keys.L)) { Look.StopLooking(); }
+                    else if (info.IsKeyPressed(Keys.Escape)) { Look.StopLooking(); }
+                }
+                else if (InventoryManager.isInventoryOpen)
+                {
+                    if (info.IsKeyPressed(Keys.I)) { InventoryManager.CloseInventory(); }
+                    else if (info.IsKeyPressed(Keys.Escape)) { InventoryManager.CloseInventory(); }
+                    else if (info.IsKeyPressed(Keys.D)) { InventoryManager.DropItem(Program.player); }
+                    else if (info.IsKeyPressed(Keys.Up)) { InventoryManager.MoveSelection(true); }
+                    else if (info.IsKeyPressed(Keys.Down)) { InventoryManager.MoveSelection(false); ; }
+                    else if (info.IsKeyPressed(Keys.Left)) { InventoryManager.MoveSelection(true); }
+                    else if (info.IsKeyPressed(Keys.Right)) { InventoryManager.MoveSelection(false); }
+                    else if (info.IsKeyPressed(Keys.NumPad8)) { InventoryManager.MoveSelection(true); }
+                    else if (info.IsKeyPressed(Keys.NumPad9)) { InventoryManager.MoveSelection(false); }
+                    else if (info.IsKeyPressed(Keys.NumPad6)) { InventoryManager.MoveSelection(false); }
+                    else if (info.IsKeyPressed(Keys.NumPad3)) { InventoryManager.MoveSelection(false); }
+                    else if (info.IsKeyPressed(Keys.NumPad2)) { InventoryManager.MoveSelection(false); }
+                    else if (info.IsKeyPressed(Keys.NumPad1)) { InventoryManager.MoveSelection(true); }
+                    else if (info.IsKeyPressed(Keys.NumPad4)) { InventoryManager.MoveSelection(true); }
+                    else if (info.IsKeyPressed(Keys.NumPad7)) { InventoryManager.MoveSelection(true); }
                 }
             }
             else
             {
-                //if (info.IsKeyPressed(Keys.N)) { Program.NewGame(); }
+                if (info.IsKeyPressed(Keys.N)) { Program.StartNewGame(); }
                 //else if (info.IsKeyPressed(Keys.L) && SaveDataManager.savePresent) { SaveDataManager.LoadSave(); }
                 //else if (info.IsKeyPressed(Keys.Q)) { Program.ExitProgram(); }
             }

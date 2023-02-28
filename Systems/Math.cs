@@ -1,9 +1,11 @@
-﻿using System;
+﻿using SadConsole;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using SadRogue.Primitives;
 
 namespace Servants_of_Arcana
 {
@@ -83,6 +85,41 @@ namespace Servants_of_Arcana
             {
                 return true;
             }
+        }
+        public static int DisplayToConsole(TitleConsole console, string logOut, int a, int b, int m = 0, int y = 2, bool clear = true)
+        {
+            if (clear)
+            {
+                console.Clear();
+            }
+            string[] outPut = logOut.Split(' ');
+            int c = a;
+            foreach (string text in outPut)
+            {
+                string[] split = text.Split('*');
+                if (split.Count() == 1)
+                {
+                    if (split[0].Contains("+")) { y += 2 + m; c = a; }
+                    else
+                    {
+                        if (c + split[0].Length > console.Width - 4) { y += 2 + m; c = a; }
+                        console.Print(c + b, y, split[0], Color.White);
+                        c += split[0].Length + 1;
+                    }
+                }
+                else
+                {
+                    if (split[1].Contains("+")) { y += 2 + m; c = a; }
+                    else
+                    {
+                        if (c + split[0].Length > console.Width - 4) { y += 2 + m; c = a; }
+                        console.Print(c + b, y, split[1], Log.StringToColor(split[0]));
+                        c += split[1].Length + 1;
+                    }
+                }
+            }
+
+            return y;
         }
     }
 }

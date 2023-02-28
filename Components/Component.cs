@@ -12,4 +12,9 @@ namespace Servants_of_Arcana
         public Entity entity { get; set; }
         public Component() { }
     }
+    [Serializable]
+    class Item : Component
+    {
+        public Item() { }
+    }
 }
