@@ -109,39 +109,42 @@ namespace Servants_of_Arcana
         }
         public static void Add(string logAdd, Vector origin = null)
         {
-            if (origin == null)
+            if (Program.isGameActive)
             {
-                if (logAdd == lastLog)
+                if (origin == null)
                 {
-                    repeatCount++;
-
-                    string[] temp = log.ToArray();
-                    log.Clear();
-                    temp[temp.Length - 1] = $"{spacer}{logAdd} Yellow*x{repeatCount}";
-
-                    foreach (string s in temp)
+                    if (logAdd == lastLog)
                     {
-                        log.Enqueue(s);
-                    }
+                        repeatCount++;
 
-                    if (log.Count > maxLogCount)
-                    {
-                        log.Dequeue();
+                        string[] temp = log.ToArray();
+                        log.Clear();
+                        temp[temp.Length - 1] = $"{spacer}{logAdd} Yellow*x{repeatCount}";
+
+                        foreach (string s in temp)
+                        {
+                            log.Enqueue(s);
+                        }
+
+                        if (log.Count > maxLogCount)
+                        {
+                            log.Dequeue();
+                        }
                     }
+                    else
+                    {
+                        repeatCount = 1;
+                        log.Enqueue(spacer + logAdd);
+                        if (log.Count > maxLogCount)
+                        {
+                            log.Dequeue();
+                        }
+                    }
+                    lastLog = logAdd;
                 }
-                else
-                {
-                    repeatCount = 1;
-                    log.Enqueue(spacer + logAdd);
-                    if (log.Count > maxLogCount)
-                    {
-                        log.Dequeue();
-                    }
-                }
-                lastLog = logAdd;
+
+                DisplayLog();
             }
-
-            DisplayLog();
         }
         public static Color StringToColor(string color)
         {

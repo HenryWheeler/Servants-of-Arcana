@@ -88,7 +88,10 @@ namespace Servants_of_Arcana
                     if (Math.Distance(vector2.x, vector2.y, oX, oY) < sight)
                     {
                         Program.tiles[vector2.x, vector2.y].GetComponent<Visibility>().SetVisible(true);
-                        visibleTiles.Add(vector2);
+                        if (!all)
+                        {
+                            visibleTiles.Add(vector2);
+                        }
                     }
                     else
                     {
@@ -109,6 +112,18 @@ namespace Servants_of_Arcana
                 {
                     Vector vector2 = tile.GetComponent<Vector>();
                     SetVisible(vector2, true, 1000, vector2.x, vector2.y, true);
+                }
+            }
+            Program.DrawMap();
+        }
+        public static void HideAll()
+        {
+            foreach (Tile tile in Program.tiles)
+            {
+                if (tile != null)
+                {
+                    Vector vector2 = tile.GetComponent<Vector>();
+                    SetVisible(vector2, false, 1000, vector2.x, vector2.y, true);
                 }
             }
             Program.DrawMap();

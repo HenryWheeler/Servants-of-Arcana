@@ -11,7 +11,7 @@ namespace Servants_of_Arcana
     public class InventoryManager
     {
         public static int selectedItem = 0;
-        public static int maxInventorySize = 15;
+        public static int maxInventorySize = 11;
         public static bool isInventoryOpen = false;
         public static void OpenInventory()
         {
@@ -28,6 +28,7 @@ namespace Servants_of_Arcana
         public static void CloseInventory()
         {
             Program.rootConsole.Children.MoveToTop(Program.playerConsole);
+            Program.rootConsole.Children.MoveToTop(Program.mapConsole);
             Program.inventoryConsole.Fill(Color.Black, Color.Black);
             AttributeManager.UpdateAttributes(Program.player);
 
@@ -43,13 +44,13 @@ namespace Servants_of_Arcana
                 {
                     selectedItem++;
 
-                    if (selectedItem >= inventory.items.Count) { selectedItem = 0; }
+                    if (selectedItem >= maxInventorySize) { selectedItem = 0; }
                 }
                 else
                 {
                     selectedItem--;
 
-                    if (selectedItem < 0) { selectedItem = inventory.items.Count - 1; }
+                    if (selectedItem < 0) { selectedItem = maxInventorySize - 1; }
                 }
 
                 CreateInventoryDisplay();
@@ -57,17 +58,18 @@ namespace Servants_of_Arcana
         }
         private static void CreateInventoryDisplay()
         {
-            Program.interactionConsole.Fill(Color.Black, Color.Black);
+            Program.inventoryConsole.Fill(Color.Black, Color.Black);
 
             InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
 
             for (int y = 0; y < maxInventorySize; y++) 
             {
+                int offsetY = (y * 3) + 5;
+
                 if (y < inventory.items.Count && inventory.items[y] != null) 
                 {
-                    Program.inventoryConsole.DrawLine(new Point(0, y + 5), new Point(Program.inventoryConsole.Width, y + 5), (char)196, Color.Gray);
-
                     string[] nameParts = inventory.items[y].GetComponent<Description>().name.Split(' ');
+
                     string name = "";
                     foreach (string part in nameParts)
                     {
@@ -81,91 +83,69 @@ namespace Servants_of_Arcana
                             name += temp[1] + " ";
                         }
                     }
-                    int start = (Program.inventoryConsole.Width / 2) - (int)System.Math.Ceiling((double)name.Length / 2);
 
-                    start++;
-
-                    foreach (string part in nameParts)
+                    if (inventory.items[y].GetComponent<Equipable>() != null && inventory.items[y].GetComponent<Equipable>().equipped)
                     {
-                        string[] temp = part.Split('*');
-                        if (temp.Length == 1)
-                        {
-                            Program.inventoryConsole.Print(start, y + 5, temp[0] + " ", Color.White);
-                            start += temp[0].Length + 1;
-                        }
-                        else
-                        {
-                            Program.inventoryConsole.Print(start, y + 5, temp[1] + " ", Log.StringToColor(temp[0]), Color.Black);
-                            start += temp[1].Length + 1;
-                        }
+                        name += "- Equipped ";
+                    }
+
+                    if (selectedItem == y)
+                    {
+                        Program.inventoryConsole.Print(3, offsetY, $"< {name}>".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Yellow, Color.Black);
+                        Program.inventoryConsole.SetGlyph(3, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
+                        Program.inventoryConsole.SetGlyph((Program.inventoryConsole.Width / 2) - 7, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
+                    }
+                    else
+                    {
+
+                        Program.inventoryConsole.Print(3, offsetY, $"< {name}>".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Gray, Color.Black);
                     }
                 }
-                else if (y < inventory.inventorySize)
+                else if (y < maxInventorySize)
                 {
-                    Program.inventoryConsole.Print(3, y + 5, "< Empty >".Align(HorizontalAlignment.Center, Program.inventoryConsole.Width - 6, (char)196), Color.Gray, Color.Black);
-                  
-                }
-                else if (y >= inventory.inventorySize)
-                {
-                    Program.inventoryConsole.Print(3, y + 5, "< Beyond Max Capacity >".Align(HorizontalAlignment.Center, Program.inventoryConsole.Width - 6, (char)196), Color.AntiqueWhite, Color.Black);
-                }
-
-                if (selectedItem == y)
-                {
-                    Program.inventoryConsole.SetGlyph(3, y + 5, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
-                    Program.inventoryConsole.SetGlyph(Program.inventoryConsole.Width - 4, y + 5, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
+                    if (selectedItem == y)
+                    {
+                        Program.inventoryConsole.Print(3, offsetY, "< Empty >".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Yellow, Color.Black);
+                        Program.inventoryConsole.SetGlyph(3, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
+                        Program.inventoryConsole.SetGlyph((Program.inventoryConsole.Width / 2) - 7, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
+                    }
+                    else
+                    {
+                        Program.inventoryConsole.Print(3, offsetY, "< Empty >".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Gray, Color.Black);
+                    }
                 }
             }
-
-            Program.inventoryConsole.DrawLine(new Point(0, maxInventorySize + 7), new Point(Program.inventoryConsole.Width, maxInventorySize + 7), (char)196, Color.AntiqueWhite, Color.Black);
 
             if (selectedItem < inventory.items.Count && inventory.items[selectedItem] != null)
             {
-                string[] nameParts = inventory.items[selectedItem].GetComponent<Description>().name.Split(' ');
-                string name = "";
-                foreach (string part in nameParts)
-                {
-                    string[] temp = part.Split('*');
-                    if (temp.Length == 1)
-                    {
-                        name += temp[0] + " ";
-                    }
-                    else
-                    {
-                        name += temp[1] + " ";
-                    }
-                }
-                int start = (Program.inventoryConsole.Width / 2) - (int)System.Math.Ceiling((double)name.Length / 2);
+                Math.DisplayToConsole(Program.inventoryConsole, $"{inventory.items[selectedItem].GetComponent<Description>().name}", (Program.inventoryConsole.Width / 2) + 7, 1, 0, 5, false);
 
-                start++;
+                Program.inventoryConsole.DrawLine(new Point((Program.inventoryConsole.Width / 2), 7), new Point(Program.inventoryConsole.Width, 7), (char)196, Color.AntiqueWhite, Color.Black);
 
-                foreach (string part in nameParts)
+                string description = inventory.items[selectedItem].GetComponent<Description>().description;
+                
+                if (inventory.items[selectedItem].GetComponent<Equipable>() != null)
                 {
-                    string[] temp = part.Split('*');
-                    if (temp.Length == 1)
+                    description += $" + This item can be equipped in your {inventory.items[selectedItem].GetComponent<Equipable>().slot}.";
+                    if (inventory.items[selectedItem].GetComponent<Equipable>().unequipable)
                     {
-                        Program.inventoryConsole.Print(start, maxInventorySize + 8, temp[0] + " ", Color.White);
-                        start += temp[0].Length + 1;
-                    }
-                    else
-                    {
-                        Program.inventoryConsole.Print(start, maxInventorySize + 8, temp[1] + " ", Log.StringToColor(temp[0]), Color.Black);
-                        start += temp[1].Length + 1;
+                        description += "It cannot be unequipped.";
                     }
                 }
 
-                Program.inventoryConsole.DrawLine(new Point(0, maxInventorySize + 9), new Point(Program.inventoryConsole.Width, maxInventorySize + 9), (char)196, Color.AntiqueWhite, Color.Black);
-                Math.DisplayToConsole(Program.inventoryConsole, $"{inventory.items[selectedItem].GetComponent<Description>().description}", 3, 1, 0, maxInventorySize + 11, false);
+                Math.DisplayToConsole(Program.inventoryConsole, $"{description}", (Program.inventoryConsole.Width / 2) + 7, 1, 0, 9, false);
             }
             else
             {
-                Program.inventoryConsole.DrawBox(new Rectangle(0, maxInventorySize + 8, Program.inventoryConsole.Width, Program.inventoryConsole.Height), 
-                    ShapeParameters.CreateFilled(new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
+                Program.inventoryConsole.DrawBox(new Rectangle((Program.inventoryConsole.Width / 2) + 7, 4, Program.inventoryConsole.Width / 2 - 10, Program.inventoryConsole.Height - 7),
+                    ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
+                Program.CreateConsoleBorder(Program.inventoryConsole);
 
-                Program.inventoryConsole.Print(0, ((Program.lookConsole.Height / 3) * 2) - 3, " There is no item ".Align(HorizontalAlignment.Center, Program.lookConsole.Width, (char)177), Color.AntiqueWhite);
-                Program.inventoryConsole.Print(0, ((Program.lookConsole.Height / 3) * 2) - 1, " selected. ".Align(HorizontalAlignment.Center, Program.lookConsole.Width, (char)177), Color.AntiqueWhite);
+                Program.inventoryConsole.Print((Program.inventoryConsole.Width / 2) + 10, Program.inventoryConsole.Height / 2, " There is no item selected. ".Align(HorizontalAlignment.Center, Program.lookConsole.Width, (char)177), Color.AntiqueWhite);
             }
 
+            Program.inventoryConsole.DrawBox(new Rectangle((Program.inventoryConsole.Width / 2) - 6, 4, 13, Program.inventoryConsole.Height - 7),
+                ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
             Program.CreateConsoleBorder(Program.inventoryConsole);
         }
         public static void AddToInventory(Entity item, Entity actor)
@@ -179,7 +159,7 @@ namespace Servants_of_Arcana
 
             if (Program.tiles[location.x, location.y].item != null && 
                 Program.tiles[location.x, location.y].item.GetComponent<Item>() != null && 
-                inventory.items.Count < inventory.inventorySize)
+                inventory.items.Count < maxInventorySize)
             {
                 inventory.items.Add(Program.tiles[location.x, location.y].item);
 
@@ -209,10 +189,18 @@ namespace Servants_of_Arcana
 
                 if (Program.tiles[vector.x, vector.y].item == null)
                 {
-                    if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped && item.GetComponent<Equipable>().unequipable)
+                    if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
                     {
-                        Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because it is unequipable.");
-                        return;
+                        if (!item.GetComponent<Equipable>().unequipable)
+                        {
+                            Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because it is unequipable.");
+                            return;
+                        }
+                        else
+                        {
+                            item.GetComponent<Equipable>().equipped = false;
+                            UnequipItem(actor, item, false);
+                        }
                     }
 
                     inventory.items.Remove(item);
@@ -220,7 +208,7 @@ namespace Servants_of_Arcana
 
                     if (actor.GetComponent<PlayerController>() != null)
                     {
-                        Log.Add($"{actor.GetComponent<Description>().name} dropped the {item.GetComponent<Description>().name}");
+                        Log.Add($"{actor.GetComponent<Description>().name} dropped the {item.GetComponent<Description>().name}.");
                         CloseInventory();
                     }
 
@@ -237,6 +225,94 @@ namespace Servants_of_Arcana
                 {
                     Log.Add($"You have no items to drop.");
                 }
+                else
+                {
+                    actor.GetComponent<TurnComponent>().EndTurn();
+                }
+            }
+        }
+        public static void EquipItem(Entity actor, Entity item, bool endTurn = true)
+        {
+            Equipable equipable = item.GetComponent<Equipable>();
+            InventoryComponent inventory = actor.GetComponent<InventoryComponent>();
+            EquipmentSlot slot = inventory.ReturnSlot(equipable.slot);
+
+            if (slot.item != null)
+            {
+                UnequipItem(actor, slot.item, false);
+            }
+
+            slot.item = item;
+            equipable.equipped = true;
+
+            if (actor.GetComponent<PlayerController>() != null)
+            {
+                CloseInventory();
+                Log.Add($"You equipped the {slot.item.GetComponent<Description>().name}.");
+            }
+            else
+            {
+                Log.Add($"The {actor.GetComponent<Description>().name} equips the {slot.item.GetComponent<Description>().name}.");
+            }
+
+            if (endTurn)
+            {
+                actor.GetComponent<TurnComponent>().EndTurn();
+            }
+        }
+        public static void UnequipItem(Entity actor, Entity item, bool endTurn = true) 
+        {
+            Equipable equipable = item.GetComponent<Equipable>();
+            InventoryComponent inventory = actor.GetComponent<InventoryComponent>();
+            EquipmentSlot slot = inventory.ReturnSlot(equipable.slot);
+
+            slot.item = null;
+            equipable.equipped = false;
+
+            if (actor.GetComponent<PlayerController>() != null)
+            {
+                CloseInventory();
+                Log.Add($"You unequiped the {item.GetComponent<Description>().name}.");
+            }
+            else
+            {
+                Log.Add($"The {actor.GetComponent<Description>().name} unequip the {item.GetComponent<Description>().name}.");
+            }
+
+            if (endTurn) 
+            {
+                actor.GetComponent<TurnComponent>().EndTurn();
+            }
+        }
+        public static void UseItem(Entity actor, Entity item, Vector position)
+        {
+            Usable use = item.GetComponent<Usable>();
+            if (use != null)
+            {
+                //For now just default to actor position.
+                use.Use(actor, position);
+
+                if (item.GetComponent<Consumable>() != null)
+                {
+                    actor.GetComponent<InventoryComponent>().items.Remove(item);
+                }
+
+                if (actor.GetComponent<PlayerController>() != null)
+                {
+                    CloseInventory();
+
+                    Log.Add($"{actor.GetComponent<Description>().name} use the {item.GetComponent<Description>().name}!");
+                }
+                else
+                {
+                    Log.Add($"The {actor.GetComponent<Description>().name} uses the {item.GetComponent<Description>().name}!");
+                }
+
+                actor.GetComponent<TurnComponent>().EndTurn();
+            }
+            else if (actor.GetComponent<PlayerController>() == null) 
+            {
+                actor.GetComponent<TurnComponent>().EndTurn();
             }
         }
     }

@@ -12,6 +12,7 @@ namespace Servants_of_Arcana
         public bool opaque { get; set; }
         public bool visible { get; set; } = false;
         public bool explored { get; set; } = false;
+        public override void SetDelegates() { }
         public void SetVisible(bool visibility) 
         {
             if (visibility) 

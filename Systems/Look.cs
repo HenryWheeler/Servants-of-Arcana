@@ -56,9 +56,10 @@ namespace Servants_of_Arcana
                 Description description = null;
                 if (!Program.tiles[reticlePosition.x, reticlePosition.y].GetComponent<Visibility>().visible)
                 {
-                    Program.lookConsole.Fill(Color.AntiqueWhite, Color.Black, 177);
-                    Program.lookConsole.Print(0, Program.lookConsole.Height / 2 - 3, " You cannot look at ".Align(HorizontalAlignment.Center, Program.lookConsole.Width, (char)177), Color.AntiqueWhite);
-                    Program.lookConsole.Print(0, Program.lookConsole.Height / 2 - 1, " what you cannot see. ".Align(HorizontalAlignment.Center, Program.lookConsole.Width, (char)177), Color.AntiqueWhite);
+                    Program.lookConsole.DrawBox(new Rectangle(3, 4, Program.lookConsole.Width - 6, Program.lookConsole.Height - 7), 
+                    ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
+                    Program.lookConsole.Print(4, Program.lookConsole.Height / 2 - 3, " You cannot look at ".Align(HorizontalAlignment.Center, Program.lookConsole.Width - 8, (char)177), Color.AntiqueWhite);
+                    Program.lookConsole.Print(4, Program.lookConsole.Height / 2 - 1, " what you cannot see. ".Align(HorizontalAlignment.Center, Program.lookConsole.Width - 8, (char)177), Color.AntiqueWhite);
                 }
                 else if (Program.tiles[reticlePosition.x, reticlePosition.y].actor != null)
                 {
@@ -176,10 +177,50 @@ namespace Servants_of_Arcana
         }
         private static void CreateReticle()
         {
-            Program.sfx[reticlePosition.x, reticlePosition.y] = new Entity(new List<Component>() 
+            for (int x = reticlePosition.x - 1; x  <= reticlePosition.x + 1; x++) 
             {
-                new Vector(reticlePosition.x, reticlePosition.y),
-                new Draw(Color.Yellow, Color.Black, 'X'),
+                for (int y = reticlePosition.y - 1; y <= reticlePosition.y + 1; y++)
+                {
+                    if (!Math.CheckBounds(x, y))
+                    {
+                        return;
+                    }
+                }
+            }
+
+            Program.sfx[reticlePosition.x, reticlePosition.y + 1] = new Entity(new List<Component>() 
+            {
+                new Draw(Color.Yellow, Color.Black, (char)196),
+            });
+            Program.sfx[reticlePosition.x, reticlePosition.y - 1] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)196),
+            });
+
+            Program.sfx[reticlePosition.x + 1, reticlePosition.y] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)179),
+            });
+            Program.sfx[reticlePosition.x - 1, reticlePosition.y] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)179),
+            });
+
+            Program.sfx[reticlePosition.x + 1, reticlePosition.y + 1] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)217),
+            });
+            Program.sfx[reticlePosition.x - 1, reticlePosition.y + 1] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)192),
+            });
+            Program.sfx[reticlePosition.x + 1, reticlePosition.y - 1] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)191),
+            });
+            Program.sfx[reticlePosition.x - 1, reticlePosition.y - 1] = new Entity(new List<Component>()
+            {
+                new Draw(Color.Yellow, Color.Black, (char)218),
             });
         }
     }

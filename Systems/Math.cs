@@ -67,9 +67,38 @@ namespace Servants_of_Arcana
                 foreach (Component component in entity.components)
                 {
                     if (component.GetType().BaseType.Equals(typeof(Controller))) { return (Controller)component; }
+                    else if (component.GetType().BaseType.BaseType.Equals(typeof(Controller))) { return (Controller)component; }
                 }
             }
             return null;
+        }
+        public static void ClearTransitions(Entity entity)
+        {
+            if (entity != null && entity.components != null)
+            {
+                foreach (Component component in entity.components)
+                {
+                    if (component.GetType().BaseType.Equals(typeof(AIController))) 
+                    {
+                        AIController aiController = (AIController)component;
+                        aiController.transitions.Clear();
+                    }
+                }
+            }
+        }
+        public static void SetTransitions(Entity entity)
+        {
+            if (entity != null && entity.components != null)
+            {
+                foreach (Component component in entity.components)
+                {
+                    if (component.GetType().BaseType.Equals(typeof(AIController)))
+                    {
+                        AIController aiController = (AIController)component;
+                        aiController.SetTransitions();
+                    }
+                }
+            }
         }
         public static double Distance(int oX, int oY, int eX, int eY) 
         {

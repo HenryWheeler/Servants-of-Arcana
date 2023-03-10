@@ -63,6 +63,8 @@ namespace Servants_of_Arcana
                         continue;
                     }
 
+                    //Program.tiles[neighbor.position.x, neighbor.position.y].GetComponent<Draw>().fColor = new SadRogue.Primitives.Color(255 - GetDistance(startNode, neighbor), GetDistance(startNode, neighbor), 0);
+
                     int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbor);
 
                     if (newCostToNeighbour < neighbor.gCost || !openSet.Contains(neighbor))
@@ -93,13 +95,12 @@ namespace Servants_of_Arcana
             {
                 for (int y = currentNode.position.y - 1; y <= currentNode.position.y + 1; y++)
                 {
-                    Program.tiles[x, y].GetComponent<Draw>().fColor = SadRogue.Primitives.Color.Red;
                     if (x == currentNode.position.x && y == currentNode.position.y)
                     {
-                        //continue;
+                        continue;
                     } 
                     
-                    //if (x >= 0 && y >= 0 && x < Program.gameWidth && y < Program.gameHeight)
+                    if (x >= 0 && y >= 0 && x < Program.gameWidth && y < Program.gameHeight)
                     {
                         neighbors.Add(currentNodeSet[x, y]);
                     }

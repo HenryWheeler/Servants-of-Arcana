@@ -45,6 +45,7 @@ namespace Servants_of_Arcana
                 TurnManager.ProgressTurnOrder();
             }
         }
+        public override void SetDelegates() { }
         public TurnComponent(Controller controller)
         {
             this.controller = controller;

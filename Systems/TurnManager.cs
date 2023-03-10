@@ -13,7 +13,7 @@ namespace Servants_of_Arcana
         private static int entityTurn = 0;
         public static void ProgressTurnOrder()
         {
-            if (entities.Count != 0)
+            if (entities.Count != 0 && Program.isGameActive)
             {
                 turn++;
                 if (entityTurn >= entities.Count - 1) entityTurn = 0;
@@ -24,12 +24,15 @@ namespace Servants_of_Arcana
         }
         public static void ProgressActorTurn(TurnComponent entity)
         {
-            if (entity.currentEnergy <= 0) { entity.currentEnergy += entity.entity.GetComponent<Attributes>().maxEnergy; ProgressTurnOrder(); }
-            else
+            if (Program.isGameActive)
             {
-                entity.currentEnergy--;
                 if (entity.currentEnergy <= 0) { entity.currentEnergy += entity.entity.GetComponent<Attributes>().maxEnergy; ProgressTurnOrder(); }
-                else { entity.StartTurn(); }
+                else
+                {
+                    entity.currentEnergy--;
+                    if (entity.currentEnergy <= 0) { entity.currentEnergy += entity.entity.GetComponent<Attributes>().maxEnergy; ProgressTurnOrder(); }
+                    else { entity.StartTurn(); }
+                }
             }
         }
         public static void AddActor(TurnComponent entity)

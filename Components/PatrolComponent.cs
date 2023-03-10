@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace Servants_of_Arcana
 {
-    public abstract class Controller : Component
+    [Serializable]
+    public class PatrolComponent : Component
     {
+        public int currentRoute { get; set; } = 1;
+        public Vector lastPosition { get; set; }
         public override void SetDelegates() { }
-        public abstract void Execute();
+        public PatrolComponent() { }
     }
 }

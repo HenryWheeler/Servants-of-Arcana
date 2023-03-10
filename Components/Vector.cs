@@ -20,6 +20,7 @@ namespace Servants_of_Arcana
             x = _1.x + _2.x;
             y = _1.y + _2.y;
         }
+        public override void SetDelegates() { }
         public override int GetHashCode()
         {
             return 17 + 31 * x.GetHashCode() + 31 * y.GetHashCode();

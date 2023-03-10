@@ -15,6 +15,7 @@ namespace Servants_of_Arcana
         public Color fColor { get; set; }
         public Color bColor { get; set; }
         public char character { get; set; }
+        public override void SetDelegates() { }
         public Draw(Color fColor, Color bColor, char character) 
         {
             this.fColor = fColor; 

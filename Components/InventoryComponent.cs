@@ -10,7 +10,6 @@ namespace Servants_of_Arcana
     public class InventoryComponent : Component
     {
         public List<Entity> items = new List<Entity>();
-        public int inventorySize { get; set; }
         public EquipmentSlot[] equipment = new EquipmentSlot[4];
         public EquipmentSlot ReturnSlot(string slotName)
         {
@@ -20,17 +19,15 @@ namespace Servants_of_Arcana
             }
             return null;
         }
-        public InventoryComponent(int inventorySize) 
+        public override void SetDelegates() { }
+        public InventoryComponent() 
         {
             equipment[0] = new EquipmentSlot("Armor");
             equipment[1] = new EquipmentSlot("Off Hand");
             equipment[2] = new EquipmentSlot("Magic Item");
             equipment[3] = new EquipmentSlot("Weapon");
-
-            this.inventorySize = inventorySize;
             items = new List<Entity>();
         }
-        public InventoryComponent() { }
     }
     [Serializable]
     public class EquipmentSlot

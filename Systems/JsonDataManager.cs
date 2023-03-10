@@ -47,7 +47,25 @@ namespace Servants_of_Arcana
         public static Entity ReturnEntity(string name)
         {
             string pullData = File.ReadAllText(Path.Combine(entityPath, name + ".json"));
-            return new Entity(JsonConvert.DeserializeObject<Entity>(pullData, options).components);
+            Entity entity = new Entity(JsonConvert.DeserializeObject<Entity>(pullData, options).components);
+
+            entity.SetDelegates();
+            if (entity.GetComponent<InventoryComponent>() != null)
+            {
+                foreach (Entity item in entity.GetComponent<InventoryComponent>().items)
+                {
+                    item.SetDelegates();
+                }
+                foreach (EquipmentSlot slot in entity.GetComponent<InventoryComponent>().equipment)
+                {
+                    if (slot.item != null)
+                    {
+                        slot.item.SetDelegates();
+                    }
+                }
+            }
+
+            return entity;
         }
         public static void SaveEntity(Entity entity, string name)
         {
@@ -66,6 +84,7 @@ namespace Servants_of_Arcana
         public static Dictionary<string, RandomTable> spawnTables = new Dictionary<string, RandomTable>();
         public RandomTableManager()
         {
+            spawnTables.Clear();
             foreach (RandomTable table in JsonDataManager.PullAllTables())
             { spawnTables.Add(table.name, table); }
         }
@@ -78,7 +97,7 @@ namespace Servants_of_Arcana
             if (spawnTables.ContainsKey(table))
             {
                 if (modifier == 0) { modifier = 1; }
-                if (useSeed) { return spawnTables[table].table[Program.random.Next(1, 21) * modifier]; }
+                if (useSeed) { return spawnTables[table].table[Program.dungeonGenerator.seed.Next(1, 21) * modifier]; }
                 else { return spawnTables[table].table[Program.random.Next(1, 21) * modifier]; }
             }
             else { throw new Exception("Referenced table does not exist"); }

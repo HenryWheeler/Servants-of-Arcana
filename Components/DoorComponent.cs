@@ -10,16 +10,17 @@ namespace Servants_of_Arcana
     public class DoorComponent : Component
     {
         public bool open { get; set; } = false;
-        public void ChangeDoorState()
+        public override void SetDelegates() 
         {
-            if (open) 
+            entity.GetComponent<Trap>().onStep += OpenDoor;
+        }
+        public void OpenDoor(Entity stepper)
+        {
+            if (stepper.GetComponent<PlayerController>() != null) 
             {
-                open = false;
-
-                entity.GetComponent<Draw>().character = '+';
-                entity.GetComponent<Visibility>().opaque = true;
+                Log.Add($"You open the {entity.GetComponent<Description>().name}.");
             }
-            else
+            if (!open) 
             {
                 open = true;
 

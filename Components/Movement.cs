@@ -25,14 +25,16 @@ namespace Servants_of_Arcana
                         entity.GetComponent<Vector>().y = newPosition.y;
 
                         newTraversable.actor = entity;
-                        
-                        if (onMovement != null) { onMovement.Invoke(entity); }
+
+                        onMovement?.Invoke(entity);
+
+                        newTraversable.GetComponent<Trap>()?.TriggerTrap(entity);
 
                         entity.GetComponent<TurnComponent>().EndTurn();
                     }
-                    else if (entity.GetComponent<PlayerController>() != null)
+                    else if (entity.GetComponent<PlayerController>() != null && newTraversable.actor != entity)
                     {
-                        //AttackManager.MeleeAllStrike(entity, newTraversable.actorLayer);
+                        CombatManager.AttackTarget(entity, newTraversable.actor);
                     }
                     else
                     {
@@ -49,6 +51,7 @@ namespace Servants_of_Arcana
                 Log.Add("You cannot move there.");
             }
         }
+        public override void SetDelegates() { }
         public Movement(List<int> _moveTypes)
         {
             moveTypes = _moveTypes;

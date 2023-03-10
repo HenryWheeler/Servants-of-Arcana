@@ -39,6 +39,16 @@ namespace Servants_of_Arcana
             }
             return null;
         }
+        public void SetDelegates()
+        {
+            foreach (Component component in components)
+            {
+                if (component != null)
+                {
+                    component.SetDelegates();
+                }
+            }
+        }
         public Entity(List<Component> components)
         {
             foreach (Component component in components)

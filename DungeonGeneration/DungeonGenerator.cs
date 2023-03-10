@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +16,11 @@ namespace Servants_of_Arcana
         //The basic description and draw components for each wall tile.
         private Draw[] baseWallDraw { get; set; }
         private Description baseWallDescription { get; set; }
-        private Random seed { get; set; }
+        public Random seed { get; set; }
         private List<Room> rooms = new List<Room>();
+        public static Vector stairSpot { get; set; }
+        public static int patrolRouteCount;
+        public string dungeonType = "Dungeon";
         public DungeonGenerator(Draw[] baseFloorDraw, Description baseFloorDescription, Draw[] baseWallDraw, Description baseWallDescription, Random seed = null)
         {
             this.baseFloorDraw = baseFloorDraw;
@@ -39,6 +43,11 @@ namespace Servants_of_Arcana
             int minRoomSize = 7;
             int maxRoomSize = 14;
 
+            dungeonType = "Dungeon";
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             SetWalls();
 
             Room lastRoom = CreateRoom(Program.gameWidth / 2, Program.gameHeight / 2, 8, 8);
@@ -57,7 +66,7 @@ namespace Servants_of_Arcana
                 {
                     tryCount++;
 
-                    if (tryCount >= 100)
+                    if (tryCount >= 100 || stopwatch.Elapsed.Seconds > 4)
                     {
                         break;
                     }
@@ -70,12 +79,150 @@ namespace Servants_of_Arcana
                 rooms.Add(room);
                 CreateCorridor(lastRoom.x, lastRoom.y, room.x, room.y);
                 lastRoom = room;
+
+                if (stopwatch.Elapsed.Seconds > 4)
+                {
+                    break;
+                }
             }
 
-            //NOT CURRENTLY FUNCTIONAL
+            stopwatch.Stop();
+
             CreateDoors();
 
             CreateStaircase();
+
+            CreatePatrolLocations();
+
+            CreateDepthWalls();
+
+            PopulateFloor();
+        }
+        public void CreateDepthWalls()
+        {
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameWidth; y++)
+                {
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType == 0 && Math.CheckBounds(x, y + 1))
+                    {
+                        if (Program.tiles[x, y + 1].terrainType != 0 && Program.tiles[x, y + 1].GetComponent<Draw>().character != '+')
+                        {
+                            Program.tiles[x, y].GetComponent<Draw>().character = (char)220;
+                        }
+                        else
+                        {
+                            Program.tiles[x, y].GetComponent<Draw>().character = (char)177;
+                        }
+                    }
+                }
+            }
+        }
+        public void PopulateFloor()
+        {
+            string tableReturn = $"Depth-{Program.depth}-{dungeonType}";
+
+            int totalActorsToSpawn = seed.Next(8, 15) + Program.depth;
+            int totalItemsToSpawn = seed.Next(6, 10);
+            int totalObstaclesToSpawn = seed.Next(10, 20);
+
+            foreach (Room room in rooms)
+            {
+                int actorsToSpawn;
+                int itemsToSpawn;
+                int obstaclesToSpawn;
+
+                if (rooms.Count > totalActorsToSpawn)
+                {
+                    actorsToSpawn = seed.Next(0, 2);
+                }
+                else
+                {
+                    actorsToSpawn = (int)MathF.Ceiling(totalActorsToSpawn / rooms.Count);
+                }
+
+                if (rooms.Count > totalItemsToSpawn)
+                {
+                    itemsToSpawn = seed.Next(0, 2);
+                }
+                else
+                {
+                    itemsToSpawn = (int)MathF.Ceiling(totalItemsToSpawn / rooms.Count);
+
+                }
+
+                if (rooms.Count > totalObstaclesToSpawn)
+                {
+                    obstaclesToSpawn = seed.Next(0, 2);
+                }
+                else
+                {
+                    obstaclesToSpawn = (int)MathF.Ceiling(totalObstaclesToSpawn / rooms.Count);
+
+                }
+
+                List<Tile> viableTiles = new List<Tile>();
+                
+                foreach (Tile tile in room.tiles)
+                {
+                    if (tile != null && tile.terrainType != 0)
+                    {
+                        viableTiles.Add(tile);
+                    }
+                }
+
+                for (int i = 0; i < actorsToSpawn; i++)
+                {
+                    Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
+                    viableTiles.Remove(tile);
+                    Vector vector = tile.GetComponent<Vector>();
+
+                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandom(tableReturn, 1, true));
+
+                    entity.GetComponent<Vector>().x = vector.x;
+                    entity.GetComponent<Vector>().y = vector.y;
+
+                    tile.actor = entity;
+                    TurnManager.AddActor(entity.GetComponent<TurnComponent>());
+                    Math.SetTransitions(entity);
+                }
+                for (int i = 0; i < itemsToSpawn; i++)
+                {
+                    Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
+                    viableTiles.Remove(tile);
+                    Vector vector = tile.GetComponent<Vector>();
+
+                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandom($"Items", (int)MathF.Ceiling(Program.depth / 2), true));
+
+                    entity.GetComponent<Vector>().x = vector.x;
+                    entity.GetComponent<Vector>().y = vector.y;
+
+                    tile.item = entity;
+                }
+                for (int i = 0; i < obstaclesToSpawn; i++)
+                {
+                    //Add later
+                }
+            }
+        }
+        public void CreatePatrolLocations()
+        {
+            patrolRouteCount = 0;
+
+            foreach (Room room in rooms) 
+            {
+                List<Tile> viableTiles = new List<Tile>();
+                foreach (Tile tile in room.tiles) 
+                {
+                    if (tile != null && tile.terrainType != 0) 
+                    {
+                        viableTiles.Add(tile);
+                    }
+                }
+
+                patrolRouteCount++;
+                DijkstraMap.CreateMap(new List<Vector>() { viableTiles[seed.Next(viableTiles.Count - 1)].GetComponent<Vector>() }, $"Patrol-{patrolRouteCount}");
+            }
         }
         public void CreateDoors()
         {
@@ -157,8 +304,12 @@ namespace Servants_of_Arcana
             Color newBackColor = tile.GetComponent<Draw>().fColor;
             tile.GetComponent<Draw>().character = '+';
             tile.GetComponent<Draw>().fColor = Color.White;
+            tile.GetComponent<Description>().name = "Door";
 
             tile.AddComponent(new DoorComponent());
+            tile.AddComponent(new Trap());
+
+            tile.SetDelegates();
 
             Program.tiles[placement.x, placement.y] = tile;
         }
@@ -182,6 +333,8 @@ namespace Servants_of_Arcana
                     }
                 }
                 Tile chosenTile = viableTiles[seed.Next(viableTiles.Count)];
+
+                stairSpot = chosenTile.GetComponent<Vector>();
                 chosenTile.GetComponent<Draw>().character = '>';
                 chosenTile.GetComponent<Draw>().fColor = SadRogue.Primitives.Color.White;
                 chosenTile.GetComponent<Description>().name = "Staircase";
@@ -326,7 +479,6 @@ namespace Servants_of_Arcana
             Program.player.GetComponent<Vector>().x = vector.x;
             Program.player.GetComponent<Vector>().y = vector.y;
 
-
             ShadowcastFOV.ClearSight();
             ShadowcastFOV.Compute(Program.player.GetComponent<Vector>(), 10);
             Program.MoveCamera(new Vector(vector.x, vector.y));
@@ -344,7 +496,16 @@ namespace Servants_of_Arcana
         {
             Draw draw = baseWallDraw[seed.Next(baseWallDraw.Count())];
             Description description = baseWallDescription;
-            Tile tile = new Tile(x, y, draw.fColor, draw.bColor, draw.character, description.name, description.description, 0, true);
+
+            Tile tile;
+            if (Math.CheckBounds(x, y + 1) && Program.tiles[x, y + 1] != null && Program.tiles[x, y + 1].terrainType != 0)
+            {
+                tile = new Tile(x, y, draw.fColor, draw.bColor, (char)220, description.name, description.description, 0, true);
+            }
+            else
+            {
+                tile = new Tile(x, y, draw.fColor, draw.bColor, draw.character, description.name, description.description, 0, true);
+            }
             Program.tiles[x, y] = tile;
             return tile;
         }
