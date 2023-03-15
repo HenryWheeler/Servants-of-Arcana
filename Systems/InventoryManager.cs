@@ -127,7 +127,7 @@ namespace Servants_of_Arcana
                 if (inventory.items[selectedItem].GetComponent<Equipable>() != null)
                 {
                     description += $" + This item can be equipped in your {inventory.items[selectedItem].GetComponent<Equipable>().slot}.";
-                    if (inventory.items[selectedItem].GetComponent<Equipable>().unequipable)
+                    if (!inventory.items[selectedItem].GetComponent<Equipable>().removable)
                     {
                         description += "It cannot be unequipped.";
                     }
@@ -191,7 +191,7 @@ namespace Servants_of_Arcana
                 {
                     if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
                     {
-                        if (!item.GetComponent<Equipable>().unequipable)
+                        if (!item.GetComponent<Equipable>().removable)
                         {
                             Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because it is unequipable.");
                             return;
@@ -301,11 +301,11 @@ namespace Servants_of_Arcana
                 {
                     CloseInventory();
 
-                    Log.Add($"{actor.GetComponent<Description>().name} use the {item.GetComponent<Description>().name}!");
+                    Log.Add($"{actor.GetComponent<Description>().name} {use.action} the {item.GetComponent<Description>().name}!");
                 }
                 else
                 {
-                    Log.Add($"The {actor.GetComponent<Description>().name} uses the {item.GetComponent<Description>().name}!");
+                    Log.Add($"The {actor.GetComponent<Description>().name} {use.action}s the {item.GetComponent<Description>().name}!");
                 }
 
                 actor.GetComponent<TurnComponent>().EndTurn();

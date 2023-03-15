@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SadRogue.Primitives;
@@ -39,6 +40,8 @@ namespace Servants_of_Arcana
         }
         public void GenerateDungeon() 
         {
+            ClearDungeon();
+
             int roomsToGenerate = 20;
             int minRoomSize = 7;
             int maxRoomSize = 14;
@@ -192,7 +195,7 @@ namespace Servants_of_Arcana
                     viableTiles.Remove(tile);
                     Vector vector = tile.GetComponent<Vector>();
 
-                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandom($"Items", (int)MathF.Ceiling(Program.depth / 2), true));
+                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandom($"Items", 1, true));
 
                     entity.GetComponent<Vector>().x = vector.x;
                     entity.GetComponent<Vector>().y = vector.y;
@@ -202,6 +205,23 @@ namespace Servants_of_Arcana
                 for (int i = 0; i < obstaclesToSpawn; i++)
                 {
                     //Add later
+                }
+            }
+        }
+        public void ClearDungeon()
+        {
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameWidth; y++)
+                {
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y] != null)
+                    {
+                        if (Program.tiles[x, y].actor != null && Program.tiles[x, y].actor != Program.player)
+                        {
+                            Program.tiles[x, y].actor.GetComponent<TurnComponent>().isAlive = false;
+                            TurnManager.RemoveActor(Program.tiles[x, y].actor.GetComponent<TurnComponent>());
+                        }
+                    }
                 }
             }
         }
@@ -336,9 +356,17 @@ namespace Servants_of_Arcana
 
                 stairSpot = chosenTile.GetComponent<Vector>();
                 chosenTile.GetComponent<Draw>().character = '>';
-                chosenTile.GetComponent<Draw>().fColor = SadRogue.Primitives.Color.White;
+                chosenTile.GetComponent<Draw>().fColor = Color.White;
                 chosenTile.GetComponent<Description>().name = "Staircase";
                 chosenTile.GetComponent<Description>().description = "A long winding staircase into complete darkness.";
+            }
+
+            if (Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().character != '>')
+            {
+                Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().character = '>';
+                Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().fColor = Color.White;
+                Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Description>().name = "Staircase";
+                Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Description>().description = "A long winding staircase into complete darkness.";
             }
         }
         public bool CreateCorridor(int startingX, int startingY, int finalX, int finalY)

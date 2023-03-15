@@ -29,27 +29,26 @@ namespace Servants_of_Arcana
                         onMovement?.Invoke(entity);
 
                         newTraversable.GetComponent<Trap>()?.TriggerTrap(entity);
-
-                        entity.GetComponent<TurnComponent>().EndTurn();
                     }
                     else if (entity.GetComponent<PlayerController>() != null && newTraversable.actor != entity)
                     {
                         CombatManager.AttackTarget(entity, newTraversable.actor);
-                    }
-                    else
-                    {
-                        entity.GetComponent<TurnComponent>().EndTurn();
+                        return;
                     }
                 }
                 else if (entity.GetComponent<PlayerController>() != null)
                 {
                     Log.Add($"You cannot move there.");
+                    return;
                 }
             }
             else if (entity.GetComponent<PlayerController>() != null)
             {
                 Log.Add("You cannot move there.");
+                return;
             }
+
+            entity.GetComponent<TurnComponent>().EndTurn();
         }
         public override void SetDelegates() { }
         public Movement(List<int> _moveTypes)

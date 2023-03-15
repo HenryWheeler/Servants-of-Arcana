@@ -58,7 +58,7 @@ namespace Servants_of_Arcana
 
                 foreach (Node neighbor in ReturnNeighbors(currentNodeSet, currentNode))
                 {
-                    if (Program.tiles[neighbor.position.x, neighbor.position.y].terrainType == 0 || closedSet.Contains(neighbor))
+                    if (Program.tiles[neighbor.position.x, neighbor.position.y].terrainType == 0  || closedSet.Contains(neighbor))
                     {
                         continue;
                     }

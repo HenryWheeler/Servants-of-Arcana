@@ -36,11 +36,8 @@ namespace Servants_of_Arcana
         public static int mapWidth = 70;
         public static int mapHeight = 40;
 
-        public static int interactionWidth = 65;
-        public static int interactionHeight = 40;
-
-        public static int itemDisplayWidth = 65;
-        public static int itemDisplayHeight = 40;
+        public static int interactionWidth = 66;
+        public static int interactionHeight = 42;
 
         //The size of the ingame map
         public static int gameWidth = 100;
@@ -96,7 +93,7 @@ namespace Servants_of_Arcana
             inventoryConsole = new TitleConsole("< Inventory >", inventoryWidth, inventoryHeight) { Position = new Point(0, 0) };
             targetConsole = new TitleConsole("< Targeting >", targetWidth, targetHeight) { Position = new Point(mapWidth, 0) };
             lookConsole = new TitleConsole("< Looking >", lookWidth, lookHeight) { Position = new Point(mapWidth, 0) };
-            interactionConsole = new TitleConsole("< Interaction >", interactionWidth, interactionHeight) { Position = new Point(interactionWidth - (screenWidth / 2), interactionHeight - (int)(screenHeight / 1.5f)) };
+            interactionConsole = new TitleConsole("< Interaction >", interactionWidth, interactionHeight) { Position = new Point(interactionWidth - ((screenWidth - 1) / 2), interactionHeight - (int)(screenHeight / 1.5f)) };
             manualConsole = new TitleConsole("< Manual >", screenWidth, screenHeight) { Position = new Point(0, 0) };
             loadingConsole = new TitleConsole("< Loading >", screenWidth, screenHeight) { Position = new Point(0, 0) };
             titleConsole = new Console(screenWidth, screenHeight) { Position = new Point(0, 0) };
@@ -190,13 +187,105 @@ namespace Servants_of_Arcana
             TurnManager.AddActor(player.GetComponent<TurnComponent>());
             player.GetComponent<TurnComponent>().StartTurn();
 
+            Entity fire = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.Orange, Color.Black, 'e'),
+                new Description("Ancient Ember", "A small ancient ember, it ebbs and flows as if breathing. Slow to move are these creatures whom burn away all they touch."),
+                new InventoryComponent(),
+                new Faction("Enemy"),
+                new Harmable(),
+                new Attributes(1, .25f, 0, -5, 14, 2, 2),
+                new Movement(new List<int>() { 1 }),
+                new TurnComponent(),
+                new ElementalAI(10, 0, 1, 10, 150, 0, 0),
+
+            });
+
+            Entity blazingFire = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Ancient Flame", "An ancient flame."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(6, 0, 1, 3),
+            });
+
+            InventoryManager.EquipItem(fire, blazingFire);
+            Math.ClearTransitions(fire);
+            JsonDataManager.SaveEntity(fire, "Ancient Ember");
+
+
+            Entity ram = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.SandyBrown, Color.Black, 'r'),
+                new Description("Cave-Dweller Ram", "A shaggy ram with knotted long fur. It is highly aggresive and seems to attack anything that it sees move."),
+                new InventoryComponent(),
+                new Faction("Enemy"),
+                new Harmable(),
+                new Attributes(5, .6f, 1, -1, 8, 8, 3),
+                new Movement(new List<int>() { 1, 2 }),
+                new TurnComponent(),
+                new BeastAI(15, 0, 1, 10, 150, 0, 0),
+
+            });
+
+            Entity horns = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Horns", "Pointy Horns."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(0, 2, 2, 2),
+            });
+
+            InventoryManager.EquipItem(ram, horns);
+            Math.ClearTransitions(ram);
+            JsonDataManager.SaveEntity(ram, "Cave-Dweller Ram");
+
+            Entity tatzelwurm = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.Brown, Color.Black, 'w'),
+                new Description("Tatzelwurm", "A lanky four-legged creature that appears to be a mix of a cat and several reptiles."),
+                new InventoryComponent(),
+                new Faction("Enemy"),
+                new Harmable(),
+                new Attributes(15, .8f, 1, 1, 10, 12, 4),
+                new Movement(new List<int>() { 1, 2 }),
+                new TurnComponent(),
+                new BeastAI(30, 0, 1, 10, 25, 5, 0),
+
+            });
+
+            Entity fangs = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Fangs", "Sharp Fangs."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(2, 0, 1, 6),
+            });
+
+            InventoryManager.EquipItem(tatzelwurm, fangs);
+            Math.ClearTransitions(tatzelwurm);
+
+            JsonDataManager.SaveEntity(tatzelwurm, "Tatzelwurm");
+
             Entity testMagicMap = new Entity(new List<Component>()
             {
                 new Item(),
                 new Vector(0, 0),
                 new Draw(Color.Cyan, Color.Black, '?'),
                 new Description("Scroll of Mapping", "An ancient poem that tells the story of a great cartographer."),
-                new Usable(0),
+                new Usable(0, "Orate"),
                 new Consumable(),
                 new MagicMap(),
             });
@@ -207,7 +296,7 @@ namespace Servants_of_Arcana
                 new Vector(0, 0),
                 new Draw(Color.Red, Color.Black, '!'),
                 new Description("Potion of Healthy Habits", "A thick ochre brew that feels hot to the touch."),
-                new Usable(0),
+                new Usable(0, "Quaff"),
                 new Consumable(),
                 new Heal(10),
             });
@@ -218,7 +307,7 @@ namespace Servants_of_Arcana
                 new Vector(0, 0),
                 new Draw(Color.Orange, Color.Black, '!'),
                 new Description("Potion of Mighty Strength", "Less of a brew and more of a thick stew is this orange concoction."),
-                new Usable(0),
+                new Usable(0, "Quaff"),
                 new Consumable(),
                 new IncreaseAttribute(1, "Strength"),
             });
@@ -229,7 +318,7 @@ namespace Servants_of_Arcana
                 new Vector(0, 0),
                 new Draw(Color.Blue, Color.Black, '!'),
                 new Description("Potion of Bookish Quality", "A vial of blue fluid, just smelling it makes you feel smarter."),
-                new Usable(0),
+                new Usable(0, "Quaff"),
                 new Consumable(),
                 new IncreaseAttribute(1, "Intelligence"),
             });
@@ -240,9 +329,9 @@ namespace Servants_of_Arcana
                 new Vector(0, 0),
                 new Draw(Color.Yellow, Color.Black, '!'),
                 new Description("Potion of Quick Movements", "A bubbling brew of pale yellow fluid."),
-                new Usable(0),
+                new Usable(0, "Quaff"),
                 new Consumable(),
-                new IncreaseAttribute(1, "Speed"),
+                new IncreaseAttribute(.2f, "Speed"),
             });
 
             JsonDataManager.SaveEntity(testMagicMap, "Scroll of Mapping");
@@ -251,26 +340,42 @@ namespace Servants_of_Arcana
             JsonDataManager.SaveEntity(smartPotion, "Potion of Bookish Quality");
             JsonDataManager.SaveEntity(speedPotion, "Potion of Quick Movements");
 
-            for (int i = 0; i < 2; i++)
+            Entity dagger = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Scroll of Mapping"), player);
-            }
-            for (int i = 0; i < 2; i++)
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Dagger", "A small, sharp, and pointy dagger."),
+                new Equipable(true, "Weapon"),
+                new WeaponComponent(4, 0, 1, 4),
+            });
+
+            JsonDataManager.SaveEntity(dagger, "Dagger");
+
+            Entity shortSword = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Potion of Healthy Habits"), player);
-            }
-            for (int i = 0; i < 2; i++)
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Shortsword", "A simple sword, but a very effective one."),
+                new Equipable(true, "Weapon"),
+                new WeaponComponent(1, 0, 1, 6),
+            });
+
+            JsonDataManager.SaveEntity(dagger, "Shortsword");
+
+            Entity longSword = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Potion of Mighty Strength"), player);
-            }
-            for (int i = 0; i < 2; i++)
-            {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Potion of Bookish Quality"), player);
-            }
-            for (int i = 0; i < 2; i++)
-            {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Potion of Quick Movements"), player);
-            }
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Longsword", "A long deadly keen blade."),
+                new Equipable(true, "Weapon"),
+                new WeaponComponent(0, 0, 1, 8),
+            });
+
+            JsonDataManager.SaveEntity(dagger, "Longsword");
+
 
             isGameActive = true;
         }
@@ -355,6 +460,8 @@ namespace Servants_of_Arcana
         public static void CreateDeathMessage()
         {
             string deathMessage = " < You have died. > ";
+            string newGame = "< New Game: N >";
+            string quitGame = "< Quit Game: Q ";
             int baseLength = deathMessage.Length + 2;
 
             mapConsole.DrawBox(new Rectangle(3, 4, mapConsole.Width - 6, mapConsole.Height - 7),
@@ -363,8 +470,12 @@ namespace Servants_of_Arcana
             mapConsole.DrawBox(new Rectangle((mapConsole.Width / 2) - (baseLength / 2), (mapConsole.Height / 3) - 3, baseLength, mapConsole.Height / 2),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.Black, Color.Black, 177)));
 
-            int startY = mapConsole.Height / 2;
+            int startY = (mapConsole.Height / 2) - 7;
             mapConsole.Print((mapConsole.Width / 2) - ($"{deathMessage}".Length / 2), startY, $"{deathMessage}", Color.Yellow, Color.Black);
+            startY += 6;
+            mapConsole.Print((mapConsole.Width / 2) - ($"{newGame}".Length / 2), startY, $"{newGame}", Color.Yellow, Color.Black);
+            startY += 6;
+            mapConsole.Print((mapConsole.Width / 2) - ($"{quitGame}".Length / 2), startY, $"{quitGame}", Color.Yellow, Color.Black);
 
             CreateConsoleBorder(mapConsole);
 
@@ -373,14 +484,7 @@ namespace Servants_of_Arcana
         public static void MoveCamera(Entity entity)
         {
             Vector vector = entity.GetComponent<Vector>();
-
-            minX = vector.x - mapWidth / 2;
-            maxX = minX + mapWidth;
-            minY = vector.y - mapHeight / 2;
-            maxY = minY + mapHeight;
-
-            offSetX = (minX + maxX) / 2;
-            offSetY = (minY + maxY) / 2;
+            MoveCamera(vector);
         }
         public static void MoveCamera(Vector vector)
         {

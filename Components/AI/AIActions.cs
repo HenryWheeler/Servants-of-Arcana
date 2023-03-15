@@ -12,7 +12,8 @@ namespace Servants_of_Arcana
     {
         public static void ActionSleep(AIController AI)
         {
-
+            AI.interest--;
+            AI.entity.GetComponent<TurnComponent>().EndTurn();
         }
         public static void ActionPatrol(AIController AI)
         {
@@ -37,19 +38,38 @@ namespace Servants_of_Arcana
         }
         public static void ActionWander(AIController AI)
         {
+            List<Vector> chosenTiles = new List<Vector>();
+            Vector startingLocation = AI.entity.GetComponent<Vector>();
 
+            for (int x = startingLocation.x - 1; x < startingLocation.x + 1; x++) 
+            {
+                for (int y = startingLocation.y - 1; x < startingLocation.y + 1; y++)
+                {
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType != 0 && new Vector(x, y) != startingLocation) 
+                    {
+                        chosenTiles.Add(new Vector(x, y));
+                    }
+                }
+            }
+
+            if (chosenTiles.Count > 0) 
+            {
+                AI.entity.GetComponent<Movement>().Move(chosenTiles[Program.random.Next(0, chosenTiles.Count)]);
+            }
+            else
+            {
+                AI.entity.GetComponent<TurnComponent>().EndTurn();
+            }
         }
         public static void ActionEngage(AIController AI)
         {
             AI.interest--;
 
-            AI.entity.GetComponent<Description>().description = "Red*Angry.";
-
             if (AI.target != null)
             {
                 Vector position = AI.entity.GetComponent<Vector>();
                 Vector targetPosition = AI.target.GetComponent<Vector>();
-                if (Math.Distance(position.x, position.y, targetPosition.x, targetPosition.y) > AI.maxDistance)
+                if (Math.Distance(position.x, position.y, targetPosition.x, targetPosition.y) > AI.maxDistance + .5f)
                 {
                     Vector nextPosition = AStar.ReturnPath(AI.entity.GetComponent<Vector>(), AI.target.GetComponent<Vector>())[1].position;
                     if (nextPosition != null)
@@ -58,7 +78,7 @@ namespace Servants_of_Arcana
                         return;
                     }
                 }
-                else if ((int)Math.Distance(position.x, position.y, targetPosition.x, targetPosition.y) <= 1)
+                else if (Math.Distance(position.x, position.y, targetPosition.x, targetPosition.y) <= 1.5)
                 {
                     CombatManager.AttackTarget(AI.entity, AI.target);
                     return;

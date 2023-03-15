@@ -6,26 +6,19 @@ using System.Threading.Tasks;
 
 namespace Servants_of_Arcana
 {
-    [Serializable]
-    public class TestAI : AIController
+    public class GuardAI : AIController
     {
         public override void PerformAction()
         {
-            switch (currentState) 
+            switch (currentState)
             {
                 case State.Asleep:
                     {
-                        interest--;
-
-                        entity.GetComponent<Description>().description = "Sleepy.";
-
-                        entity.GetComponent<TurnComponent>().EndTurn();
+                        AIActions.ActionSleep(this);
                         break;
                     }
                 case State.Bored:
                     {
-                        entity.GetComponent<Description>().description = "Patrolling.";
-
                         AIActions.ActionPatrol(this);
                         break;
                     }
@@ -51,13 +44,13 @@ namespace Servants_of_Arcana
             };
             currentInput = Input.None;
         }
-        public TestAI(int baseInterest, int minDistance, int maxDistance, int abilityChance, int hate, int fear, int greed) 
+        public GuardAI(int baseInterest, int minDistance, int maxDistance, int abilityChance, int hate, int fear, int greed)
             : base(baseInterest, minDistance, maxDistance, abilityChance, hate, fear, greed)
         {
             hatedFactions.Add("Player");
             SetTransitions();
             currentState = State.Bored;
         }
-        public TestAI() { }
+        public GuardAI() { }
     }
 }

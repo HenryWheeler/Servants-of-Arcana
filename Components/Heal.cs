@@ -64,7 +64,7 @@ namespace Servants_of_Arcana
     [Serializable]
     public class IncreaseAttribute : Component
     {
-        public int strength { get; set; }
+        public float strength { get; set; }
         public string attribute { get; set; }
         public override void SetDelegates()
         {
@@ -88,7 +88,7 @@ namespace Servants_of_Arcana
                             Log.Add($"The {healed.GetComponent<Description>().name} feels mightier!");
                         }
 
-                        attributes.strength += strength;
+                        attributes.strength += (int)strength;
 
                         Program.CreateSFX(target, new Draw[] { new Draw(Color.Orange, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
@@ -104,7 +104,7 @@ namespace Servants_of_Arcana
                             Log.Add($"The {healed.GetComponent<Description>().name} feels smarter!");
                         }
 
-                        attributes.intelligence += strength;
+                        attributes.intelligence += (int)strength;
 
                         Program.CreateSFX(target, new Draw[] { new Draw(Color.Blue, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
@@ -132,7 +132,7 @@ namespace Servants_of_Arcana
                 AttributeManager.UpdateAttributes(Program.player);
             }
         }
-        public IncreaseAttribute(int strength, string attribute)
+        public IncreaseAttribute(float strength, string attribute)
         {
             this.strength = strength;
             this.attribute = attribute;

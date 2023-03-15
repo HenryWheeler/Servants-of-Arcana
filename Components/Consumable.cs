@@ -16,6 +16,7 @@ namespace Servants_of_Arcana
     {
         public Action<Entity, Vector> onUse;
         public int range { get; set; }
+        public string action { get; set; }
         public override void SetDelegates() { }
         public void Use(Entity user, Vector target)
         {
@@ -23,13 +24,13 @@ namespace Servants_of_Arcana
 
             if (entity.GetComponent<Consumable>() != null)
             {
-                //Remove from inventory and such later
                 onUse = null;
             }
         }
-        public Usable(int range) 
+        public Usable(int range, string action) 
         {
             this.range = range;
+            this.action = action;
         }
         public Usable() { }
     }
@@ -37,12 +38,12 @@ namespace Servants_of_Arcana
     public class Equipable : Component
     {
         public bool equipped = false;
-        public bool unequipable { get; set; }
+        public bool removable { get; set; }
         public string slot { get; set; }
         public override void SetDelegates() { }
-        public Equipable(bool unequipable, string slot)
+        public Equipable(bool removable, string slot)
         {
-            this.unequipable = unequipable;
+            this.removable = removable;
             this.slot = slot;
         }
         public Equipable() { }

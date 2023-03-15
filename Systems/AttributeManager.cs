@@ -27,7 +27,7 @@ namespace Servants_of_Arcana
 
             display += $"Red*Health: {stats.health}/{stats.maxHealth}{spacer}";
 
-            display += $"Yellow*Speed: {stats.maxEnergy}{spacer}";
+            display += $"Yellow*Speed: {MathF.Round(stats.maxEnergy, 2)}{spacer}";
             display += $"Orange*Strength: {stats.strength}{spacer}";
             display += $"Cyan*Intelligence: {stats.intelligence}{spacer}";
 

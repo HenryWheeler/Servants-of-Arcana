@@ -242,7 +242,7 @@ namespace Servants_of_Arcana
 
                                 if (equipable.equipped)
                                 {
-                                    if (!equipable.unequipable)
+                                    if (!equipable.removable)
                                     {
                                         Log.Add($"You cannot unequip the {equipable.entity.GetComponent<Description>().name}.");
                                     }
@@ -265,7 +265,7 @@ namespace Servants_of_Arcana
                                     }
                                     else
                                     {
-                                        if (!inventory.ReturnSlot(equipable.slot).item.GetComponent<Equipable>().unequipable)
+                                        if (!inventory.ReturnSlot(equipable.slot).item.GetComponent<Equipable>().removable)
                                         {
                                             Log.Add($"You cannot equip the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name} because the " +
                                                 $"{inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is unequipable.");
@@ -321,7 +321,7 @@ namespace Servants_of_Arcana
                                 confirming = true;
                                 keyboardEvent += UseItem;
 
-                                InteractionManager.CreateConfirmationPrompt($"Use the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name}?");
+                                InteractionManager.CreateConfirmationPrompt($"{inventory.items[InventoryManager.selectedItem].GetComponent<Usable>().action} the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name}?");
                             }
                             else
                             {

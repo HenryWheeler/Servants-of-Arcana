@@ -132,41 +132,9 @@ namespace Servants_of_Arcana
 
                     //Create boxes to surround look menu, and display information.
 
-                    string[] nameParts = description.name.Split(' ');
-                    string name = "";
-                    foreach (string part in nameParts)
-                    {
-                        string[] temp = part.Split('*');
-                        if (temp.Length == 1)
-                        {
-                            name += temp[0] + " ";
-                        }
-                        else
-                        {
-                            name += temp[1] + " ";
-                        }
-                    }
-                    int start = (Program.lookConsole.Width / 2) - (int)System.Math.Ceiling((double)name.Length / 2);
-
-                    start++;
-
-                    foreach (string part in nameParts)
-                    {
-                        string[] temp = part.Split('*');
-                        if (temp.Length == 1)
-                        {
-                            Program.lookConsole.Print(start, 6, temp[0] + " ", Color.White);
-                            start += temp[0].Length + 1;
-                        }
-                        else
-                        {
-                            Program.lookConsole.Print(start, 6, temp[1] + " ", Log.StringToColor(temp[0]), Color.Black);
-                            start += temp[1].Length + 1;
-                        }
-                    }
-
-                    Program.lookConsole.DrawLine(new Point(0, 7), new Point(Program.lookConsole.Width, 7), (char)196, Color.AntiqueWhite, Color.Black);
-                    Math.DisplayToConsole(Program.lookConsole, $"{description.description}", 3, 1, 0, 9, false);
+                    Math.DisplayToConsole(Program.lookConsole, $"{description.name}", 3, 1, 0, 6, false);
+                    Program.lookConsole.DrawLine(new Point(0, 10), new Point(Program.lookConsole.Width, 10), (char)196, Color.AntiqueWhite, Color.Black);
+                    Math.DisplayToConsole(Program.lookConsole, $"{description.description}", 3, 1, 0, 12, false);
                 }
 
                 Program.CreateConsoleBorder(Program.lookConsole);
