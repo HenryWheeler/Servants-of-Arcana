@@ -289,22 +289,39 @@ namespace Servants_of_Arcana
             Usable use = item.GetComponent<Usable>();
             if (use != null)
             {
-                //For now just default to actor position.
-                use.Use(actor, position);
-
-                if (item.GetComponent<Consumable>() != null)
-                {
-                    actor.GetComponent<InventoryComponent>().items.Remove(item);
-                }
-
                 if (actor.GetComponent<PlayerController>() != null)
                 {
-                    CloseInventory();
+                    //If range is above zero enter targeting mode, otherwise automatically use the item
 
-                    Log.Add($"{actor.GetComponent<Description>().name} {use.action} the {item.GetComponent<Description>().name}!");
+                    if (use.range == 0)
+                    {
+                        use.Use(actor, position);
+
+                        if (item.GetComponent<Consumable>() != null)
+                        {
+                            actor.GetComponent<InventoryComponent>().items.Remove(item);
+                        }
+
+                        CloseInventory();
+
+                        Log.Add($"{actor.GetComponent<Description>().name} {use.action} the {item.GetComponent<Description>().name}!");
+                    }
+                    else
+                    {
+                        CloseInventory();
+                        TargetingSystem.BeginTargeting(use);
+                    }
                 }
                 else
                 {
+                    //For now default to actor position
+                    use.Use(actor, position);
+
+                    if (item.GetComponent<Consumable>() != null)
+                    {
+                        actor.GetComponent<InventoryComponent>().items.Remove(item);
+                    }
+
                     Log.Add($"The {actor.GetComponent<Description>().name} {use.action}s the {item.GetComponent<Description>().name}!");
                 }
 

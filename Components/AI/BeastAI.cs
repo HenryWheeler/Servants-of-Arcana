@@ -19,8 +19,8 @@ namespace Servants_of_Arcana
                     }
                 case State.Bored:
                     {
-                        AIActions.ActionSleep(this);
-                        //AIActions.ActionWander(this);
+                        //AIActions.ActionSleep(this);
+                        AIActions.ActionWander(this);
                         break;
                     }
                 case State.Angry:

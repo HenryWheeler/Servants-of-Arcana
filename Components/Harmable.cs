@@ -11,7 +11,7 @@ namespace Servants_of_Arcana
     [Serializable]
     public class Harmable : Component
     {
-        public event Action<Entity> onDeath;
+        public event Action<Entity, Vector> onDeath;
         public Harmable() { }
         public override void SetDelegates() { }
         public void RecieveDamage(int damage, Entity attacker)
@@ -32,7 +32,10 @@ namespace Servants_of_Arcana
             else
             {
                 Vector vector = entity.GetComponent<Vector>();
-                Program.CreateSFX(vector, new Draw[] { new Draw(Color.Red, Color.Black, (char)3) }, 30, "Attached", 1, vector);
+                Particle particle = ParticleManager.CreateParticle(false, vector, 5, 5, "Attached", new Draw(Color.Red, Color.Black, (char)3), vector, true, false, null, false, true);
+                ParticleManager.CreateParticle(true, vector, 5, 5, "Attached", new Draw(Color.Red, Color.Black, (char)3), vector, true, false, new List<Particle>() { particle }, false, true);
+
+                if (damage >= attributes.maxHealth / 4) { ParticleManager.CreateBloodStain(vector); }
             }
         }
         public void Die(Entity killer)
@@ -43,14 +46,23 @@ namespace Servants_of_Arcana
 
             Vector position = entity.GetComponent<Vector>();
 
+            ParticleManager.CreateBloodStain(position);
             Program.tiles[position.x, position.y].actor = null;
 
             Vector vector = entity.GetComponent<Vector>();
-            Program.CreateSFX(vector, new Draw[] { new Draw(Color.Red, Color.Black, 'X') }, 30, "Attached", 1, vector);
+            Particle particle = ParticleManager.CreateParticle(false, vector, 5, 5, "Attached", new Draw(Color.Red, Color.Black, 'X'), vector, true, false, null, false, true);
+            ParticleManager.CreateParticle(true, vector, 5, 5, "Attached", new Draw(Color.Red, Color.Black, 'X'), vector, true, false, new List<Particle>() { particle }, false, true);
 
-            Log.Add($"The {entity.GetComponent<Description>().name} dies.");
+            if (entity.GetComponent<PlayerController>() != null)
+            {
+                Log.Add("You die.");
+            }
+            else
+            {
+                Log.Add($"The {entity.GetComponent<Description>().name} dies.");
+            }
 
-            onDeath?.Invoke(killer);
+            onDeath?.Invoke(killer, position);
 
             TurnManager.RemoveActor(component);
             TurnManager.ProgressTurnOrder();

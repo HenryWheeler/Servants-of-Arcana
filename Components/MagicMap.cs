@@ -11,7 +11,7 @@ namespace Servants_of_Arcana
     {
         public override void SetDelegates()
         {
-            entity.GetComponent<Usable>().onUse += EntityEffects.MagicMap;
+            entity.GetComponent<Usable>().onUse += SpecialEffects.MagicMap;
         }
         public MagicMap() { }
     }

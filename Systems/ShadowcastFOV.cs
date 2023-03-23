@@ -114,7 +114,7 @@ namespace Servants_of_Arcana
                     SetVisible(vector2, true, 1000, vector2.x, vector2.y, true);
                 }
             }
-            Program.DrawMap();
+            //Program.DrawMap();
         }
         public static void HideAll()
         {
@@ -126,7 +126,7 @@ namespace Servants_of_Arcana
                     SetVisible(vector2, false, 1000, vector2.x, vector2.y, true);
                 }
             }
-            Program.DrawMap();
+            //Program.DrawMap();
         }
         public static bool BlocksLight(Vector vector2)
         {

@@ -15,6 +15,7 @@ namespace Servants_of_Arcana
     public class Usable : Component
     {
         public Action<Entity, Vector> onUse;
+        public Func<List<Vector>> areaOfEffect;
         public int range { get; set; }
         public string action { get; set; }
         public override void SetDelegates() { }

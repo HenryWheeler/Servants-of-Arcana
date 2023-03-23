@@ -347,6 +347,35 @@ namespace Servants_of_Arcana
                     else if (info.IsKeyPressed(Keys.NumPad4)) { ManualManager.MoveSelection(true); }
                     else if (info.IsKeyPressed(Keys.NumPad7)) { ManualManager.MoveSelection(true); }
                 }
+                else if (TargetingSystem.isTargeting)
+                {
+                    if (info.IsKeyPressed(Keys.Escape))
+                    {
+                        confirming = true;
+                        keyboardEvent += StopTargeting;
+
+                        InteractionManager.CreateConfirmationPrompt($"Stop targeting and return to inventory?");
+                    }
+                    if (info.IsKeyPressed(Keys.Enter))
+                    {
+                        confirming = true;
+                        keyboardEvent += TargetingSystemUseItem;
+
+                        InteractionManager.CreateConfirmationPrompt($"Use the {TargetingSystem.currentUsedItem.entity.GetComponent<Description>().name}?");
+                    }
+                    if (info.IsKeyPressed(Keys.Up)) { TargetingSystem.MoveReticle(new Vector(0, -1)); }
+                    else if (info.IsKeyPressed(Keys.Down)) { TargetingSystem.MoveReticle(new Vector(0, 1)); }
+                    else if (info.IsKeyPressed(Keys.Left)) { TargetingSystem.MoveReticle(new Vector(-1, 0)); }
+                    else if (info.IsKeyPressed(Keys.Right)) { TargetingSystem.MoveReticle(new Vector(1, 0)); }
+                    else if (info.IsKeyPressed(Keys.NumPad8)) { TargetingSystem.MoveReticle(new Vector(0, -1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad9)) { TargetingSystem.MoveReticle(new Vector(1, -1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad6)) { TargetingSystem.MoveReticle(new Vector(1, 0)); }
+                    else if (info.IsKeyPressed(Keys.NumPad3)) { TargetingSystem.MoveReticle(new Vector(1, 1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad2)) { TargetingSystem.MoveReticle(new Vector(0, 1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad1)) { TargetingSystem.MoveReticle(new Vector(-1, 1)); }
+                    else if (info.IsKeyPressed(Keys.NumPad4)) { TargetingSystem.MoveReticle(new Vector(-1, 0)); }
+                    else if (info.IsKeyPressed(Keys.NumPad7)) { TargetingSystem.MoveReticle(new Vector(-1, -1)); }
+                }
             }
             else
             {
@@ -387,6 +416,14 @@ namespace Servants_of_Arcana
         {
             InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
             InventoryManager.UseItem(Program.player, inventory.items[InventoryManager.selectedItem], Program.player.GetComponent<Vector>());
+        }
+        public void TargetingSystemUseItem()
+        {
+            TargetingSystem.UseSelectedItem();
+        }
+        public void StopTargeting()
+        {
+            TargetingSystem.StopTargeting(true);
         }
         public void CancelPathing()
         {

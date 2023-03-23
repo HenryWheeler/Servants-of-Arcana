@@ -1,7 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json.Linq;
 using SadConsole;
+using SadConsole.Components;
 using SadConsole.Entities;
 using SadRogue.Primitives;
+using Servants_of_Arcana.Components;
 using Servants_of_Arcana.Systems;
 using System;
 using System.Collections.Generic;
@@ -66,7 +69,8 @@ namespace Servants_of_Arcana
         public static int depth { get; set; } = 0;
 
         public static Tile[,] tiles = new Tile[gameWidth, gameHeight];
-        public static Entity[,] sfx = new Entity[gameWidth, gameHeight];
+        public static Particle[,] sfx = new Particle[gameWidth, gameHeight];
+        public static Draw[,] uiSfx = new Draw[gameWidth, gameHeight];
         public static Random random = new Random();
         public static DungeonGenerator dungeonGenerator;
         private static void Main(string[] args)
@@ -84,6 +88,8 @@ namespace Servants_of_Arcana
         {
             Settings.ResizeMode = Settings.WindowResizeOptions.Scale;
             //Settings.f
+
+            SadConsole.Game.Instance.SetSplashScreens(new SadConsole.SplashScreens.Ansi1());
 
             rootConsole = new RootConsole(Game.Instance.ScreenCellsX, Game.Instance.ScreenCellsY);
 
@@ -154,6 +160,8 @@ namespace Servants_of_Arcana
 
             AttributeManager.UpdateAttributes(player);
             ShadowcastFOV.Compute(player.GetComponent<Vector>(), player.GetComponent<Attributes>().sight);
+
+            player.SetDelegates();
         }
         public static void StartNewGame()
         {
@@ -200,7 +208,7 @@ namespace Servants_of_Arcana
                 new Movement(new List<int>() { 1 }),
                 new TurnComponent(),
                 new ElementalAI(10, 0, 1, 10, 150, 0, 0),
-
+                new Explode(2, false, "The Ancient Ember explodes!"),
             });
 
             Entity blazingFire = new Entity(new List<Component>()
@@ -289,6 +297,16 @@ namespace Servants_of_Arcana
                 new Consumable(),
                 new MagicMap(),
             });
+            Entity testDetonation = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.Cyan, Color.Orange, '?'),
+                new Description("Scroll of Detonation", "An essay on the value of large scale explosions."),
+                new Usable(0, "Orate"),
+                new Consumable(),
+                new Explode(10, true, "The scroll explodes!"),
+            });
 
             Entity healingPotion = new Entity(new List<Component>()
             {
@@ -334,7 +352,32 @@ namespace Servants_of_Arcana
                 new IncreaseAttribute(.2f, "Speed"),
             });
 
+            Entity gobletOfEternity = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.Gold, Color.Black, '!'),
+                new Description("The Goblet of Eternity", "For an object so coveted as to reduce the world above to relentless war, you expected more. What you see before you is a simple golden goblet, there are no ornate carvings on its surface, nor any imbedded jewels. The only thing of note is the thick black fluid which fills its cup. What are you waiting for? Drink it."),
+                new Usable(0, "Drink from"),
+                new Consumable(),
+                new WinCondition(),
+            });
+
+            JsonDataManager.SaveEntity(gobletOfEternity, "The Goblet of Eternity");
+
             JsonDataManager.SaveEntity(testMagicMap, "Scroll of Mapping");
+            JsonDataManager.SaveEntity(testDetonation, "Scroll of Detonation");
+
+            for (int i = 0; i < 5; i++)
+            {
+                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Scroll of Mapping"), player);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Scroll of Detonation"), player);
+            }
+
             JsonDataManager.SaveEntity(healingPotion, "Potion of Healthy Habits");
             JsonDataManager.SaveEntity(strengthPotion, "Potion of Mighty Strength");
             JsonDataManager.SaveEntity(smartPotion, "Potion of Bookish Quality");
@@ -387,49 +430,49 @@ namespace Servants_of_Arcana
             {
                 case 1:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 90, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 2:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightBlue, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 85, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 3:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.SteelBlue, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 80, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 4:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.Blue, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 75, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 5:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.BlueViolet, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 70, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 6:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.DarkViolet, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 65, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 7:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.Violet, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 60, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
                 case 8:
                     {
-                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.PaleVioletRed, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), seed);
+                        dungeonGenerator = new DungeonGenerator(new Draw[] { new Draw(Color.Brown, Color.Black, '.') }, new Description("Stone Floor", "A simple stone floor."), new Draw[] { new Draw(Color.LightGray, Color.Black, (char)177) }, new Description("Stone Wall", "A simple stone wall."), 55, seed);
                         dungeonGenerator.GenerateDungeon();
                         break;
                     }
@@ -439,7 +482,7 @@ namespace Servants_of_Arcana
 
             //ParticleEffects.RevealNewFloor();
         }
-        public static void PlayerDeath(Entity killingEntity)
+        public static void PlayerDeath(Entity killingEntity, Vector position)
         {
             foreach (TurnComponent component in TurnManager.entities)
             {
@@ -450,16 +493,90 @@ namespace Servants_of_Arcana
             isGameActive = false;
 
             depth = 0;
+            ClearSFX();
             ShadowcastFOV.RevealAll();
-            ParticleEffects.FloorFadeAway();
+            rootConsole.particles.Clear();
+            FloorFadeAway();
 
-            Particle particle = CreateSFX(player.GetComponent<Vector>(), new Draw[] { new Draw(Color.Black, Color.Black, (char)0) }, 35, "None", 3);
+            Particle particle = ParticleManager.CreateParticle(true, new Vector(-1, -1), 116, 5, "None", new Draw());
+            particle.onParticleDeath += CreateDeathMessage;
 
-            onParticleEmpty += CreateDeathMessage;
+            //onParticleEmpty += CreateDeathMessage;
         }
-        public static void CreateDeathMessage()
+        public static void FloorFadeAway()
+        {
+            for (int x = 0; x < gameWidth; x++)
+            {
+                for (int y = 0; y < gameHeight; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        Draw draw1 = new Draw();
+                        if (tiles[x, y].actor != null)
+                        {
+                            draw1.fColor = tiles[x, y].actor.GetComponent<Draw>().fColor;
+                            draw1.bColor = tiles[x, y].actor.GetComponent<Draw>().bColor;
+                            draw1.character = tiles[x, y].actor.GetComponent<Draw>().character;
+                        }
+                        else if (tiles[x, y].item != null)
+                        {
+                            draw1.fColor = tiles[x, y].item.GetComponent<Draw>().fColor;
+                            draw1.bColor = tiles[x, y].item.GetComponent<Draw>().bColor;
+                            draw1.character = tiles[x, y].item.GetComponent<Draw>().character;
+                        }
+                        else
+                        {
+                            draw1.fColor = tiles[x, y].GetComponent<Draw>().fColor;
+                            draw1.bColor = tiles[x, y].GetComponent<Draw>().bColor;
+                            draw1.character = tiles[x, y].GetComponent<Draw>().character;
+                        }
+
+                        ParticleManager.CreateParticle(true, new Vector(x, y), random.Next(5, 10) + y, 5, "None", draw1, null, true, true);
+
+                        tiles[x, y].GetComponent<Draw>().fColor = Color.Black;
+                        tiles[x, y].GetComponent<Draw>().bColor = Color.Black;
+                    }
+                }
+            }
+
+            foreach (Tile tile in tiles)
+            {
+                if (tile != null)
+                {
+                    if (tile.actor != null) { tile.actor = null; }
+                    if (tile.item != null) { tile.item = null; }
+                }
+            }
+        }
+        public static void CreateDeathMessage(Vector vector)
         {
             string deathMessage = " < You have died. > ";
+            string newGame = "< New Game: N >";
+            string quitGame = "< Quit Game: Q ";
+            int baseLength = deathMessage.Length + 2;
+
+            Log.Add("Test Worked!");
+
+            mapConsole.DrawBox(new Rectangle(3, 4, mapConsole.Width - 6, mapConsole.Height - 7),
+                ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
+
+            mapConsole.DrawBox(new Rectangle((mapConsole.Width / 2) - (baseLength / 2), (mapConsole.Height / 3) - 3, baseLength, mapConsole.Height / 2),
+                ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.Black, Color.Black, 177)));
+
+            int startY = (mapConsole.Height / 2) - 7;
+            mapConsole.Print((mapConsole.Width / 2) - ($"{deathMessage}".Length / 2), startY, $"{deathMessage}", Color.Yellow, Color.Black);
+            startY += 6;
+            mapConsole.Print((mapConsole.Width / 2) - ($"{newGame}".Length / 2), startY, $"{newGame}", Color.Yellow, Color.Black);
+            startY += 6;
+            mapConsole.Print((mapConsole.Width / 2) - ($"{quitGame}".Length / 2), startY, $"{quitGame}", Color.Yellow, Color.Black);
+
+            CreateConsoleBorder(mapConsole);
+
+            //onParticleEmpty -= CreateDeathMessage;
+        }
+        public static void CreateWinMessage()
+        {
+            string deathMessage = " < You have ascended!. > ";
             string newGame = "< New Game: N >";
             string quitGame = "< Quit Game: Q ";
             int baseLength = deathMessage.Length + 2;
@@ -479,7 +596,7 @@ namespace Servants_of_Arcana
 
             CreateConsoleBorder(mapConsole);
 
-            onParticleEmpty -= CreateDeathMessage;
+            onParticleEmpty -= CreateWinMessage;
         }
         public static void MoveCamera(Entity entity)
         {
@@ -509,14 +626,17 @@ namespace Servants_of_Arcana
                         Tile tile = tiles[tx, ty];
                         Visibility visibility = tile.GetComponent<Visibility>();
 
-                        if (sfx[tx, ty] != null) { sfx[tx, ty].GetComponent<Draw>().DrawToScreen(mapConsole, x, y); }
+                        if (uiSfx[tx, ty] != null) { uiSfx[tx, ty].DrawToScreen(mapConsole, x, y); }
+                        else if (sfx[tx, ty] != null && sfx[tx, ty].alwaysVisible) { sfx[tx, ty].Draw(new Vector(x, y)); }
                         else if (!visibility.visible && !visibility.explored) { mapConsole.SetCellAppearance(x, y, new ColoredGlyph(Color.Black, Color.Black, (char)0)); }
                         else if (!visibility.visible && visibility.explored)
                         {
                             Draw draw = tile.GetComponent<Draw>();
                             mapConsole.SetCellAppearance(x, y, new ColoredGlyph(new Color(draw.fColor, .5f), Color.Black, draw.character));
                         }
+                        else if (sfx[tx, ty] != null && sfx[tx, ty].showOverActors) { sfx[tx, ty].Draw(new Vector(x, y)); }
                         else if (tile.actor != null) { tile.actor.GetComponent<Draw>().DrawToScreen(mapConsole, x, y); }
+                        else if (sfx[tx, ty] != null) { sfx[tx, ty].Draw(new Vector(x, y)); }
                         else if (tile.item != null) { tile.item.GetComponent<Draw>().DrawToScreen(mapConsole, x, y); }
                         else { tile.GetComponent<Draw>().DrawToScreen(mapConsole, x, y); }
                     }
@@ -546,7 +666,7 @@ namespace Servants_of_Arcana
                     int chosenTile = random.Next(0, loadingConsole.Width);
                     exemptTiles.Add(chosenTile);
 
-                    CreateSFX(new Vector(chosenTile, 0), new Draw[] { new Draw(Color.Gray, Color.Black, (char)177) }, 100, "WanderNorth", 2);
+                    //CreateSFX(new Vector(chosenTile, 0), new Draw[] { new Draw(Color.Gray, Color.Black, (char)177) }, 100, "WanderNorth", 2);
                 }
             }
 
@@ -564,15 +684,6 @@ namespace Servants_of_Arcana
 
             CreateConsoleBorder(loadingConsole);
         }
-        public static Particle CreateSFX(Vector position, Draw[] draw, int life, string direction, int threshold, Vector target = null)
-        {
-            Particle particle = new Particle(life, direction, threshold, draw, target);
-            particle.AddComponent(new Vector(position.x, position.y));
-            particle.AddComponent(draw[0]);
-
-            rootConsole.particles.Add(particle);
-            return particle;
-        }
         public static void ClearSFX()
         {
             for (int x = 0; x < gameWidth; x++)
@@ -580,6 +691,16 @@ namespace Servants_of_Arcana
                 for (int y = 0; y < gameHeight; y++)
                 {
                     sfx[x, y] = null;
+                }
+            }
+        }
+        public static void ClearUISFX()
+        {
+            for (int x = 0; x < gameWidth; x++)
+            {
+                for (int y = 0; y < gameHeight; y++)
+                {
+                    uiSfx[x, y] = null;
                 }
             }
         }
@@ -604,10 +725,25 @@ namespace Servants_of_Arcana
     public class RootConsole : Console
     {
         public List<Particle> particles = new List<Particle>();
+        public float timeLeft = 250;
+        public Timer timer = null;
+        public int lastUpdate = 5;
         public override void Update(TimeSpan delta)
         {
             base.Update(delta);
 
+            if (timer == null)
+            {
+                timer = new Timer(new TimeSpan(0, 0, 0, 0, 50));
+                timer.TimerElapsed += UpdateParticle;
+            }
+
+            timer.Update(this, delta);
+
+            Program.DrawMap();
+        }
+        public void UpdateParticle(object sender, EventArgs e)
+        {
             if (particles.Count > 0)
             {
                 Program.ClearSFX();
@@ -615,21 +751,27 @@ namespace Servants_of_Arcana
                 for (int i = 0; i < particles.Count; i++)
                 {
                     Particle particle = particles[i];
-                    particle?.Progress();
+                    if (lastUpdate <= particle.speed)
+                    {
+                        particle?.Progress();
+                    }
+                    else
+                    {
+                        particle?.SetParticleInPlace(particle.GetComponent<Vector>());
+                    }
                 }
 
                 if (particles.Count == 0)
                 {
                     Program.ClearSFX();
-                    Program.DrawMap();
                     Program.onParticleEmpty?.Invoke();
                 }
-                else
-                {
-                    Program.DrawMap();
-                }
+
+                if (lastUpdate <= 1) { lastUpdate = 5; }
+                else { lastUpdate--; }
+
+                timer.Restart();
             }
-            
         }
         public RootConsole(int _width, int _height)
             : base(_width, _height) { }
@@ -644,197 +786,6 @@ namespace Servants_of_Arcana
             this.Fill(Color.Black, Color.Black, 176);
 
             Program.CreateConsoleBorder(this);
-        }
-    }
-    public class Particle : Entity
-    {
-        public int life { get; set; }
-        public string direction { get; set; }
-        public int threshold { get; set; }
-        public int currentThreshold = 0;
-        public Draw[] particles { get; set; }
-        public int currentParticle = 0;
-        public bool aboveSight { get; set; } = false;
-        public Vector trackedTarget = null;
-        public Action<Vector> onParticleDeath;
-        public void Progress()
-        {
-            currentThreshold--;
-
-            Vector position = GetComponent<Vector>();
-
-            if (currentThreshold <= 0)
-            {
-                //The kind of movement a particle will display.
-                switch (direction)
-                {
-                    case "Attached":
-                        {
-                            if (trackedTarget != null)
-                            {
-                                GetComponent<Vector>().x = trackedTarget.x;
-                                GetComponent<Vector>().y = trackedTarget.y;
-                            }
-                            break;
-                        }
-                    case "Target":
-                        {
-                            Vector newPosition = DijkstraMap.PathFromMap(this, "ParticlePath");
-                            GetComponent<Vector>().x = newPosition.x;
-                            GetComponent<Vector>().y = newPosition.y;
-                            break;
-                        }
-                    case "Wander":
-                        {
-                            position.x += Program.random.Next(-1, 2);
-                            position.y += Program.random.Next(-1, 2);
-                            break;
-                        }
-                    case "None": { break; }
-                    case "North":
-                        {
-                            position.y--;
-                            break;
-                        }
-                    case "NorthEast":
-                        {
-                            position.x--;
-                            position.y--;
-                            break;
-                        }
-                    case "East":
-                        {
-                            position.x--;
-                            break;
-                        }
-                    case "SouthEast":
-                        {
-                            position.x--;
-                            position.y++;
-                            break;
-                        }
-                    case "South":
-                        {
-                            position.y++;
-                            break;
-                        }
-                    case "SouthWest":
-                        {
-                            position.x++;
-                            position.y++;
-                            break;
-                        }
-                    case "West":
-                        {
-                            position.x++;
-                            break;
-                        }
-                    case "NorthWest":
-                        {
-                            position.x++;
-                            position.y--;
-                            break;
-                        }
-                    case "WanderNorth":
-                        {
-                            position.x += Program.random.Next(-1, 2);
-                            position.y += Program.random.Next(-1, 0);
-                            break;
-                        }
-                    case "WanderNorthEast":
-                        {
-                            position.x += Program.random.Next(-1, 0);
-                            position.y += Program.random.Next(-1, 0);
-                            break;
-                        }
-                    case "WanderEast":
-                        {
-                            position.x += Program.random.Next(-1, 0);
-                            position.y += Program.random.Next(-1, 2);
-                            break;
-                        }
-                    case "WanderSouthEast":
-                        {
-                            position.x += Program.random.Next(-1, 0);
-                            position.y += Program.random.Next(0, 2);
-                            break;
-                        }
-                    case "WanderSouth":
-                        {
-                            position.x += Program.random.Next(-1, 2);
-                            position.y += Program.random.Next(0, 2);
-                            break;
-                        }
-                    case "WanderSouthWest":
-                        {
-                            position.x += Program.random.Next(0, 2);
-                            position.y += Program.random.Next(0, 2);
-                            break;
-                        }
-                    case "WanderWest":
-                        {
-                            position.x += Program.random.Next(0, 2);
-                            position.y += Program.random.Next(-1, 2);
-                            break;
-                        }
-                    case "WanderNorthWest":
-                        {
-                            position.x += Program.random.Next(0, 2);
-                            position.y += Program.random.Next(-1, 0);
-                            break;
-                        }
-                }
-            }
-
-            if (currentThreshold <= 0)
-            {
-                currentThreshold = threshold;
-
-                if (currentParticle < particles.Length - 1) { currentParticle++; }
-                else { currentParticle = 0; }
-
-                Draw draw = GetComponent<Draw>();
-                draw.character = particles[currentParticle].character;
-                draw.fColor = particles[currentParticle].fColor;
-                draw.bColor = particles[currentParticle].bColor;
-
-                life--;
-                if (life <= 0)
-                {
-                    KillParticle();
-                    return;
-                }
-            }
-
-            if (Math.CheckBounds(position.x, position.y))
-            {
-                Program.sfx[position.x, position.y] = this;
-            }
-        }
-        public void KillParticle()
-        {
-            Program.rootConsole.particles.Remove(this);
-            onParticleDeath?.Invoke(GetComponent<Vector>());
-        }
-        public Particle(int life, string direction, int threshold, Draw[] particles, Vector target = null, bool aboveSight = false)
-        {
-            this.life = life;
-            this.direction = direction;
-            this.threshold = threshold;
-            this.particles = particles;
-            this.aboveSight = aboveSight;
-
-            if (target != null)
-            {
-                if (direction == "Target")
-                {
-                    DijkstraMap.CreateMap(new List<Vector>() { target }, "ParticlePath");
-                }
-                else if (direction == "Attached")
-                {
-                    trackedTarget = target;
-                }
-            }
         }
     }
 }

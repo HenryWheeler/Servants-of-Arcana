@@ -36,7 +36,6 @@ namespace Servants_of_Arcana
                 tempList.Add(vector);
             }
 
-            //var watch1 = Stopwatch.StartNew();
             for (int o = 0; o < strength; o++)
             {
                 for (int i = 0; i < checkList.Count; i++)
@@ -44,11 +43,8 @@ namespace Servants_of_Arcana
                     checkList.TryDequeue(out Vector vector);
                     CheckNeighbors(intArray, tempList, checkList, vector.x, vector.y);
                 }
-                //Log.Add($"{checkList.Count} queued for {name}");
                 tempList.Clear();
             }
-            //Log.Add($"{name}: {watch1.ElapsedTicks} ticks && {watch1.ElapsedMilliseconds} miliseconds");
-            //StatManager.Average(watch1.ElapsedTicks);
 
             AddMap(intArray, name);
         }
@@ -86,7 +82,7 @@ namespace Servants_of_Arcana
         }
         private static bool CheckBoundsAndWalls(int x, int y)
         {
-            return x >= 0 && x <= Program.gameWidth && y >= 0 && y <= Program.gameHeight && Program.tiles[x, y].terrainType != 0;
+            return x >= 1 && x <= Program.gameWidth - 1 && y >= 1 && y <= Program.gameHeight - 1 && Program.tiles[x, y].terrainType != 0;
         }
         private static void AddMap(int[,] map, string name)
         {

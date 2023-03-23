@@ -25,7 +25,7 @@ namespace Servants_of_Arcana
             Program.playerConsole.Clear();
             Program.rootConsole.Children.MoveToTop(Program.lookConsole);
 
-            Program.ClearSFX();
+            Program.ClearUISFX();
             MoveReticle(new Vector(0, 0));
         }
         public static void StopLooking()
@@ -38,15 +38,15 @@ namespace Servants_of_Arcana
 
             AttributeManager.UpdateAttributes(Program.player);
 
-            Program.ClearSFX();
+            Program.ClearUISFX();
             Program.MoveCamera(Program.player.GetComponent<Vector>());
-            Program.DrawMap();
+            //Program.DrawMap();
         }
         public static void MoveReticle(Vector direction)
         {
             if (Math.CheckBounds(reticlePosition.x + direction.x, reticlePosition.y + direction.y))
             {
-                Program.ClearSFX();
+                Program.ClearUISFX();
                 Program.lookConsole.Clear();
 
                 reticlePosition.x += direction.x;
@@ -140,7 +140,7 @@ namespace Servants_of_Arcana
                 Program.CreateConsoleBorder(Program.lookConsole);
                 Program.MoveCamera(reticlePosition);
                 CreateReticle();
-                Program.DrawMap();
+                //Program.DrawMap();
             }
         }
         private static void CreateReticle()
@@ -156,40 +156,32 @@ namespace Servants_of_Arcana
                 }
             }
 
-            Program.sfx[reticlePosition.x, reticlePosition.y + 1] = new Entity(new List<Component>() 
-            {
-                new Draw(Color.Yellow, Color.Black, (char)196),
-            });
-            Program.sfx[reticlePosition.x, reticlePosition.y - 1] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)196),
-            });
+            Draw draw;
 
-            Program.sfx[reticlePosition.x + 1, reticlePosition.y] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)179),
-            });
-            Program.sfx[reticlePosition.x - 1, reticlePosition.y] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)179),
-            });
+            draw = new Draw(Color.Yellow, Color.Black, (char)196);
+            Program.uiSfx[reticlePosition.x, reticlePosition.y + 1] = draw;
+            Program.uiSfx[reticlePosition.x, reticlePosition.y - 1] = draw;
 
-            Program.sfx[reticlePosition.x + 1, reticlePosition.y + 1] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)217),
-            });
-            Program.sfx[reticlePosition.x - 1, reticlePosition.y + 1] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)192),
-            });
-            Program.sfx[reticlePosition.x + 1, reticlePosition.y - 1] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)191),
-            });
-            Program.sfx[reticlePosition.x - 1, reticlePosition.y - 1] = new Entity(new List<Component>()
-            {
-                new Draw(Color.Yellow, Color.Black, (char)218),
-            });
+
+            draw = new Draw(Color.Yellow, Color.Black, (char)179);
+            Program.uiSfx[reticlePosition.x + 1, reticlePosition.y] = draw;
+            Program.uiSfx[reticlePosition.x - 1, reticlePosition.y] = draw;
+
+
+            draw = new Draw(Color.Yellow, Color.Black, (char)217);
+            Program.uiSfx[reticlePosition.x + 1, reticlePosition.y + 1] = draw;
+
+
+            draw = new Draw(Color.Yellow, Color.Black, (char)192);
+            Program.uiSfx[reticlePosition.x - 1, reticlePosition.y + 1] = draw;
+
+
+            draw = new Draw(Color.Yellow, Color.Black, (char)191);
+            Program.uiSfx[reticlePosition.x + 1, reticlePosition.y - 1] = draw;
+
+
+            draw = new Draw(Color.Yellow, Color.Black, (char)218);
+            Program.uiSfx[reticlePosition.x - 1, reticlePosition.y - 1] = draw;
         }
     }
 }

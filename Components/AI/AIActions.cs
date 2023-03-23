@@ -41,11 +41,11 @@ namespace Servants_of_Arcana
             List<Vector> chosenTiles = new List<Vector>();
             Vector startingLocation = AI.entity.GetComponent<Vector>();
 
-            for (int x = startingLocation.x - 1; x < startingLocation.x + 1; x++) 
+            for (int x = startingLocation.x - 1; x <= startingLocation.x + 1; x++) 
             {
-                for (int y = startingLocation.y - 1; x < startingLocation.y + 1; y++)
+                for (int y = startingLocation.y - 1; y <= startingLocation.y + 1; y++)
                 {
-                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType != 0 && new Vector(x, y) != startingLocation) 
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType != 0 && new Vector(x, y) != startingLocation && !chosenTiles.Contains(new Vector(x, y))) 
                     {
                         chosenTiles.Add(new Vector(x, y));
                     }
@@ -54,7 +54,7 @@ namespace Servants_of_Arcana
 
             if (chosenTiles.Count > 0) 
             {
-                AI.entity.GetComponent<Movement>().Move(chosenTiles[Program.random.Next(0, chosenTiles.Count)]);
+                AI.entity.GetComponent<Movement>().Move(chosenTiles[Program.random.Next(chosenTiles.Count)]);
             }
             else
             {

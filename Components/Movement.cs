@@ -50,7 +50,10 @@ namespace Servants_of_Arcana
 
             entity.GetComponent<TurnComponent>().EndTurn();
         }
-        public override void SetDelegates() { }
+        public override void SetDelegates() 
+        {
+            //onMovement += ParticleManager.CreateMovementParticle;
+        }
         public Movement(List<int> _moveTypes)
         {
             moveTypes = _moveTypes;

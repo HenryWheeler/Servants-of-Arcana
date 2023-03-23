@@ -35,7 +35,7 @@ namespace Servants_of_Arcana
                     ShadowcastFOV.Compute(entity.GetComponent<Vector>(), 10);
                 }
 
-                Program.DrawMap();
+                //Program.DrawMap();
 
                 TurnManager.ProgressActorTurn(this);
             }

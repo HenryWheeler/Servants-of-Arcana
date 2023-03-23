@@ -105,6 +105,8 @@ namespace Servants_of_Arcana
                     throw new Exception("Entity transition count equals zero.");
                 }
 
+                State tempRecord = currentState;
+
                 Observe();
                 StateMachine stateMachine = new StateMachine(currentState, currentInput);
                 if (transitions.ContainsKey(stateMachine))
@@ -113,6 +115,11 @@ namespace Servants_of_Arcana
                     currentInput = Input.None;
 
                     //StateParticleCreation();
+                }
+
+                if (tempRecord != currentState)
+                {
+                    ParticleManager.CreateAIStateParticle(currentState, entity.GetComponent<Vector>());
                 }
 
                 PerformAction();

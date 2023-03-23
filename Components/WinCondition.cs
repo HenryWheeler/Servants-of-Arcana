@@ -25,11 +25,12 @@ namespace Servants_of_Arcana
                 TurnManager.entities.Clear();
                 Program.isGameActive = false;
 
+                Program.ClearSFX();
                 Program.depth = 0;
                 ShadowcastFOV.RevealAll();
-                ParticleEffects.FloorFadeAway();
+                Program.FloorFadeAway();
 
-                InteractionManager.CreatePopup(new List<string>() { "Your Winner!", "New Game: N", "Quit Game: Q" });
+                Program.onParticleEmpty += Program.CreateWinMessage;
             }
         }
         public WinCondition() { }

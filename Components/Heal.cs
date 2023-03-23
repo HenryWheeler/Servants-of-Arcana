@@ -53,7 +53,7 @@ namespace Servants_of_Arcana
                 }
             }
 
-            Program.CreateSFX(target, new Draw[] { new Draw(Color.Red, Color.Black, (char)3) }, 30, "Attached", 2, target);
+            //Program.CreateSFX(target, new Draw[] { new Draw(Color.Red, Color.Black, (char)3) }, 30, "Attached", 2, target);
         }
         public Heal(int strength)
         {
@@ -90,7 +90,7 @@ namespace Servants_of_Arcana
 
                         attributes.strength += (int)strength;
 
-                        Program.CreateSFX(target, new Draw[] { new Draw(Color.Orange, Color.Black, (char)19) }, 30, "Attached", 2, target);
+                        //Program.CreateSFX(target, new Draw[] { new Draw(Color.Orange, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
                     }
                 case "Intelligence":
@@ -106,7 +106,7 @@ namespace Servants_of_Arcana
 
                         attributes.intelligence += (int)strength;
 
-                        Program.CreateSFX(target, new Draw[] { new Draw(Color.Blue, Color.Black, (char)19) }, 30, "Attached", 2, target);
+                        //Program.CreateSFX(target, new Draw[] { new Draw(Color.Blue, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
                     }
                 case "Speed":
@@ -122,7 +122,7 @@ namespace Servants_of_Arcana
 
                         attributes.maxEnergy += strength;
 
-                        Program.CreateSFX(target, new Draw[] { new Draw(Color.Yellow, Color.Black, (char)19) }, 30, "Attached", 2, target);
+                       // Program.CreateSFX(target, new Draw[] { new Draw(Color.Yellow, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
                     }
             }

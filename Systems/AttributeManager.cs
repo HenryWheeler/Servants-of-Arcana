@@ -36,7 +36,7 @@ namespace Servants_of_Arcana
 
             display += $"Sight: {stats.sight}{spacer}";
 
-            display += $"Depth: {Program.depth}{spacer}";
+            display += $"Floor: {Program.depth}{spacer}";
 
             display += $"{spacer}{spacer}Open Manual with Yellow*?.";
 
