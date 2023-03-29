@@ -12,12 +12,14 @@ namespace Servants_of_Arcana.Components
         public int strength { get; set; }
         public string message { get; set; }
         public bool onUse { get; set; }
+        public bool fireball { get; set; }
         public override void SetDelegates()
         {
             if (onUse)
             {
                 entity.GetComponent<Usable>().onUse += Detonate;
                 entity.GetComponent<Usable>().areaOfEffect += AreaOfEffectModels.ReturnSphere;
+                strength = entity.GetComponent<Usable>().strength;
             }
             else
             {
@@ -26,29 +28,22 @@ namespace Servants_of_Arcana.Components
         }
         public void Detonate(Entity user, Vector origin)
         {
+            Log.Add(message);
             if (onUse)
             {
-                if (user.GetComponent<PlayerController>() != null && origin == null)
-                {
-
-                }
-                else
-                {
-                    Log.Add(message);
-                    SpecialEffects.Explosion(user, origin, strength, "Explosion");
-                }
+                SpecialEffects.Explosion(user, origin, strength, "Explosion", fireball);
             }
             else
             {
-                Log.Add(message);
-                SpecialEffects.Explosion(user, origin, strength, "Explosion");
+                SpecialEffects.Explosion(entity, origin, strength, "Explosion", fireball);
             }
         }
-        public Explode(int strength, bool onUse, string message)
+        public Explode(int strength, bool onUse, string message, bool fireball)
         {
             this.strength = strength;
             this.onUse = onUse;
             this.message = message;
+            this.fireball = fireball;
         }
     }
 }

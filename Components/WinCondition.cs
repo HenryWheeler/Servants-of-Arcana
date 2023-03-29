@@ -26,11 +26,10 @@ namespace Servants_of_Arcana
                 Program.isGameActive = false;
 
                 Program.ClearSFX();
-                Program.depth = 0;
+                Program.floor = 0;
                 ShadowcastFOV.RevealAll();
                 Program.FloorFadeAway();
-
-                Program.onParticleEmpty += Program.CreateWinMessage;
+                Program.CreateWinMessage();
             }
         }
         public WinCondition() { }

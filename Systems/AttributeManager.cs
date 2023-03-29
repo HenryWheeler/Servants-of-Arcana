@@ -32,11 +32,10 @@ namespace Servants_of_Arcana
             display += $"Cyan*Intelligence: {stats.intelligence}{spacer}";
 
             display += $"LightGray*Av: {stats.armorValue}{spacer}";
-            display += $"LightGray*Dv: {stats.dodgeValue}{spacer}";
 
             display += $"Sight: {stats.sight}{spacer}";
 
-            display += $"Floor: {Program.depth}{spacer}";
+            display += $"Floor: {Program.floor}{spacer}";
 
             display += $"{spacer}{spacer}Open Manual with Yellow*?.";
 

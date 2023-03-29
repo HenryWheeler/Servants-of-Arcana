@@ -65,6 +65,16 @@ namespace Servants_of_Arcana
         {
             AI.interest--;
 
+            if (AI.target != null && !AI.target.GetComponent<TurnComponent>().isAlive)
+            {
+                AI.hatedEntities.Remove(AI.target);
+                AI.target = null;
+
+                AI.currentInput = AIController.Input.Bored;
+                AI.Execute();
+                return;
+            }
+
             if (AI.target != null)
             {
                 Vector position = AI.entity.GetComponent<Vector>();

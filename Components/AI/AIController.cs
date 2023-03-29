@@ -235,8 +235,8 @@ namespace Servants_of_Arcana
 
                 if (hatedFactions.Contains(faction) || hatedEntities.Contains(entity))
                 {
-                    interest -= stats.health + ((stats.strength + 1) * 3) + ((stats.intelligence + 1) * 3) + ((stats.armorValue + 1) * 3) + ((stats.dodgeValue + 1) * 3);
-                    interest += AIStats.health + ((AIStats.strength + 1) * 3) + ((AIStats.intelligence + 1) * 3) + ((AIStats.armorValue + 1) * 3) + ((stats.dodgeValue + 1) * 3) + hate;
+                    interest -= stats.health + ((stats.strength + 1) * 3) + ((stats.intelligence + 1) * 3) + ((stats.armorValue + 1) * 3);
+                    interest += AIStats.health + ((AIStats.strength + 1) * 3) + ((AIStats.intelligence + 1) * 3) + ((AIStats.armorValue + 1) * 3) + hate;
 
                     /*
                     foreach (string status in entity.GetComponent<Harmable>().statusEffects)
@@ -274,7 +274,7 @@ namespace Servants_of_Arcana
                 Attributes stats = entity.GetComponent<Attributes>();
                 if (stats != null)
                 {
-                    interest += (int)(stats.armorValue + stats.dodgeValue + stats.maxHealth + stats.intelligence + stats.strength + stats.sight + stats.maxEnergy);
+                    interest += (int)(stats.armorValue + stats.maxHealth + stats.intelligence + stats.strength + stats.sight + stats.maxEnergy);
                 }
 
                 //AttackFunction attackFunction = entity.GetComponent<AttackFunction>();

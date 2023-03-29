@@ -13,7 +13,7 @@ namespace Servants_of_Arcana
 {
     public class ParticleManager
     {
-        public static Particle CreateParticle(bool addToSystem, Vector position, int life, int speed, string movement, Draw draw, Vector target = null, bool fade = false, bool alwaysVisible = false, List<Particle> deathParticles = null, bool randomizeCharacter = false, bool showOverActors = false)
+        public static Particle CreateParticle(bool addToSystem, Vector position, int life, int speed, string movement, Draw draw, Vector target = null, bool fade = false, bool alwaysVisible = false, List<Particle> deathParticles = null, bool randomizeCharacter = false, bool showOverActors = false, List<Particle> moveParticles = null)
         {
             Particle particle = new Particle(life, speed, movement, target, alwaysVisible, showOverActors);
             particle.AddComponent(new Vector(position.x, position.y));
@@ -34,6 +34,10 @@ namespace Servants_of_Arcana
                 particle.AddComponent(new RandomizeCharacter());
             }
 
+            if (moveParticles != null)
+            {
+                particle.AddComponent(new CreateParticleOnMove(deathParticles));
+            }
 
 
             if (addToSystem)
@@ -79,7 +83,7 @@ namespace Servants_of_Arcana
                 {
                     Vector vector = new Vector(x, y);
 
-                    if (Math.CheckBounds(x, y) && !possibleLocations.Contains(vector))
+                    if (Math.CheckBounds(x, y) && !possibleLocations.Contains(vector) && Program.tiles[x, y].GetComponent<Draw>().character != '<')
                     {
                         possibleLocations.Add(vector);
                     }
@@ -87,9 +91,16 @@ namespace Servants_of_Arcana
             }
 
             Vector chosenLocation = possibleLocations[Program.random.Next(possibleLocations.Count)];
-
-            Program.tiles[chosenLocation.x, chosenLocation.y].GetComponent<Draw>().fColor = Color.DarkRed; 
-            Program.tiles[chosenLocation.x, chosenLocation.y].GetComponent<Draw>().character = (char)176;
+            
+            if (Program.tiles[chosenLocation.x, chosenLocation.y].terrainType == 0)
+            {
+                Program.tiles[chosenLocation.x, chosenLocation.y].GetComponent<Draw>().fColor = Color.DarkRed;
+            }
+            else if (Program.tiles[chosenLocation.x, chosenLocation.y].terrainType == 1)
+            {
+                Program.tiles[chosenLocation.x, chosenLocation.y].GetComponent<Draw>().fColor = Color.DarkRed;
+                Program.tiles[chosenLocation.x, chosenLocation.y].GetComponent<Draw>().character = (char)176;
+            }
         }
     }
     public class Fade : Component
@@ -122,7 +133,7 @@ namespace Servants_of_Arcana
 
             draw.bColor = new Color((int)(background.R - offset), (int)(background.G - offset), (int)(background.B - offset));
 
-            if (draw.fColor == Color.Black && draw.bColor == Color.Black)
+            if (draw.fColor.R < 0 && draw.fColor.G < 0 && draw.fColor.B < 0 && draw.bColor.R < 0 && draw.bColor.G < 0 && draw.bColor.B < 0)
             {
                 Particle entity = (Particle)this.entity;
                 entity.KillParticle(entity.GetComponent<Vector>());
@@ -175,25 +186,24 @@ namespace Servants_of_Arcana
         public abstract override void SetDelegates();
         public Emitter(List<Particle> particles) { this.particles = particles; }
     }
-    public class FadingParticleEmitter : Emitter
+    public class CreateParticleOnMove : Emitter
     {
         public override void SetDelegates()
         {
             if (entity.GetType() == typeof(Particle))
             {
                 Particle entity = (Particle)this.entity;
-                entity.onParticleMove += CreateFadingParticle;
+                entity.onParticleMove += CreateParticle;
             }
         }
-        public void CreateFadingParticle(Vector position)
+        public void CreateParticle(Vector position)
         {
             foreach (Particle particle in particles)
             {
-                ParticleManager.CreateParticle(true, position, particle.life, particle.speed, 
-                    particle.movement, particle.GetComponent<Draw>(), particle.target, true);
+                ParticleManager.AddParticleToSystem(particle);
             }
         }
-        public FadingParticleEmitter(List<Particle> particles)
+        public CreateParticleOnMove(List<Particle> particles)
         :base(particles) { }
     }
     public class Particle : Entity

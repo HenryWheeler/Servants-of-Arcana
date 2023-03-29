@@ -14,10 +14,9 @@ namespace Servants_of_Arcana
         public int strength { get; set; }
         public int intelligence { get; set; }
         public int armorValue { get; set; }
-        public int dodgeValue { get; set; }
         public int sight { get; set; }
         public override void SetDelegates() { }
-        public Attributes(int health, float maxEnergy, int strength, int intelligence, int armorValue, int dodgeValue, int sight) 
+        public Attributes(int health, float maxEnergy, int strength, int intelligence, int armorValue, int sight) 
         {
             maxHealth = health;
             this.health = health;
@@ -27,7 +26,6 @@ namespace Servants_of_Arcana
             this.intelligence = intelligence;
 
             this.armorValue = armorValue;
-            this.dodgeValue = dodgeValue;
 
             this.sight = sight;
         }

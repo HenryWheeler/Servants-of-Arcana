@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using SadConsole.SerializedTypes;
 using SadRogue.Primitives;
 
 namespace Servants_of_Arcana
@@ -21,7 +25,9 @@ namespace Servants_of_Arcana
         private List<Room> rooms = new List<Room>();
         public static Vector stairSpot = new Vector(Program.gameWidth / 2, Program.gameHeight / 2);
         public static int patrolRouteCount;
-        public string dungeonType = "Dungeon";
+        public List<Tile> towerTiles = new List<Tile>();
+        public List<Tile> skyTiles = new List<Tile>();
+        public Draw[,] backgroundImprint = new Draw[Program.gameWidth, Program.gameHeight];
         public DungeonGenerator(Draw[] baseFloorDraw, Description baseFloorDescription, Draw[] baseWallDraw, Description baseWallDescription, int width, Random seed = null)
         {
             this.baseFloorDraw = baseFloorDraw;
@@ -38,38 +44,67 @@ namespace Servants_of_Arcana
                 this.seed = new Random();
             }
         }
-        public void GenerateDungeon() 
+        public void GenerateTowerFloor()
         {
             ClearDungeon();
 
-            int roomsToGenerate = 20;
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameHeight; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        CreateOpenAir(x, y);
+                    }
+                }
+            }
+
+            float radius = 45.5f - (Program.floor * 2);
+            Vector center = new Vector(Program.gameWidth / 2, Program.gameHeight / 2);
+
+            int top = (int)MathF.Ceiling(center.y - radius),
+                bottom = (int)MathF.Floor(center.y + radius);
+
+            for (int y = top; y <= bottom; y++)
+            {
+                int dy = y - center.y;
+                float dx = MathF.Sqrt(radius * radius - dy * dy);
+                int left = (int)MathF.Ceiling(center.x - dx),
+                    right = (int)MathF.Floor(center.x + dx);
+
+                for (int x = left; x <= right; x++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        towerTiles.Add(CreateWall(x, y));
+                    }
+                }
+            }
+
+            int roomsToGenerate = 50;
             int minRoomSize = 5;
             int maxRoomSize = 14;
-
-            CreateBaseMap();
-
-            dungeonType = "Dungeon";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Room lastRoom = CreateRoom(stairSpot.x, stairSpot.y, 8, 8);
+            Room lastRoom = CreateRoom(center.x, center.y, 8, 8);
             rooms.Add(lastRoom);
+
+            int tryCount = 0;
 
             for (int i = 0; i < roomsToGenerate - 1; i++)
             {
-                int tryCount = 0;
-
                 int xSP = seed.Next(0, Program.gameWidth);
                 int ySP = seed.Next(0, Program.gameHeight);
                 int rW = seed.Next(minRoomSize, maxRoomSize);
                 int rH = seed.Next(minRoomSize, maxRoomSize);
 
-                if (!CheckIfHasSpace(xSP, ySP, xSP + rW - 1, ySP + rH - 1) || Math.Distance(lastRoom.x, lastRoom.y, xSP, ySP) > 25)
+                if (!CheckIfHasSpace(xSP, ySP, xSP + rW - 1, ySP + rH - 1))
                 {
                     tryCount++;
 
-                    if (tryCount >= 100 || stopwatch.Elapsed.Seconds > 4)
+                    if (tryCount >= 250)
                     {
                         break;
                     }
@@ -78,18 +113,17 @@ namespace Servants_of_Arcana
                     continue;
                 }
 
+                tryCount = 0;
+
                 Room room = CreateRoom(xSP, ySP, rW, rH);
                 rooms.Add(room);
-                CreateCorridor(lastRoom.x, lastRoom.y, room.x, room.y);
-                lastRoom = room;
 
-                if (stopwatch.Elapsed.Seconds > 4)
-                {
-                    break;
-                }
+                lastRoom = room;
             }
 
             stopwatch.Stop();
+
+            CreatePassages();
 
             CreateDoors();
 
@@ -100,6 +134,50 @@ namespace Servants_of_Arcana
             UpdateWalls();
 
             PopulateFloor();
+
+            CreateImprint();
+        }
+        public void CreateImprint()
+        {
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameHeight; y++)
+                {
+                    if (Math.CheckBounds(x, y) && backgroundImprint[x, y] != null)
+                    {
+                        float offSet = 35f;
+                        backgroundImprint[x, y] = new Draw(
+                            new Color((int)(backgroundImprint[x, y].fColor.R - offSet), (int)(backgroundImprint[x, y].fColor.G - offSet), (int)(backgroundImprint[x, y].fColor.B - offSet)),
+                            new Color((int)(backgroundImprint[x, y].bColor.R - offSet), (int)(backgroundImprint[x, y].bColor.G - offSet), (int)(backgroundImprint[x, y].bColor.B - offSet)),
+                            backgroundImprint[x, y].character);
+
+                    }
+                }
+            }
+
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameHeight; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        if (Program.tiles[x, y].terrainType == 0)
+                        {
+                            backgroundImprint[x, y] = new Draw(Program.tiles[x, y].GetComponent<Draw>());
+                        }
+                        else if (Program.tiles[x, y].terrainType == 3 && Program.floor == 1)
+                        {
+                            backgroundImprint[x, y] = new Draw(Program.tiles[x, y].GetComponent<Draw>());
+                        }
+                        else if (backgroundImprint[x, y] != null && Program.tiles[x, y].terrainType == 3)
+                        {
+                            Program.tiles[x, y].GetComponent<Draw>().character = backgroundImprint[x, y].character;
+                            Program.tiles[x, y].GetComponent<Draw>().fColor = backgroundImprint[x, y].fColor;
+                            Program.tiles[x, y].GetComponent<Draw>().bColor = backgroundImprint[x, y].bColor;
+                        }
+                    }
+                }
+            }
         }
         public void UpdateWalls()
         {
@@ -123,9 +201,9 @@ namespace Servants_of_Arcana
         }
         public void PopulateFloor()
         {
-            string tableReturn = $"Depth-{Program.depth}-{dungeonType}";
+            string tableReturn = $"Floor-{Program.floor}";
 
-            int totalActorsToSpawn = seed.Next(8, 15) + Program.depth;
+            int totalActorsToSpawn = seed.Next(8, 15) + Program.floor;
             int totalItemsToSpawn = seed.Next(6, 10);
             int totalObstaclesToSpawn = seed.Next(10, 20);
 
@@ -190,6 +268,11 @@ namespace Servants_of_Arcana
                     tile.actor = entity;
                     TurnManager.AddActor(entity.GetComponent<TurnComponent>());
                     Math.SetTransitions(entity);
+
+                    if (entity.GetComponent<SpawnDetails>() != null)
+                    {
+                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke();
+                    }
                 }
                 for (int i = 0; i < itemsToSpawn; i++)
                 {
@@ -203,23 +286,15 @@ namespace Servants_of_Arcana
                     entity.GetComponent<Vector>().y = vector.y;
 
                     tile.item = entity;
+
+                    if (entity.GetComponent<SpawnDetails>() != null)
+                    {
+                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke();
+                    }
                 }
                 for (int i = 0; i < obstaclesToSpawn; i++)
                 {
                     //Add later
-                }
-            }
-        }
-        public void CreateBaseMap()
-        {
-            for (int x = 0; x < Program.gameWidth; x++)
-            {
-                for (int y = 0; y < Program.gameHeight; y++)
-                {
-                    if (Math.CheckBounds(x, y))
-                    {
-                        CreateWall(x, y);
-                    }
                 }
             }
         }
@@ -239,6 +314,10 @@ namespace Servants_of_Arcana
                     }
                 }
             }
+
+            rooms.Clear();
+            towerTiles.Clear();
+            skyTiles.Clear();
         }
         public void CreatePatrolLocations()
         {
@@ -348,6 +427,110 @@ namespace Servants_of_Arcana
 
             Program.tiles[placement.x, placement.y] = tile;
         }
+        public void CreatePassages()
+        {
+            bool creatingPassages = true;
+            List<Room> checkList = rooms.ToList();
+            HashSet<Room> completed = new HashSet<Room>();
+            Room first = checkList.First();
+            checkList.Remove(first);
+            completed.Add(first);
+
+            while (creatingPassages) 
+            {
+                List<Room> currentCheck = new List<Room>();
+
+                Room current = null;
+                Room secondCurrent = null;
+
+                foreach (Room r in checkList)
+                {
+                    foreach (Room c in completed)
+                    {
+                        if (secondCurrent == null)
+                        {
+                            secondCurrent = c;
+                        }
+                        if (current == null)
+                        {
+                            current = r;
+                        }
+                        
+                        if (Math.Distance(current.x, current.y, c.x, c.y) > Math.Distance(r.x, r.y, c.x, c.y))
+                        {
+                            current = r;
+                        }
+
+                        if (Math.Distance(r.x, r.y, secondCurrent.x, secondCurrent.y) > Math.Distance(r.x, r.y, c.x, c.y))
+                        {
+                            secondCurrent = c;
+                        }
+                    }
+                }
+
+                checkList.Remove(current);
+                completed.Add(current);
+                CreateCorridor(current.x, current.y, secondCurrent.x, secondCurrent.y);
+
+                if (checkList.Count == 0) 
+                {
+                    return;
+                }
+            }
+            /*
+            for (int i = 0; i < 1; i++)
+            {
+                Room firstRoom = null;
+                Room secondRoom = null;
+
+                foreach (Room room in rooms)
+                {
+                    if (firstRoom == null) 
+                    {
+                        firstRoom = room;
+                    }
+                    else if (room.connectionCount < firstRoom.connectionCount)
+                    {
+                        firstRoom = room;
+                    }
+                }
+
+                foreach (Room room in rooms)
+                {
+                    if (secondRoom == null && room != firstRoom)
+                    {
+                        secondRoom = room;
+                    }
+                    else if (room != firstRoom && secondRoom != null)
+                    {
+                        if (room.connectionCount <= secondRoom.connectionCount && Math.Distance(firstRoom.x, firstRoom.y, room.x, room.y) <
+                        Math.Distance(firstRoom.x, firstRoom.y, secondRoom.x, secondRoom.y))
+                        {
+                            secondRoom = room;
+                        }
+                    }
+                }
+
+                if (firstRoom == secondRoom)
+                {
+                    i--;
+                    continue;
+                }
+                else
+                {
+                    if (!CreateCorridor(firstRoom.x, firstRoom.y, secondRoom.x, secondRoom.y))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        firstRoom.connectionCount++;
+                    }
+                    //secondRoom.connectionCount++;
+                }
+            }
+            */
+        }
         public void CreateStaircase()
         {
             if (rooms.Count != 0)
@@ -371,14 +554,14 @@ namespace Servants_of_Arcana
                 stairSpot = chosenTile.GetComponent<Vector>();
             }
 
-            if (Program.depth == 6)
+            if (Program.floor == 6)
             {
                 Entity goblet = JsonDataManager.ReturnEntity("The Goblet of Eternity");
                 Program.tiles[stairSpot.x, stairSpot.y].item = goblet;
             }
-            else if (Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().character != '>')
+            else if (Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().character != '<')
             {
-                Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().character = '>';
+                Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().character = '<';
                 Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Draw>().fColor = Color.White;
                 Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Description>().name = "Staircase";
                 Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Description>().description = "A long winding staircase into complete darkness.";
@@ -386,6 +569,8 @@ namespace Servants_of_Arcana
         }
         public bool CreateCorridor(int startingX, int startingY, int finalX, int finalY)
         {
+            List<Vector> vectors = new List<Vector>();
+
             int startX = System.Math.Min(startingX, finalX);
             int startY = System.Math.Min(startingY, finalY);
             int endX = System.Math.Max(startingX, finalX);
@@ -403,7 +588,9 @@ namespace Servants_of_Arcana
                         //CreateWall(x, startingY + 1);
                     }
 
-                    CreateFloor(x, startingY);
+                    vectors.Add(new Vector(x, startingY));
+
+                    //CreateFloor(x, startingY);
 
                     buildCount++;
                 }
@@ -418,7 +605,9 @@ namespace Servants_of_Arcana
                         //CreateWall(finalX + 1, y);
                     }
 
-                    CreateFloor(finalX, y);
+                    vectors.Add(new Vector(finalX, y));
+
+                    //CreateFloor(finalX, y);
 
                     buildCount++;
                 }
@@ -433,7 +622,9 @@ namespace Servants_of_Arcana
                         //CreateWall(startingX + 1, y);
                     }
 
-                    CreateFloor(startingX, y);
+                    vectors.Add(new Vector(startingX, y));
+
+                    //CreateFloor(startingX, y);
 
                     buildCount++;
                 }
@@ -448,11 +639,30 @@ namespace Servants_of_Arcana
                         //CreateWall(x, finalY + 1);
                     }
 
-                    CreateFloor(x, finalY);
+                    vectors.Add(new Vector(x, finalY));
+
+                    //CreateFloor(x, finalY);
 
                     buildCount++;
                 }
             }
+
+            foreach (Vector vector in vectors)
+            {
+                for (int y = vector.y - 1; y <= vector.y + 1; y++)
+                {
+                    for (int x = vector.x - 1; x <= vector.x + 1; x++)
+                    {
+                        if (Program.tiles[x, y].terrainType == 3) return false;
+                    }
+                }
+            }
+
+            foreach (Vector vector in vectors)
+            {
+                CreateFloor(vector.x, vector.y);
+            }
+
 
             return true;
         }
@@ -487,33 +697,73 @@ namespace Servants_of_Arcana
                 {
                     if (x <= 2 || y <= 2 || x >= Program.gameWidth - 1 || y >= Program.gameHeight - 1) return false;
                     if (Program.tiles[x, y].terrainType != 0) return false;
+                    
+                    for (int y2 = y - 1; y2 < y + 1; y2++)
+                    {
+                        for (int x2 = x - 1; x2 < x + 1; x2++)
+                        {
+                            if (!Math.CheckBounds(x2, y2)) return false;
+                            if (!towerTiles.Contains(Program.tiles[x, y]) || Program.tiles[x, y].terrainType != 0) return false;
+                        }
+                    }
                 }
             }
             return true;
         }
         public void PlacePlayer()
         {
-            List<Tile> viableTiles = new List<Tile>();
-
-            foreach (Tile tile in rooms[0].tiles)
+            if (rooms.Count == 0)
             {
-                if (tile != null && tile.terrainType == 1)
+                Program.tiles[Program.gameWidth / 2, Program.gameHeight / 2].actor = Program.player;
+                Vector vector2 = Program.tiles[Program.gameWidth / 2, Program.gameHeight / 2].GetComponent<Vector>();
+
+                Program.player.GetComponent<Vector>().x = vector2.x;
+                Program.player.GetComponent<Vector>().y = vector2.y;
+
+                ShadowcastFOV.ClearSight();
+                ShadowcastFOV.Compute(Program.player.GetComponent<Vector>(), 10);
+                Program.MoveCamera(new Vector(vector2.x, vector2.y));
+            }
+            else
+            {
+                List<Tile> viableTiles = new List<Tile>();
+
+                foreach (Tile tile in rooms[0].tiles)
                 {
-                    viableTiles.Add(tile);
+                    if (tile != null && tile.terrainType == 1)
+                    {
+                        viableTiles.Add(tile);
+                    }
                 }
+
+                Tile chosenTile = viableTiles[seed.Next(viableTiles.Count)];
+                chosenTile.actor = Program.player;
+                Vector vector = chosenTile.GetComponent<Vector>();
+
+                Program.player.GetComponent<Vector>().x = vector.x;
+                Program.player.GetComponent<Vector>().y = vector.y;
+                Program.tiles[vector.x, vector.y].actor = Program.player;
+
+                ShadowcastFOV.ClearSight();
+                ShadowcastFOV.Compute(Program.player.GetComponent<Vector>(), 10);
+                Program.MoveCamera(new Vector(vector.x, vector.y));
+            }
+        }
+        public Tile CreateOpenAir(int x, int y)
+        {
+            Tile tile;
+
+            if (seed.Next(2) == 1)
+            {
+                tile = new Tile(x, y, Color.SkyBlue, Color.DarkBlue, (char)176, "Open Air.", "The open air.", 3, false);
+            }
+            else
+            {
+                tile = new Tile(x, y, Color.DarkBlue, Color.SkyBlue, (char)175, "Open Air.", "The open air.", 3, false);
             }
 
-            Tile chosenTile = viableTiles[seed.Next(viableTiles.Count)];
-            chosenTile.actor = Program.player;
-            Vector vector = chosenTile.GetComponent<Vector>();
-
-            Program.player.GetComponent<Vector>().x = vector.x;
-            Program.player.GetComponent<Vector>().y = vector.y;
-
-            ShadowcastFOV.ClearSight();
-            ShadowcastFOV.Compute(Program.player.GetComponent<Vector>(), 10);
-            Program.MoveCamera(new Vector(vector.x, vector.y));
-            //Program.DrawMap();
+            Program.tiles[x, y] = tile;
+            return tile;
         }
         public Tile CreateFloor(int x, int y)
         {
@@ -549,11 +799,7 @@ namespace Servants_of_Arcana
         public int x { get { return corner.x + (width / 2); } }
         public int y { get { return corner.y + (height / 2); } }
         public Tile[,] tiles { get; set; }
-        public bool northUsed = false;
-        public bool eastUsed = false;
-        public bool southUsed = false;
-        public bool westUsed = false;
-        public bool connected = false;
+        public int connectionCount = 0;
         public Room(int width, int height, Vector corner)
         {
             this.width = width;

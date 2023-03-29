@@ -25,14 +25,17 @@ namespace Servants_of_Arcana
 
             isInventoryOpen = true;
         }
-        public static void CloseInventory()
+        public static void CloseInventory(bool setTurnActive = true)
         {
             Program.rootConsole.Children.MoveToTop(Program.playerConsole);
             Program.rootConsole.Children.MoveToTop(Program.mapConsole);
             Program.inventoryConsole.Fill(Color.Black, Color.Black);
             AttributeManager.UpdateAttributes(Program.player);
 
-            Program.player.GetComponent<TurnComponent>().isTurnActive = true;
+            if (setTurnActive)
+            {
+                Program.player.GetComponent<TurnComponent>().isTurnActive = true;
+            }
             isInventoryOpen = false;
         }
         public static void MoveSelection(bool up)
@@ -91,27 +94,27 @@ namespace Servants_of_Arcana
 
                     if (selectedItem == y)
                     {
-                        Program.inventoryConsole.Print(3, offsetY, $"< {name}>".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Yellow, Color.Black);
+                        Program.inventoryConsole.Print(3, offsetY, $"< {name}>".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, '-'), Color.Yellow, Color.Black);
                         Program.inventoryConsole.SetGlyph(3, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
                         Program.inventoryConsole.SetGlyph((Program.inventoryConsole.Width / 2) - 7, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
                     }
                     else
                     {
 
-                        Program.inventoryConsole.Print(3, offsetY, $"< {name}>".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Gray, Color.Black);
+                        Program.inventoryConsole.Print(3, offsetY, $"< {name}>".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, '-'), Color.Gray, Color.Black);
                     }
                 }
                 else if (y < maxInventorySize)
                 {
                     if (selectedItem == y)
                     {
-                        Program.inventoryConsole.Print(3, offsetY, "< Empty >".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Yellow, Color.Black);
+                        Program.inventoryConsole.Print(3, offsetY, "< Empty >".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, '-'), Color.Yellow, Color.Black);
                         Program.inventoryConsole.SetGlyph(3, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
                         Program.inventoryConsole.SetGlyph((Program.inventoryConsole.Width / 2) - 7, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
                     }
                     else
                     {
-                        Program.inventoryConsole.Print(3, offsetY, "< Empty >".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, (char)196), Color.Gray, Color.Black);
+                        Program.inventoryConsole.Print(3, offsetY, "< Empty >".Align(HorizontalAlignment.Center, (Program.inventoryConsole.Width / 2) - 6, '-'), Color.Gray, Color.Black);
                     }
                 }
             }
@@ -120,17 +123,24 @@ namespace Servants_of_Arcana
             {
                 Math.DisplayToConsole(Program.inventoryConsole, $"{inventory.items[selectedItem].GetComponent<Description>().name}", (Program.inventoryConsole.Width / 2) + 7, 1, 0, 5, false);
 
-                Program.inventoryConsole.DrawLine(new Point((Program.inventoryConsole.Width / 2), 7), new Point(Program.inventoryConsole.Width, 7), (char)196, Color.AntiqueWhite, Color.Black);
+                Program.inventoryConsole.DrawLine(new Point((Program.inventoryConsole.Width / 2), 7), new Point(Program.inventoryConsole.Width, 7), '-', Color.AntiqueWhite, Color.Black);
 
                 string description = inventory.items[selectedItem].GetComponent<Description>().description;
                 
                 if (inventory.items[selectedItem].GetComponent<Equipable>() != null)
                 {
-                    description += $" + This item can be equipped in your {inventory.items[selectedItem].GetComponent<Equipable>().slot}.";
+                    description += $" + + This item is equipped in your {inventory.items[selectedItem].GetComponent<Equipable>().slot}.";
+                    description += $" + Press Yellow*E to equip it.";
                     if (!inventory.items[selectedItem].GetComponent<Equipable>().removable)
                     {
-                        description += "It cannot be unequipped.";
+                        description += " + It cannot be unequipped.";
                     }
+                }
+
+                if (inventory.items[selectedItem].GetComponent<Usable>() != null)
+                {
+                    description += $" + + This item can be used.";
+                    description += $" + Press Yellow*U to use it.";
                 }
 
                 Math.DisplayToConsole(Program.inventoryConsole, $"{description}", (Program.inventoryConsole.Width / 2) + 7, 1, 0, 9, false);
@@ -158,18 +168,24 @@ namespace Servants_of_Arcana
             InventoryComponent inventory = actor.GetComponent<InventoryComponent>();
 
             if (Program.tiles[location.x, location.y].item != null && 
-                Program.tiles[location.x, location.y].item.GetComponent<Item>() != null && 
-                inventory.items.Count < maxInventorySize)
+                Program.tiles[location.x, location.y].item.GetComponent<Item>() != null)
             {
-                inventory.items.Add(Program.tiles[location.x, location.y].item);
-
-                if (actor.GetComponent<PlayerController>() != null)
+                if (inventory.items.Count < maxInventorySize)
                 {
-                    Log.Add($"You pick up the {Program.tiles[location.x, location.y].item.GetComponent<Description>().name}.");
-                }
+                    inventory.items.Add(Program.tiles[location.x, location.y].item);
 
-                Program.tiles[location.x, location.y].item = null;
-                actor.GetComponent<TurnComponent>().EndTurn();
+                    if (actor.GetComponent<PlayerController>() != null)
+                    {
+                        Log.Add($"You pick up the {Program.tiles[location.x, location.y].item.GetComponent<Description>().name}.");
+                    }
+
+                    Program.tiles[location.x, location.y].item = null;
+                    actor.GetComponent<TurnComponent>().EndTurn();
+                }
+                else if (actor.GetComponent<PlayerController>() != null)
+                {
+                    Log.Add($"You are holding too much for you to pick this up.");
+                }
             }
             else if (actor.GetComponent<PlayerController>() != null)
             {
@@ -244,6 +260,8 @@ namespace Servants_of_Arcana
 
             slot.item = item;
             equipable.equipped = true;
+            equipable.onEquip?.Invoke(actor, true);
+
 
             if (actor.GetComponent<PlayerController>() != null)
             {
@@ -268,6 +286,7 @@ namespace Servants_of_Arcana
 
             slot.item = null;
             equipable.equipped = false;
+            equipable.onEquip?.Invoke(actor, false);
 
             if (actor.GetComponent<PlayerController>() != null)
             {
@@ -297,9 +316,14 @@ namespace Servants_of_Arcana
                     {
                         use.Use(actor, position);
 
-                        if (item.GetComponent<Consumable>() != null)
+                        if (item.GetComponent<Charges>() != null)
                         {
-                            actor.GetComponent<InventoryComponent>().items.Remove(item);
+                            item.GetComponent<Charges>().chargesRemaining--;
+                            if (item.GetComponent<Charges>().chargesRemaining <= 0)
+                            {
+                                actor.GetComponent<InventoryComponent>().items.Remove(item);
+                                Log.Add($"The {item.GetComponent<Description>().name} is spent!");
+                            }
                         }
 
                         CloseInventory();
@@ -310,6 +334,7 @@ namespace Servants_of_Arcana
                     {
                         CloseInventory();
                         TargetingSystem.BeginTargeting(use);
+                        return;
                     }
                 }
                 else
@@ -317,9 +342,14 @@ namespace Servants_of_Arcana
                     //For now default to actor position
                     use.Use(actor, position);
 
-                    if (item.GetComponent<Consumable>() != null)
+                    if (item.GetComponent<Charges>() != null)
                     {
-                        actor.GetComponent<InventoryComponent>().items.Remove(item);
+                        item.GetComponent<Charges>().chargesRemaining--;
+                        if (item.GetComponent<Charges>().chargesRemaining <= 0)
+                        {
+                            actor.GetComponent<InventoryComponent>().items.Remove(item);
+                            Log.Add($"The {item.GetComponent<Description>().name} is spent!");
+                        }
                     }
 
                     Log.Add($"The {actor.GetComponent<Description>().name} {use.action}s the {item.GetComponent<Description>().name}!");

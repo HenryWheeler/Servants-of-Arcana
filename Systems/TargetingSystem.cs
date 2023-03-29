@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
+using SadRogue.Primitives;
 
 namespace Servants_of_Arcana
 {
@@ -14,14 +15,16 @@ namespace Servants_of_Arcana
     {
         public static Vector targetedPosition = new Vector();
         public static bool isTargeting = false;
+        public static bool isTargetValid { get; set; }
+        public static bool requiredTargetsMet { get; set; }
         public static Usable currentUsedItem { get; set; }
         public static void BeginTargeting(Usable item)
         {
             Vector playerPosition = Program.player.GetComponent<Vector>();
             targetedPosition = new Vector(playerPosition.x, playerPosition.y);
 
-            isTargeting = true;
             Program.player.GetComponent<TurnComponent>().isTurnActive = false;
+            isTargeting = true;
 
             Program.playerConsole.Clear();
             Program.rootConsole.Children.MoveToTop(Program.targetConsole);
@@ -57,7 +60,7 @@ namespace Servants_of_Arcana
             if (Math.CheckBounds(targetedPosition.x + direction.x, targetedPosition.y + direction.y))
             {
                 Program.ClearUISFX();
-                Program.lookConsole.Clear();
+                Program.targetConsole.Clear();
 
                 targetedPosition.x += direction.x;
                 targetedPosition.y += direction.y;
@@ -65,32 +68,50 @@ namespace Servants_of_Arcana
                 Program.CreateConsoleBorder(Program.targetConsole);
                 Program.MoveCamera(targetedPosition);
 
-                if (Math.Distance(playerPosition.x, playerPosition.y, targetedPosition.x + direction.x, targetedPosition.y + direction.y) <= currentUsedItem.range)
+                if (Program.tiles[targetedPosition.x, targetedPosition.y].GetComponent<Visibility>().visible)
                 {
-                    ShowAffectedTile(false);
+                    if (Math.Distance(playerPosition.x, playerPosition.y, targetedPosition.x, targetedPosition.y) <= currentUsedItem.range && 
+                        currentUsedItem.tileTypes.Contains(Program.tiles[targetedPosition.x, targetedPosition.y].terrainType))
+                    {
+                        ShowAffectedTiles(false);
+                        isTargetValid = true;
+                    }
+                    else
+                    {
+                        ShowAffectedTiles(true);
+                        isTargetValid = false;
+                    }
                 }
                 else
                 {
-                    ShowAffectedTile(true);
+                    isTargetValid = false;
+                    Program.uiSfx[targetedPosition.x, targetedPosition.y] = new Draw(Color.Red, Color.Black, 'X');
                 }
+                Program.CreateConsoleBorder(Program.targetConsole);
             }
         }
         public static void UseSelectedItem()
         {
+            Log.Add($"{Program.player.GetComponent<Description>().name} {currentUsedItem.action} the {currentUsedItem.entity.GetComponent<Description>().name}!");
             currentUsedItem.Use(Program.player, targetedPosition);
 
-            if (currentUsedItem.entity.GetComponent<Consumable>() != null)
+            if (currentUsedItem.entity.GetComponent<Charges>() != null)
             {
-                Program.player.GetComponent<InventoryComponent>().items.Remove(currentUsedItem.entity);
+                currentUsedItem.entity.GetComponent<Charges>().chargesRemaining--;
+                if (currentUsedItem.entity.GetComponent<Charges>().chargesRemaining <= 0)
+                {
+                    Program.player.GetComponent<InventoryComponent>().items.Remove(currentUsedItem.entity);
+                    Log.Add($"The {currentUsedItem.entity.GetComponent<Description>().name} is spent!");
+                }
             }
 
             StopTargeting(false);
             Program.player.GetComponent<TurnComponent>().EndTurn();
-            Log.Add($"{Program.player.GetComponent<Description>().name} {currentUsedItem.action} the {currentUsedItem.entity.GetComponent<Description>().name}!");
         }
-        public static void ShowAffectedTile(bool outOfRange)
+        public static void ShowAffectedTiles(bool outOfRange)
         {
             List<Vector> visitedTiles = new List<Vector>();
+
             if (currentUsedItem.areaOfEffect == null)
             {
                 Program.uiSfx[targetedPosition.x, targetedPosition.y] = ReturnTileAppearance(targetedPosition, outOfRange);
@@ -98,16 +119,43 @@ namespace Servants_of_Arcana
             }
             else
             {
-                foreach (Vector position in currentUsedItem.areaOfEffect.Invoke(targetedPosition, currentUsedItem.range))
+                foreach (Vector position in currentUsedItem.areaOfEffect.Invoke(Program.player.GetComponent<Vector>(), targetedPosition, currentUsedItem.strength))
                 {
-                    Program.uiSfx[position.x, position.y] = ReturnTileAppearance(position, outOfRange);
-                    visitedTiles.Add(position);
+                    if (Math.CheckBounds(position.x, position.y))
+                    {
+                        Program.uiSfx[position.x, position.y] = ReturnTileAppearance(position, outOfRange);
+                        visitedTiles.Add(position);
+                    }
                 }
             }
 
-            foreach (Vector tile in visitedTiles)
+            int actorCount = 0;
+            int y = 6;
+            foreach (Vector vector in visitedTiles)
             {
+                Tile tile = Program.tiles[vector.x, vector.y];
+                if (tile.actor != null)
+                {
+                    actorCount++;
 
+                    int x = 3;
+                    Draw draw = tile.actor.GetComponent<Draw>();
+
+                    Program.targetConsole.DrawLine(new Point(0, y), new Point(Program.targetConsole.Width, y), '-', Color.Gray, Color.Black);
+
+                    Math.DisplayToConsole(Program.targetConsole, $"<#> <{tile.actor.GetComponent<Description>().name}>", 1, x, 0, y, false);
+                    Program.targetConsole.SetCellAppearance(x + 2, y, new ColoredGlyph(draw.fColor, draw.bColor, draw.character));
+                    y += 2;
+                }
+            }
+
+            if (actorCount < currentUsedItem.requiredTargets)
+            {
+                requiredTargetsMet = false;
+            }
+            else 
+            {
+                requiredTargetsMet = true;
             }
         }
         public static Draw ReturnTileAppearance(Vector tilePosition, bool outOfRange) 
@@ -116,9 +164,12 @@ namespace Servants_of_Arcana
             {
                 Draw returnDraw;
 
+                Color color = Color.Black;
+
                 if (Program.tiles[tilePosition.x, tilePosition.y].actor != null)
                 {
                     returnDraw = new Draw(Program.tiles[tilePosition.x, tilePosition.y].actor.GetComponent<Draw>());
+                    color = Color.Yellow;
                 }
                 else if (Program.tiles[tilePosition.x, tilePosition.y].item != null)
                 {
@@ -129,14 +180,19 @@ namespace Servants_of_Arcana
                     returnDraw = new Draw(Program.tiles[tilePosition.x, tilePosition.y].GetComponent<Draw>());
                 }
 
-                if (!outOfRange)
+                if (color == Color.Black)
                 {
-                    returnDraw.bColor = SadRogue.Primitives.Color.Cyan;
+                    if (!outOfRange)
+                    {
+                        color = Color.DarkBlue;
+                    }
+                    else
+                    {
+                        color = Color.Red;
+                    }
                 }
-                else
-                {
-                    returnDraw.bColor = SadRogue.Primitives.Color.Red;
-                }
+
+                returnDraw.bColor = color;
 
                 return returnDraw;
             }

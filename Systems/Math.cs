@@ -72,6 +72,17 @@ namespace Servants_of_Arcana
             }
             return null;
         }
+        public static AIController ReturnAIController(Entity entity)
+        {
+            if (entity != null && entity.components != null)
+            {
+                foreach (Component component in entity.components)
+                {
+                    if (component.GetType().BaseType.Equals(typeof(AIController))) { return (AIController)component; }
+                }
+            }
+            return null;
+        }
         public static void ClearTransitions(Entity entity)
         {
             if (entity != null && entity.components != null)

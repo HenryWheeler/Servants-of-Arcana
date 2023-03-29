@@ -11,7 +11,6 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using System.Numerics;
 using Servants_of_Arcana.Systems;
-using System.Security.AccessControl;
 
 namespace Servants_of_Arcana
 {
@@ -92,7 +91,7 @@ namespace Servants_of_Arcana
                                 for (int y = 2; y < Program.gameHeight - 4; y++)
                                 {
                                     Tile tile = Program.tiles[x, y];
-                                    if (tile != null && !tile.GetComponent<Visibility>().explored)
+                                    if (tile != null && tile.terrainType == 1 && !tile.GetComponent<Visibility>().explored)
                                     {
                                         Vector vector = tile.GetComponent<Vector>();
                                         unexploredTiles.Add(vector);
@@ -146,15 +145,16 @@ namespace Servants_of_Arcana
                         else if (info.IsKeyPressed(Keys.NumPad1)) { Program.player.GetComponent<Movement>().Move(new Vector(Program.player.GetComponent<Vector>(), new Vector(-1, 1))); }
                         else if (info.IsKeyPressed(Keys.NumPad4)) { Program.player.GetComponent<Movement>().Move(new Vector(Program.player.GetComponent<Vector>(), new Vector(-1, 0))); }
                         else if (info.IsKeyPressed(Keys.NumPad7)) { Program.player.GetComponent<Movement>().Move(new Vector(Program.player.GetComponent<Vector>(), new Vector(-1, -1))); }
-                        else if (info.IsKeyDown(Keys.LeftShift) && info.IsKeyPressed(Keys.OemPeriod))
+                        else if (info.IsKeyPressed(Keys.NumPad5)) { Program.player.GetComponent<TurnComponent>().EndTurn(); }
+                        else if (info.IsKeyDown(Keys.LeftShift) && info.IsKeyPressed(Keys.OemComma))
                         {
                             Vector vector2 = Program.player.GetComponent<Vector>();
-                            if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '>')
+                            if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '<')
                             {
                                 confirming = true;
                                 keyboardEvent += DescendFloor;
 
-                                InteractionManager.CreateConfirmationPrompt($"Descend to a lower floor?");
+                                InteractionManager.CreateConfirmationPrompt($"Ascend to a higher floor?");
                             }
                             else if (Program.tiles[DungeonGenerator.stairSpot.x, DungeonGenerator.stairSpot.y].GetComponent<Visibility>().explored)
                             {
@@ -358,10 +358,24 @@ namespace Servants_of_Arcana
                     }
                     if (info.IsKeyPressed(Keys.Enter))
                     {
-                        confirming = true;
-                        keyboardEvent += TargetingSystemUseItem;
+                        if (TargetingSystem.isTargetValid)
+                        {
+                            if (TargetingSystem.requiredTargetsMet)
+                            {
+                                confirming = true;
+                                keyboardEvent += TargetingSystemUseItem;
 
-                        InteractionManager.CreateConfirmationPrompt($"Use the {TargetingSystem.currentUsedItem.entity.GetComponent<Description>().name}?");
+                                InteractionManager.CreateConfirmationPrompt($"Use the {TargetingSystem.currentUsedItem.entity.GetComponent<Description>().name}?");
+                            }
+                            else
+                            {
+                                Log.Add($"You cannot use this item as it requires {TargetingSystem.currentUsedItem.requiredTargets} targets.");
+                            }
+                        }
+                        else
+                        {
+                            Log.Add($"You are unable to target this tile with this item.");
+                        }
                     }
                     if (info.IsKeyPressed(Keys.Up)) { TargetingSystem.MoveReticle(new Vector(0, -1)); }
                     else if (info.IsKeyPressed(Keys.Down)) { TargetingSystem.MoveReticle(new Vector(0, 1)); }

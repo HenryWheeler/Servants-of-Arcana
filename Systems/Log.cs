@@ -68,6 +68,10 @@ namespace Servants_of_Arcana
 
             Program.CreateConsoleBorder(Program.logConsole, true);
         }
+        public static void ClearLog()
+        {
+            log.Clear();
+        }
         public static void OutputParticleLog(string log, string color, Vector position)
         {
             string name = "";

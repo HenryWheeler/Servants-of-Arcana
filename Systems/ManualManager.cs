@@ -20,7 +20,7 @@ namespace Servants_of_Arcana.Systems
                 "Open Inventory: [I] + " +
                 "Start Looking: [L] + " +
                 "Open Manual: [?] + " +
-                "Descend Floor/Path to Staircase: [>] + " +
+                "Ascend Floor/Path to Staircase: [<] + " +
                 "Explore Map Automatically: [A] + " +
                 "Cancel Automatic Pathing: [Escape] + " +
                 "Get Item at Position: [G] + " +
@@ -31,17 +31,32 @@ namespace Servants_of_Arcana.Systems
             entries.Add(new ManualEntry("< Inventory Controls >", 
                 "Change Selected Item: [Arrow Keys/Numpad] + " +
                 "Drop Selected Item: [D] + " +
-                "Close Inventory: [Escape/I]"));
-            entries.Add(new ManualEntry("< Look Controls >", 
+                "Equip Selected Item: [E] + " +
+                "Use Selected Item: [U] + " +
+                "Close Inventory: [Escape/I] + "));
+            entries.Add(new ManualEntry("< Look Menu >",
+                "This menu allows the player to observe their environment by looking at it. While in this menu a reticle will appear on the screen. " +
+                "The menu will display information about whatever object is on the tile the reticle is positioned on. " +
+                "Creatures will display over items, and items display over tiles. This order also controls what you look at when the reticle is one a tile. " +
+                "For example if the reticle is over a tile which contains a creature and an item, the menu will display the creature first. + + " +
+                "Controls: + " +
                 "Move Reticle: [Arrow Keys/Numpad] + " +
                 "Cancel Look: [Escape/L]"));
-            entries.Add(new ManualEntry("< Manual Controls >", 
+            entries.Add(new ManualEntry("< Targeting Menu >",
+                "This menu allows the player to select a location when using an item that requires a target. " +
+                "Tiles highlighted with Blue*blue show what tiles will be affected by the item selected. " + 
+                "Tiles highlighted with Yellow*yellow show tiles that have a creature on them, whether that be an NPC, Enemy, or the Player. " +
+                "If any tile is highlighted with Red*red the selection is invalid and you will be unable to confirm it. " +
+                "This also applies if the targeted tile is represented with a Red*red Red*X, if this is the case the targeted tile is not visible and it will not allow you to confirm. " +
+                "All creatures highlighted with Yellow*yellow will be listed with their map character. " +
+                "When confirming a prompt will appear asking to confirm your selection. + + " +
+                "Controls: + " +
+                "Move Target: [Arrow Keys/Numpad] + " +
+                "Close Targeting: [Escape] + " +
+                "Confirm Selection and Use Item: [Enter]"));
+            entries.Add(new ManualEntry("< Manual Controls >",
                 "Move Selected Entry: [Arrow Keys/Numpad] + " +
                 "Close Manual: [Escape/?]"));
-            entries.Add(new ManualEntry("< Test5 >", "Test5"));
-            entries.Add(new ManualEntry("< Test6 >", "Test6"));
-            entries.Add(new ManualEntry("< Test7 >", "Test7"));
-            entries.Add(new ManualEntry("< Test8 >", "Test8"));
         }
         public static void OpenManual()
         {
@@ -90,14 +105,14 @@ namespace Servants_of_Arcana.Systems
                 int offsetY = (y * 3) + 5;
                 if (selection == y)
                 {
-                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 8, (char)196), Color.Yellow, Color.Black);
+                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 8, '-'), Color.Yellow, Color.Black);
 
                     Program.manualConsole.SetGlyph(offsetX, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
                     Program.manualConsole.SetGlyph((Program.manualConsole.Width / 2) - offsetX * 2, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
                 }
                 else
                 {
-                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 8, (char)196), Color.Gray, Color.Black);
+                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 8, '-'), Color.Gray, Color.Black);
                 }
             }
 

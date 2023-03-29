@@ -32,8 +32,36 @@ namespace Servants_of_Arcana
                     }
                     else if (entity.GetComponent<PlayerController>() != null && newTraversable.actor != entity)
                     {
-                        CombatManager.AttackTarget(entity, newTraversable.actor);
-                        return;
+                        if (Math.ReturnAIController(newTraversable.actor).hatedEntities.Contains(entity) || 
+                            Math.ReturnAIController(newTraversable.actor).hatedFactions.Contains(entity.GetComponent<Faction>().faction))
+                        {
+                            CombatManager.AttackTarget(entity, newTraversable.actor);
+                            return;
+                        }
+                        else
+                        {
+                            Vector currentPosition = entity.GetComponent<Vector>();
+                            Tile oldTraversable = Program.tiles[currentPosition.x, currentPosition.y];
+
+                            newTraversable.actor.GetComponent<Vector>().x = currentPosition.x;
+                            newTraversable.actor.GetComponent<Vector>().y = currentPosition.y;
+
+                            oldTraversable.actor = newTraversable.actor;
+
+                            onMovement?.Invoke(entity);
+
+                            newTraversable.GetComponent<Trap>()?.TriggerTrap(newTraversable.actor);
+
+                                                                                                                                                                                                  
+                            entity.GetComponent<Vector>().x = newPosition.x;
+                            entity.GetComponent<Vector>().y = newPosition.y;
+
+                            newTraversable.actor = entity;
+
+                            onMovement?.Invoke(entity);
+
+                            newTraversable.GetComponent<Trap>()?.TriggerTrap(entity);
+                        }
                     }
                 }
                 else if (entity.GetComponent<PlayerController>() != null)
