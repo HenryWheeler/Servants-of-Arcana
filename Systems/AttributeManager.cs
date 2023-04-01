@@ -33,8 +33,6 @@ namespace Servants_of_Arcana
 
             display += $"LightGray*Av: {stats.armorValue}{spacer}";
 
-            display += $"Sight: {stats.sight}{spacer}";
-
             display += $"Floor: {Program.floor}{spacer}";
 
             display += $"{spacer}{spacer}Open Manual with Yellow*?.";

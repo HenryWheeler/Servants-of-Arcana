@@ -77,7 +77,7 @@ namespace Servants_of_Arcana
         {
             Settings.WindowTitle = "Servants of Arcana";
 
-            Game.Create(screenWidth, screenHeight, "fonts/ascii_6x6.font.json");
+            Game.Create(screenWidth, screenHeight, "Resources/Fonts/ascii_6x6.font.json");
             Game.Instance.DefaultFontSize = IFont.Sizes.Two;
             Game.Instance.OnStart = Init;
             Game.Instance.Run();
@@ -178,7 +178,7 @@ namespace Servants_of_Arcana
             player.AddComponent(new Vector(0, 0));
             player.AddComponent(new Draw(Color.Lime, Color.Black, '@'));
             player.AddComponent(new Description("You", "It's you."));
-            player.AddComponent(new Attributes(20, 1f, 1, 1, 10, 10));
+            player.AddComponent(new Attributes(20, 1f, 1, 1, 10, 50));
             player.AddComponent(new TurnComponent());
             player.AddComponent(new Movement(new List<int> { 1, 2 }));
             player.AddComponent(new InventoryComponent());
@@ -194,12 +194,120 @@ namespace Servants_of_Arcana
             rootConsole.particles.Clear();
             ClearSFX();
 
-            GenerateNewFloor();
+            Event mushroomSpawn = new Event(0, 0, new List<Component>()
+            {
+                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
+                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
+            }, 7, 7, "Sphere");
+            JsonDataManager.SaveEvent(mushroomSpawn, "Mushroom Spawn Event 1");
 
-            UpdateNewPlayer();
+            Event mushroomSpawn2 = new Event(0, 0, new List<Component>()
+            {
+                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
+                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
+                new SpawnMinions("", new List<string>() { "Purple Mushroam" }, 1, "Spawn"),
+            }, 7, 7, "Sphere");
+            JsonDataManager.SaveEvent(mushroomSpawn2, "Mushroom Spawn Event 2");
 
-            TurnManager.AddActor(player.GetComponent<TurnComponent>());
-            player.GetComponent<TurnComponent>().StartTurn();
+            Event mushroomSpawn3 = new Event(0, 0, new List<Component>()
+            {
+                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
+                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
+                new SpawnMinions("", new List<string>() { "Green Mushroam" }, 1, "Spawn"),
+            }, 8, 8, "Sphere");
+            JsonDataManager.SaveEvent(mushroomSpawn3, "Mushroom Spawn Event 3");
+
+            Event mushroomSpawn4 = new Event(0, 0, new List<Component>()
+            {
+                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
+                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
+                new SpawnMinions("", new List<string>() { "Red Mushroam" }, 1, "Spawn"),
+            }, 6, 6, "Sphere");
+            JsonDataManager.SaveEvent(mushroomSpawn4, "Mushroom Spawn Event 4");
+
+
+            Tile mushroom = new Tile(0, 0, Color.MediumPurple, Color.Black, (char)6, "Purple Mushroom", "A large immobile purple mushroom.", 1, true);
+            JsonDataManager.SaveEntity(mushroom, "Purple Mushroom");
+
+            Tile mushroom2 = new Tile(0, 0, Color.Green, Color.Black, (char)6, "Green Mushroom", "A large immobile green mushroom.", 1, true);
+            JsonDataManager.SaveEntity(mushroom2, "Green Mushroom");
+
+            Tile mushroom3 = new Tile(0, 0, Color.MediumVioletRed, Color.Black, (char)6, "Red Mushroom", "A large immobile red mushroom.", 1, true);
+            JsonDataManager.SaveEntity(mushroom3, "Red Mushroom");
+
+            Tile fungusCoveredGround = new Tile(0, 0, Color.DarkGreen, Color.Black, '`', "Fungus-Covered Ground", "A dense patch of small mushrooms and fungus.", 1, false);
+            JsonDataManager.SaveEntity(fungusCoveredGround, "Fungus-Covered Ground");
+
+            Entity fungi1 = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.MediumPurple, Color.Black, (char)6),
+                new Description("Purple Mushroam", "A large seemingly immobile purple mushroom. You do not feel comfortable around it."),
+                new InventoryComponent(),
+                new Faction("Enemy"),
+                new Harmable(),
+                new Attributes(5, .6f, 1, -3, 8, 2),
+                new Movement(new List<int>() { 1 }),
+                new TurnComponent(),
+                new PlantAI(10, 0, 1, 10, 150, 0, 0),
+
+            });
+
+            Entity fungiweapon = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Fungal Protuberance", "Fungus Thing."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(2, 0, 1, 3),
+            });
+
+            InventoryManager.EquipItem(fungi1, fungiweapon);
+            Math.ClearTransitions(fungi1);
+            JsonDataManager.SaveEntity(fungi1, "Purple Mushroam");
+
+            Entity fungi2 = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.Green, Color.Black, (char)6),
+                new Description("Green Mushroam", "A large seemingly immobile green mushroom. You do not feel comfortable around it."),
+                new InventoryComponent(),
+                new Faction("Enemy"),
+                new Harmable(),
+                new Attributes(5, .6f, 1, -3, 8, 2),
+                new Movement(new List<int>() { 1 }),
+                new TurnComponent(),
+                new PlantAI(10, 0, 1, 10, 150, 0, 0),
+
+            });
+
+            InventoryManager.EquipItem(fungi2, fungiweapon);
+            Math.ClearTransitions(fungi2);
+            JsonDataManager.SaveEntity(fungi2, "Green Mushroam");
+
+            Entity fungi3 = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.MediumVioletRed, Color.Black, (char)6),
+                new Description("Red Mushroam", "A large seemingly immobile red mushroom. You do not feel comfortable around it."),
+                new InventoryComponent(),
+                new Faction("Enemy"),
+                new Harmable(),
+                new Attributes(5, .6f, 1, -3, 8, 2),
+                new Movement(new List<int>() { 1 }),
+                new TurnComponent(),
+                new PlantAI(10, 0, 1, 10, 150, 0, 0),
+
+            });
+
+            InventoryManager.EquipItem(fungi3, fungiweapon);
+            Math.ClearTransitions(fungi3);
+            JsonDataManager.SaveEntity(fungi3, "Red Mushroam");
+
 
             Entity ram = new Entity(new List<Component>()
             {
@@ -265,7 +373,7 @@ namespace Servants_of_Arcana
                 new TurnComponent(),
                 new UndeadAI(50, 0, 1, 10, 150, 0, 0),
                 new SpawnDetails(),
-                new SummonMinions("", new List<string>() { "Skeletal Boneling" }, 2, "Spawn"),
+                new SpawnMinions("", new List<string>() { "Skeletal Boneling" }, 2, "Spawn"),
             });
 
             Math.ClearTransitions(boneLord);
@@ -292,6 +400,13 @@ namespace Servants_of_Arcana
                 InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Transposition"), player);
             }
 
+
+            GenerateNewFloor();
+
+            UpdateNewPlayer();
+
+            TurnManager.AddActor(player.GetComponent<TurnComponent>());
+            player.GetComponent<TurnComponent>().StartTurn();
 
             isGameActive = true;
         }

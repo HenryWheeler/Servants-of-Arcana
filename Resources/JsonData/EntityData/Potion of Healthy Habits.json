@@ -1,0 +1,58 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190335
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "!"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Potion of Healthy Habits",
+        "description": "A thick ochre brew that feels hot to the touch."
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": []
+        },
+        "range": 0,
+        "strength": 10,
+        "requiredTargets": 1,
+        "action": "Quaff"
+      },
+      {
+        "$type": "Servants_of_Arcana.Charges, Servants of Arcana",
+        "chargesRemaining": 1
+      },
+      {
+        "$type": "Servants_of_Arcana.Heal, Servants of Arcana",
+        "strength": 10
+      }
+    ]
+  }
+}

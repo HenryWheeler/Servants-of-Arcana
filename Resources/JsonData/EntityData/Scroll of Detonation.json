@@ -1,0 +1,61 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4294967040
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278232575
+        },
+        "character": "?"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Scroll of Detonation",
+        "description": "An essay on the value of large scale explosions."
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2
+          ]
+        },
+        "range": 10,
+        "strength": 3,
+        "action": "Orate"
+      },
+      {
+        "$type": "Servants_of_Arcana.Consumable, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",
+        "strength": 3,
+        "message": "The scroll explodes!",
+        "onUse": true
+      }
+    ]
+  }
+}

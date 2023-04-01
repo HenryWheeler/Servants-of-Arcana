@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Servants_of_Arcana
 {
     [Serializable]
-    public class SummonMinions : Component
+    public class SpawnMinions : Component
     {
         public string message { get; set; }
         public List<string> minionNames { get; set; } 
@@ -40,12 +40,11 @@ namespace Servants_of_Arcana
             Log.Add(message);
             minions = SpecialEffects.SummonMinions(user, origin, minionNames, amountToSummon);
         }
-        public void Summon()
+        public void Summon(Room room)
         {
-            Vector origin = entity.GetComponent<Vector>();
-            minions = SpecialEffects.SummonMinions(entity, origin, minionNames, amountToSummon);
+            minions = SpecialEffects.SummonMinions(entity, room, minionNames, amountToSummon);
         }
-        public SummonMinions(string message, List<string> minionNames, int amountToSummon, string delegateName = "Use")
+        public SpawnMinions(string message, List<string> minionNames, int amountToSummon, string delegateName = "Use")
         {
             this.message = message;
             this.minionNames = minionNames;
@@ -57,7 +56,7 @@ namespace Servants_of_Arcana
     /// A component for items that summon minions when the item is equipped, and despawns the minions when the item is unequipped.
     /// </summary>
     [Serializable]
-    public class BoundMinion : SummonMinions
+    public class BoundMinion : SpawnMinions
     {
         public override void SetDelegates()
         {

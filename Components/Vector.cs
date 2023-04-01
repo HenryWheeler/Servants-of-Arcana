@@ -15,6 +15,11 @@ namespace Servants_of_Arcana
             x = _x;
             y = _y;
         }
+        public Vector(Vector _1)
+        {
+            x = _1.x;
+            y = _1.y;
+        }
         public Vector(Vector _1, Vector _2)
         {
             x = _1.x + _2.x;

@@ -1,0 +1,63 @@
+{
+  "$type": "Servants_of_Arcana.Event, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnDetails, Servants of Arcana",
+        "onSpawn": null,
+        "width": 7,
+        "height": 7,
+        "type": "Sphere",
+        "usedRoom": null
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnTiles, Servants of Arcana",
+        "tileNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Fungus-Covered Ground"
+          ]
+        },
+        "amountToSpawn": 50
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnTiles, Servants of Arcana",
+        "tileNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Purple Mushroom",
+            "Green Mushroom",
+            "Red Mushroom"
+          ]
+        },
+        "amountToSpawn": 3
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnMinions, Servants of Arcana",
+        "minions": {
+          "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
+          "$values": []
+        },
+        "message": "",
+        "minionNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Purple Mushroam"
+          ]
+        },
+        "amountToSummon": 1,
+        "delegateName": "Spawn"
+      }
+    ]
+  }
+}

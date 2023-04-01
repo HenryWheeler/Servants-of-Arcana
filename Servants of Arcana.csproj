@@ -7,6 +7,12 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Content Include="Resources\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	
   <ItemGroup>
     <None Remove="Icon.bmp" />
     <None Remove="Resources\logo.ans" />

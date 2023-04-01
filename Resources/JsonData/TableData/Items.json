@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "Dagger",
+    "2": "Shortsword",
+    "3": "Potion of Mighty Strength",
+    "4": "Potion of Healthy Habits",
+    "5": "Longsword",
+    "6": "Potion of Bookish Quality",
+    "7": "Potion of Healthy Habits",
+    "8": "Dagger",
+    "9": "Potion of Quick Movements",
+    "10": "Shortsword",
+    "11": "Longsword",
+    "12": "Potion of Mighty Strength",
+    "13": "Potion of Healthy Habits",
+    "14": "Dagger",
+    "15": "Potion of Bookish Quality",
+    "16": "Shortsword",
+    "17": "Longsword",
+    "18": "Potion of Quick Movements",
+    "19": "Dagger",
+    "20": "Potion of Healthy Habits"
+  },
+  "name": "Items"
+}

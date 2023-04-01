@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "Purple Mushroom",
+    "2": "Purple Mushroom",
+    "3": "Purple Mushroom",
+    "4": "Purple Mushroom",
+    "5": "Purple Mushroom",
+    "6": "Purple Mushroom",
+    "7": "Purple Mushroom",
+    "8": "Purple Mushroom",
+    "9": "Purple Mushroom",
+    "10": "Purple Mushroom",
+    "11": "Purple Mushroom",
+    "12": "Purple Mushroom",
+    "13": "Purple Mushroom",
+    "14": "Purple Mushroom",
+    "15": "Purple Mushroom",
+    "16": "Purple Mushroom",
+    "17": "Purple Mushroom",
+    "18": "Purple Mushroom",
+    "19": "Purple Mushroom",
+    "20": "Purple Mushroom"
+  },
+  "name": "Tiles"
+}

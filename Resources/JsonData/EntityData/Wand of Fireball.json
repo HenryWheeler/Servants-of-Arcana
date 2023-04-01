@@ -1,0 +1,64 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4294967040
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278232575
+        },
+        "character": "/"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Wand of Fireball",
+        "description": "A powerful yew wand toppled with amber crystals. With each use of the wand, another of the crystals crumbles to dust."
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2
+          ]
+        },
+        "range": 30,
+        "strength": 3,
+        "requiredTargets": 0,
+        "action": "Activate"
+      },
+      {
+        "$type": "Servants_of_Arcana.Charges, Servants of Arcana",
+        "chargesRemaining": 3
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",
+        "strength": 3,
+        "message": "A fireball shoots from the wand!",
+        "onUse": true,
+        "fireball": true
+      }
+    ]
+  }
+}

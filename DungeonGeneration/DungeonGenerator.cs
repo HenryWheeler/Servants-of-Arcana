@@ -22,7 +22,7 @@ namespace Servants_of_Arcana
         private Draw[] baseWallDraw { get; set; }
         private Description baseWallDescription { get; set; }
         public Random seed { get; set; }
-        private List<Room> rooms = new List<Room>();
+        public List<Room> rooms = new List<Room>();
         public static Vector stairSpot = new Vector(Program.gameWidth / 2, Program.gameHeight / 2);
         public static int patrolRouteCount;
         public List<Tile> towerTiles = new List<Tile>();
@@ -123,6 +123,8 @@ namespace Servants_of_Arcana
 
             stopwatch.Stop();
 
+            SpawnEvents();
+
             CreatePassages();
 
             CreateDoors();
@@ -136,6 +138,39 @@ namespace Servants_of_Arcana
             PopulateFloor();
 
             CreateImprint();
+
+            foreach (Tile tile in Program.tiles)
+            {
+                if (tile != null && tile.terrainType == 3)
+                {
+                    tile.GetComponent<Visibility>().explored = true;
+                }
+            }
+        }
+        public void SpawnEvents()
+        {
+            int totalEventsToSpawn = seed.Next(3, 6);
+
+            List<Room> temp = new List<Room>();
+
+            foreach (Room room in rooms)
+            {
+                if (totalEventsToSpawn > 0)
+                {
+                    totalEventsToSpawn--;
+                    temp.Add(room);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            foreach (Room room in temp)
+            {
+                Event entity = JsonDataManager.ReturnEvent(RandomTableManager.RetrieveRandomEvent(0, true));
+                entity.GetComponent<SpawnDetails>().Invoke(room);
+            }
         }
         public void CreateImprint()
         {
@@ -201,45 +236,32 @@ namespace Servants_of_Arcana
         }
         public void PopulateFloor()
         {
-            string tableReturn = $"Floor-{Program.floor}";
-
-            int totalActorsToSpawn = seed.Next(8, 15) + Program.floor;
+            int totalActorsToSpawn = seed.Next(15, 30) + Program.floor;
             int totalItemsToSpawn = seed.Next(6, 10);
-            int totalObstaclesToSpawn = seed.Next(10, 20);
+            int totalObstaclesToSpawn = seed.Next(3, 6);
 
             foreach (Room room in rooms)
             {
-                int actorsToSpawn;
-                int itemsToSpawn;
-                int obstaclesToSpawn;
+                int actorsToSpawn = 0;
+                int itemsToSpawn = 0;
+                int obstaclesToSpawn = 0;
 
-                if (rooms.Count > totalActorsToSpawn)
+                if (totalActorsToSpawn > 0)
                 {
-                    actorsToSpawn = seed.Next(0, 2);
-                }
-                else
-                {
-                    actorsToSpawn = (int)MathF.Ceiling(totalActorsToSpawn / rooms.Count);
+                    totalActorsToSpawn--;
+                    actorsToSpawn = 1;
                 }
 
-                if (rooms.Count > totalItemsToSpawn)
+                if (totalItemsToSpawn > 0)
                 {
-                    itemsToSpawn = seed.Next(0, 2);
-                }
-                else
-                {
-                    itemsToSpawn = (int)MathF.Ceiling(totalItemsToSpawn / rooms.Count);
-
+                    totalItemsToSpawn--;
+                    itemsToSpawn = 1;
                 }
 
-                if (rooms.Count > totalObstaclesToSpawn)
+                if (totalObstaclesToSpawn > 0)
                 {
-                    obstaclesToSpawn = seed.Next(0, 2);
-                }
-                else
-                {
-                    obstaclesToSpawn = (int)MathF.Ceiling(totalObstaclesToSpawn / rooms.Count);
-
+                    totalObstaclesToSpawn--;
+                    obstaclesToSpawn = 1;
                 }
 
                 List<Tile> viableTiles = new List<Tile>();
@@ -260,7 +282,7 @@ namespace Servants_of_Arcana
                     viableTiles.Remove(tile);
                     Vector vector = tile.GetComponent<Vector>();
 
-                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandom(tableReturn, 1, true));
+                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomEnemy(0, true));
 
                     entity.GetComponent<Vector>().x = vector.x;
                     entity.GetComponent<Vector>().y = vector.y;
@@ -271,7 +293,7 @@ namespace Servants_of_Arcana
 
                     if (entity.GetComponent<SpawnDetails>() != null)
                     {
-                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke();
+                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke(room);
                     }
                 }
                 for (int i = 0; i < itemsToSpawn; i++)
@@ -280,7 +302,7 @@ namespace Servants_of_Arcana
                     viableTiles.Remove(tile);
                     Vector vector = tile.GetComponent<Vector>();
 
-                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandom($"Items", 1, true));
+                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomItem(0, true));
 
                     entity.GetComponent<Vector>().x = vector.x;
                     entity.GetComponent<Vector>().y = vector.y;
@@ -289,12 +311,25 @@ namespace Servants_of_Arcana
 
                     if (entity.GetComponent<SpawnDetails>() != null)
                     {
-                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke();
+                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke(room);
                     }
                 }
                 for (int i = 0; i < obstaclesToSpawn; i++)
                 {
-                    //Add later
+                    Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
+                    viableTiles.Remove(tile);
+                    Vector vector = tile.GetComponent<Vector>();
+
+                    Tile entity = JsonDataManager.ReturnTile(RandomTableManager.RetrieveRandomTile(0, true));
+
+                    entity.GetComponent<Vector>().x = vector.x;
+                    entity.GetComponent<Vector>().y = vector.y;
+                    Program.tiles[vector.x, vector.y] = entity;
+
+                    if (entity.GetComponent<SpawnDetails>() != null)
+                    {
+                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke(room);
+                    }
                 }
             }
         }
@@ -660,7 +695,10 @@ namespace Servants_of_Arcana
 
             foreach (Vector vector in vectors)
             {
-                CreateFloor(vector.x, vector.y);
+                if (Program.tiles[vector.x, vector.y].terrainType == 0)
+                {
+                    CreateFloor(vector.x, vector.y);
+                }
             }
 
 

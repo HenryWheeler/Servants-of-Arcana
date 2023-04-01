@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,8 +27,8 @@ namespace Servants_of_Arcana
 
                         int distance = (int)Math.Distance(origin.x, origin.y, vector.x, vector.y);
 
-                        
-                        Particle particle = ParticleManager.CreateParticle(true, vector, distance, 3, "None", new Draw(Color.Orange, Color.Black, (char)176), null, true, true, null, true);
+                        Particle deathParticle = ParticleManager.CreateParticle(false, vector, 5, 5, "None", new Draw(Color.OrangeRed, Color.Black, (char)176), null, true, true, null, false);
+                        ParticleManager.CreateParticle(true, vector, distance, 4, "None", new Draw(Color.Orange, Color.Black, (char)176), null, false, true, new List<Particle>() { deathParticle }, false);
                         //particle.AddComponent(new FadingParticleEmitter(new List<Particle> { particle, particle, particle }));
                         //particle.SetDelegates();
                     }
@@ -162,7 +164,199 @@ namespace Servants_of_Arcana
             }
 
             return minions;
-        } 
+        }
+        public static List<Entity> SummonMinions(Entity summoner, Room room, List<string> minionName, int amountToSummon)
+        {
+            List<Entity> minions = new List<Entity>();
+            List<Vector> chosenTiles = new List<Vector>();
+
+            foreach (Tile tile in room.tiles)
+            {
+                if (tile.terrainType != 0 && !tile.GetComponent<Visibility>().opaque)
+                {
+                    chosenTiles.Add(tile.GetComponent<Vector>());
+                }
+            }
+
+            Vector chosen;
+
+
+            for (int i = 0; i < amountToSummon; i++)
+            {
+                foreach (string name in minionName)
+                {
+                    if (chosenTiles.Count > 0)
+                    {
+                        chosen = chosenTiles[Program.random.Next(chosenTiles.Count)];
+                        chosenTiles.Remove(chosen);
+                    }
+                    else
+                    {
+                        return minions;
+                    }
+
+                    Entity entity = JsonDataManager.ReturnEntity(name);
+
+                    entity.GetComponent<Vector>().x = chosen.x;
+                    entity.GetComponent<Vector>().y = chosen.y;
+
+                    Program.tiles[chosen.x, chosen.y].actor = entity;
+
+
+                    if (entity.GetComponent<MinionAI>() != null)
+                    {
+                        entity.GetComponent<MinionAI>().SetMaster(summoner);
+                    }
+
+                    TurnManager.AddActor(entity.GetComponent<TurnComponent>());
+                    Math.SetTransitions(entity);
+
+                    minions.Add(entity);
+                }
+            }
+
+            return minions;
+        }
+        public static void SpawnTiles(Vector origin, List<string> minionName, int amountToSummon)
+        {
+            List<Vector> chosenTiles = new List<Vector>();
+
+            for (int x = origin.x - 3; x <= origin.x + 3; x++)
+            {
+                for (int y = origin.y - 3; y <= origin.y + 3; y++)
+                {
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType != 0 && Program.tiles[x, y].terrainType != 3 && new Vector(x, y) != origin && !chosenTiles.Contains(new Vector(x, y)))
+                    {
+                        chosenTiles.Add(new Vector(x, y));
+                    }
+                }
+            }
+
+            Vector chosen;
+
+            for (int i = 0; i < amountToSummon; i++)
+            {
+                foreach (string name in minionName)
+                {
+                    if (chosenTiles.Count > 0)
+                    {
+                        chosen = chosenTiles[Program.random.Next(chosenTiles.Count)];
+                        chosenTiles.Remove(chosen);
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                    Tile entity = JsonDataManager.ReturnTile(name);
+
+                    entity.GetComponent<Vector>().x = chosen.x;
+                    entity.GetComponent<Vector>().y = chosen.y;
+
+                    Program.tiles[chosen.x, chosen.y] = entity;
+                }
+            }
+        }
+        public static void SpawnTiles(Room room, List<string> minionName, int amountToSummon)
+        {
+            List<Vector> chosenTiles = new List<Vector>();
+
+            foreach (Tile tile in room.tiles) 
+            {
+                if (tile != null && tile.terrainType != 0 && !tile.GetComponent<Visibility>().opaque) 
+                {
+                    chosenTiles.Add(tile.GetComponent<Vector>());
+                }
+            }
+
+            Vector chosen;
+
+            for (int i = 0; i < amountToSummon; i++)
+            {
+                foreach (string name in minionName)
+                {
+                    if (chosenTiles.Count > 0)
+                    {
+                        chosen = chosenTiles[Program.random.Next(chosenTiles.Count)];
+                        chosenTiles.Remove(chosen);
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                    Tile entity = JsonDataManager.ReturnTile(name);
+
+                    entity.GetComponent<Vector>().x = chosen.x;
+                    entity.GetComponent<Vector>().y = chosen.y;
+
+                    Program.tiles[chosen.x, chosen.y] = entity;
+                }
+            }
+        }
+        public static Room SpawnPrefab(Room room, int width, int height, string type)
+        {
+            foreach (Tile tile in room.tiles)
+            {
+                Vector vector = tile.GetComponent<Vector>();
+                Program.dungeonGenerator.CreateWall(vector.x, vector.y);
+                Program.dungeonGenerator.towerTiles.Remove(tile);
+            }
+
+            Room newRoom = new Room(width, height, room.corner);
+
+            switch (type)
+            {
+                case "Sphere":
+                    {
+                        float radius = (width + height) / 4;
+
+                        int top = (int)MathF.Ceiling(newRoom.y - radius),
+                            bottom = (int)MathF.Floor(newRoom.y + radius);
+
+                        for (int y = top; y <= bottom; y++)
+                        {
+                            int dy = y - newRoom.y;
+                            float dx = MathF.Sqrt(radius * radius - dy * dy);
+                            int left = (int)MathF.Ceiling(newRoom.x - dx),
+                                right = (int)MathF.Floor(newRoom.x + dx);
+
+                            for (int x = left; x <= right; x++)
+                            {
+                                if (CheckIfPrefabHasSpace(x, y))
+                                {
+                                    Program.dungeonGenerator.CreateFloor(x, y);
+                                }
+                            }
+                        }
+
+                        for (int x = 0; x < width; x++)
+                        {
+                            for (int y = 0; y < height; y++)
+                            {
+                                int _X = room.corner.x + x;
+                                int _Y = room.corner.y + y;
+
+                                newRoom.tiles[x, y] = Program.tiles[_X, _Y];
+                            }
+                        }
+                        break;
+                    }
+            }
+
+            return newRoom;
+        }
+        public static bool CheckIfPrefabHasSpace(int x, int y)
+        {
+            for (int y2 = y - 1; y2 < y + 1; y2++)
+            {
+                for (int x2 = x - 1; x2 < x + 1; x2++)
+                {
+                    if (!Math.CheckBounds(x2, y2)) return false;
+                }
+            }
+            return true;
+        }
         public static void Transpose(Entity user, Vector victim)
         {
             Entity target = Program.tiles[victim.x, victim.y].actor;
@@ -212,7 +406,7 @@ namespace Servants_of_Arcana
 
                 if (tile != null)
                 {
-                    int life = (int)(Math.Distance(origin.x, origin.y, vector3.x, vector3.y) + 1);
+                    int life = (int)(Math.Distance(vector.x, vector.y, vector3.x, vector3.y) + 1);
 
                     Particle deathParticle3 = ParticleManager.CreateParticle(false, vector3, life - 3, 4, "None",
                         new Draw(Color.MediumPurple, Color.Black, (char)176), null, true, false);
