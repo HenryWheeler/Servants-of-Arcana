@@ -10,12 +10,12 @@ namespace Servants_of_Arcana
     [Serializable]
     public class Event : Entity
     {
-        public Event(int x, int y, List<Component> components, int width = 0, int height = 0, string type = "None") 
+        public Event(int x, int y, List<Component> components, int minWidth = 0, int minHeight = 0, int maxWidth = 0, int maxHeight = 0, string type = "None") 
         {
             AddComponent(new Vector(x, y));
-            if (width != 0 && height != 0 && type != "None")
+            if (minWidth != 0 && minHeight != 0 && maxWidth != 0 && maxHeight != 0 && type != "None")
             {
-                AddComponent(new SpawnDetails(width, height, type));
+                AddComponent(new SpawnDetails(minWidth, minHeight, maxWidth, maxHeight, type));
             }
             else
             {

@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using SadConsole.SerializedTypes;
 using SadRogue.Primitives;
@@ -28,6 +29,11 @@ namespace Servants_of_Arcana
         public List<Tile> towerTiles = new List<Tile>();
         public List<Tile> skyTiles = new List<Tile>();
         public Draw[,] backgroundImprint = new Draw[Program.gameWidth, Program.gameHeight];
+        public float baseRadius = 45.5f;
+        /// <summary>
+        /// The chance for some parts of the structure to be decayed when created.
+        /// </summary>
+        public int decayChance = 5;
         public DungeonGenerator(Draw[] baseFloorDraw, Description baseFloorDescription, Draw[] baseWallDraw, Description baseWallDescription, int width, Random seed = null)
         {
             this.baseFloorDraw = baseFloorDraw;
@@ -42,6 +48,28 @@ namespace Servants_of_Arcana
             else
             {
                 this.seed = new Random();
+            }
+
+            float radius = baseRadius;
+            Vector center = new Vector(Program.gameWidth / 2, Program.gameHeight / 2);
+
+            int top = (int)MathF.Ceiling(center.y - radius),
+                bottom = (int)MathF.Floor(center.y + radius);
+
+            for (int y = top; y <= bottom; y++)
+            {
+                int dy = y - center.y;
+                float dx = MathF.Sqrt(radius * radius - dy * dy);
+                int left = (int)MathF.Ceiling(center.x - dx),
+                    right = (int)MathF.Floor(center.x + dx);
+
+                for (int x = left; x <= right; x++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        backgroundImprint[x, y] = new Draw(Color.LightGray, Color.Black, (char)177);
+                    }
+                }
             }
         }
         public void GenerateTowerFloor()
@@ -59,7 +87,7 @@ namespace Servants_of_Arcana
                 }
             }
 
-            float radius = 45.5f - (Program.floor * 2);
+            float radius = baseRadius - (Program.floor * 2);
             Vector center = new Vector(Program.gameWidth / 2, Program.gameHeight / 2);
 
             int top = (int)MathF.Ceiling(center.y - radius),
@@ -125,6 +153,10 @@ namespace Servants_of_Arcana
 
             SpawnEvents();
 
+            CreateWindows();
+
+            CreateOutsidePassages();
+
             CreatePassages();
 
             CreateDoors();
@@ -135,7 +167,7 @@ namespace Servants_of_Arcana
 
             UpdateWalls();
 
-            PopulateFloor();
+            //PopulateFloor();
 
             CreateImprint();
 
@@ -146,6 +178,236 @@ namespace Servants_of_Arcana
                     tile.GetComponent<Visibility>().explored = true;
                 }
             }
+        }
+        public void CreateOutsidePassages()
+        {
+            List<Vector> checkList = new List<Vector>();
+            List<Vector> checkedList = new List<Vector>();
+
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameHeight; y++)
+                {
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType == 3)
+                    {
+                        for (int x2 = x - 1; x2 <= x + 1; x2++)
+                        {
+                            for (int y2 = y - 1; y2 <= y + 1; y2++)
+                            {
+                                if (Math.CheckBounds(x2, y2) && Program.tiles[x2, y2].terrainType == 1)
+                                {
+                                    checkList.Add(new Vector(x2, y2));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (Vector position in checkList)
+            {
+                if (checkedList.Contains(position))
+                {
+                    continue;
+                }
+                else
+                {
+                    Vector firstTile = position;
+                    checkedList.Add(firstTile);
+
+                    Vector secondTile = null;
+
+                    if (seed.Next(0, 101) > 50)
+                    {
+                        foreach (Vector check in checkList)
+                        {
+                            if (checkedList.Contains(check))
+                            {
+                                continue;
+                            }
+                            else if (secondTile == null && !checkedList.Contains(check) && check != firstTile)
+                            {
+                                secondTile = check;
+                            }
+                            else if (check != firstTile && !checkedList.Contains(check) && Math.Distance(firstTile.x, firstTile.y, check.x, check.y) < Math.Distance(firstTile.x, firstTile.y, secondTile.x, secondTile.y))
+                            {
+                                secondTile = check;
+                            }
+                        }
+                    }
+
+                    if (secondTile != null)
+                    {
+                        checkedList.Add(secondTile);
+
+                        List<Node> nodes = AStar.ReturnPath(firstTile, secondTile);
+                        if (nodes != null && nodes.Count > 0)
+                        {
+                            foreach (Node node in nodes)
+                            {
+                                for (int x = node.position.x - 1; x <= node.position.x + 1; x++)
+                                {
+                                    if (Program.tiles[x, node.position.y].terrainType == 3)
+                                    {
+                                        if (seed.Next(0, 101) > decayChance)
+                                        {
+                                            CreateFloor(x, node.position.y, true);
+                                        }
+                                    }
+                                }
+                                for (int y = node.position.y - 1; y <= node.position.y + 1; y++)
+                                {
+                                    if (Program.tiles[node.position.x, y].terrainType == 3)
+                                    {
+                                        if (seed.Next(0, 101) > decayChance)
+                                        {
+                                            CreateFloor(node.position.x, y, true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        double xDistance = Math.Distance(Program.gameWidth / 2, Program.gameWidth / 2, firstTile.x, firstTile.x);
+                        double yDistance = Math.Distance(Program.gameHeight / 2, Program.gameHeight / 2, firstTile.y, firstTile.y);
+
+                        if (xDistance > yDistance)
+                        {
+                            for (int x = firstTile.x - 2; x <= firstTile.x + 2; x++)
+                            {
+                                for (int y = firstTile.y - 4; y <= firstTile.y + 4; y++)
+                                {
+                                    if (checkList.Contains(new Vector(x, y)))
+                                    {
+                                        checkedList.Add(new Vector(x, y));
+                                    }
+
+                                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType == 3)
+                                    {
+                                        if (seed.Next(0, 101) > decayChance)
+                                        {
+                                            CreateFloor(x, y, true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int x = firstTile.x - 4; x <= firstTile.x + 4; x++)
+                            {
+                                for (int y = firstTile.y - 2; y <= firstTile.y + 2; y++)
+                                {
+                                    if (checkList.Contains(new Vector(x, y)))
+                                    {
+                                        checkedList.Add(new Vector(x, y));
+                                    }
+
+                                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType == 3)
+                                    {
+                                        if (seed.Next(0, 101) > decayChance)
+                                        {
+                                            CreateFloor(x, y, true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
+                }
+            }
+        }
+        public void CreateWindows()
+        {
+            foreach (Room room in rooms)
+            {
+                bool spotFound = false;
+                Vector tile = null;
+
+                for (int y = room.y - 10; y <= room.y + 10; y++)
+                {
+                    if (Program.tiles[room.x, y].terrainType == 3)
+                    {
+                        tile = new Vector(room.x, y);
+                        spotFound = true;
+                        break;
+                    }
+                }
+
+                for (int x = room.x - 10; x <= room.x + 10; x++)
+                {
+                    if (Program.tiles[x, room.y].terrainType == 3)
+                    {
+                        if (tile != null)
+                        {
+                            if (Math.Distance(x, room.y, room.x, room.y) < Math.Distance(x, room.y, tile.x, tile.y))
+                            {
+                                tile = new Vector(x, room.y);
+                                spotFound = true;
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            tile = new Vector(x, room.y);
+                            spotFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (spotFound)
+                {
+                    CreateCorridor(tile.x, tile.y, room.x, room.y, true);
+                }
+            }
+        }
+        public void SmoothMap()
+        {
+            for (int x = 0; x < Program.gameWidth; x++)
+            {
+                for (int y = 0; y < Program.gameHeight; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        int walls = WallCount(x, y);
+                        if (walls > 4)
+                        {
+                            CreateWall(x, y);
+                        }
+                        else if (walls < 4)
+                        {
+                            CreateFloor(x, y);
+                        }
+                    }
+                }
+            }
+        }
+        public static int WallCount(int sX, int sY)
+        {
+            int walls = 0;
+
+            for (int x = sX - 1; x <= sX + 1; x++)
+            {
+                for (int y = sY - 1; y <= sY + 1; y++)
+                {
+                    if (x != sX || y != sY) { if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType == 0) { walls++; } }
+                }
+            }
+
+            return walls;
         }
         public void SpawnEvents()
         {
@@ -180,12 +442,22 @@ namespace Servants_of_Arcana
                 {
                     if (Math.CheckBounds(x, y) && backgroundImprint[x, y] != null)
                     {
-                        float offSet = 35f;
-                        backgroundImprint[x, y] = new Draw(
-                            new Color((int)(backgroundImprint[x, y].fColor.R - offSet), (int)(backgroundImprint[x, y].fColor.G - offSet), (int)(backgroundImprint[x, y].fColor.B - offSet)),
-                            new Color((int)(backgroundImprint[x, y].bColor.R - offSet), (int)(backgroundImprint[x, y].bColor.G - offSet), (int)(backgroundImprint[x, y].bColor.B - offSet)),
-                            backgroundImprint[x, y].character);
-
+                        if (backgroundImprint[x, y].character == (char)247 || backgroundImprint[x, y].character == '~')
+                        {
+                            float offSet = 10f;
+                            backgroundImprint[x, y] = new Draw(
+                                new Color((int)(backgroundImprint[x, y].fColor.R - offSet), (int)(backgroundImprint[x, y].fColor.G - offSet), (int)(backgroundImprint[x, y].fColor.B - offSet)),
+                                new Color((int)(backgroundImprint[x, y].bColor.R - offSet), (int)(backgroundImprint[x, y].bColor.G - offSet), (int)(backgroundImprint[x, y].bColor.B - offSet)),
+                                backgroundImprint[x, y].character);
+                        }
+                        else
+                        {
+                            float offSet = 30f;
+                            backgroundImprint[x, y] = new Draw(
+                                new Color((int)(backgroundImprint[x, y].fColor.R - offSet), (int)(backgroundImprint[x, y].fColor.G - offSet), (int)(backgroundImprint[x, y].fColor.B - offSet)),
+                                new Color((int)(backgroundImprint[x, y].bColor.R - offSet), (int)(backgroundImprint[x, y].bColor.G - offSet), (int)(backgroundImprint[x, y].bColor.B - offSet)),
+                                backgroundImprint[x, y].character);
+                        }
                     }
                 }
             }
@@ -196,11 +468,17 @@ namespace Servants_of_Arcana
                 {
                     if (Math.CheckBounds(x, y))
                     {
-                        if (Program.tiles[x, y].terrainType == 0)
+                        if (Program.tiles[x, y].terrainType == 0 || Program.tiles[x, y].terrainType == 1)
                         {
                             backgroundImprint[x, y] = new Draw(Program.tiles[x, y].GetComponent<Draw>());
+                            backgroundImprint[x, y].fColor = Color.LightGray;
+
+                            if (backgroundImprint[x, y].character == '.')
+                            {
+                                backgroundImprint[x, y].character = (char)176;
+                            }
                         }
-                        else if (Program.tiles[x, y].terrainType == 3 && Program.floor == 1)
+                        else if (Program.tiles[x, y].terrainType == 3 && backgroundImprint[x, y] == null)
                         {
                             backgroundImprint[x, y] = new Draw(Program.tiles[x, y].GetComponent<Draw>());
                         }
@@ -503,9 +781,12 @@ namespace Servants_of_Arcana
                     }
                 }
 
-                checkList.Remove(current);
-                completed.Add(current);
-                CreateCorridor(current.x, current.y, secondCurrent.x, secondCurrent.y);
+                if (current != null)
+                {
+                    checkList.Remove(current);
+                    completed.Add(current);
+                    CreateCorridor(current.x, current.y, secondCurrent.x, secondCurrent.y, false);
+                }
 
                 if (checkList.Count == 0) 
                 {
@@ -589,7 +870,7 @@ namespace Servants_of_Arcana
                 stairSpot = chosenTile.GetComponent<Vector>();
             }
 
-            if (Program.floor == 6)
+            if (Program.floor == 10)
             {
                 Entity goblet = JsonDataManager.ReturnEntity("The Goblet of Eternity");
                 Program.tiles[stairSpot.x, stairSpot.y].item = goblet;
@@ -602,7 +883,7 @@ namespace Servants_of_Arcana
                 Program.tiles[stairSpot.x, stairSpot.y].GetComponent<Description>().description = "A long winding staircase into complete darkness.";
             }
         }
-        public bool CreateCorridor(int startingX, int startingY, int finalX, int finalY)
+        public bool CreateCorridor(int startingX, int startingY, int finalX, int finalY, bool connectToSky)
         {
             List<Vector> vectors = new List<Vector>();
 
@@ -688,7 +969,7 @@ namespace Servants_of_Arcana
                 {
                     for (int x = vector.x - 1; x <= vector.x + 1; x++)
                     {
-                        if (Program.tiles[x, y].terrainType == 3) return false;
+                        if (Program.tiles[x, y].terrainType == 3 && !connectToSky) return false;
                     }
                 }
             }
@@ -789,23 +1070,50 @@ namespace Servants_of_Arcana
         }
         public Tile CreateOpenAir(int x, int y)
         {
-            Tile tile;
+            Tile tile = null;
 
-            if (seed.Next(2) == 1)
+            int t = seed.Next(4);
+
+            switch (t)
             {
-                tile = new Tile(x, y, Color.SkyBlue, Color.DarkBlue, (char)176, "Open Air.", "The open air.", 3, false);
-            }
-            else
-            {
-                tile = new Tile(x, y, Color.DarkBlue, Color.SkyBlue, (char)175, "Open Air.", "The open air.", 3, false);
+                case 0:
+                    {
+                        tile = new Tile(x, y, Color.SkyBlue, Color.Black, '~', "Open Air.", "The open air.", 3, false);
+                        break;
+                    }
+                case 1:
+                    {
+                        tile = new Tile(x, y, Color.SkyBlue, Color.Black, (char)247, "Open Air.", "The open air.", 3, false);
+                        break;
+                    }
+                case 2:
+                    {
+                        tile = new Tile(x, y, Color.DarkBlue, Color.Black, '~', "Open Air.", "The open air.", 3, false);
+                        break;
+                    }
+                case 3:
+                    {
+                        tile = new Tile(x, y, Color.DarkBlue, Color.Black, (char)247, "Open Air.", "The open air.", 3, false);
+                        break;
+                    }
             }
 
             Program.tiles[x, y] = tile;
             return tile;
         }
-        public Tile CreateFloor(int x, int y)
+        public Tile CreateFloor(int x, int y, bool thick = false)
         {
-            Draw draw = baseFloorDraw[seed.Next(baseFloorDraw.Count())];
+            Draw draw = new Draw(Color.Brown, Color.Black, '.');
+            if (thick)
+            {
+                draw.character = (char)176;
+            }
+
+            if (seed.Next(0, 101) < decayChance)
+            {
+                draw.fColor = Color.Chocolate;
+            }
+
             Description description = baseFloorDescription;
             Tile tile = new Tile(x, y, draw.fColor, draw.bColor, draw.character, description.name, description.description, 1, false);
             Program.tiles[x, y] = tile;
@@ -813,8 +1121,13 @@ namespace Servants_of_Arcana
         }
         public Tile CreateWall(int x, int y)
         {
-            Draw draw = baseWallDraw[seed.Next(baseWallDraw.Count())];
+            Draw draw = new Draw(Color.LightGray, Color.Black, (char)177);
             Description description = baseWallDescription;
+
+            if (seed.Next(0, 101) < decayChance)
+            {
+                draw.fColor = Color.Gray;
+            }
 
             Tile tile;
             if (Math.CheckBounds(x, y + 1) && Program.tiles[x, y + 1] != null && Program.tiles[x, y + 1].terrainType != 0)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Servants_of_Arcana.Components;
 
 namespace Servants_of_Arcana
 {
@@ -25,10 +26,10 @@ namespace Servants_of_Arcana
                         {
                             if (vector.x != home.x || vector.y != home.y) 
                             {
-                                Vector nextPosition = AStar.ReturnPath(vector, home)[1].position;
+                                List<Node> nextPosition = AStar.ReturnPath(vector, home);
                                 if (nextPosition != null)
                                 {
-                                    entity.GetComponent<Movement>().Move(nextPosition);
+                                    entity.GetComponent<Movement>().Move(nextPosition[0].position);
                                 }
                                 else
                                 {
@@ -72,7 +73,6 @@ namespace Servants_of_Arcana
         public PlantAI(int baseInterest, int minDistance, int maxDistance, int abilityChance, int hate, int fear, int greed)
             : base(baseInterest, minDistance, maxDistance, abilityChance, hate, fear, greed)
         {
-            hatedFactions.Add("Player");
             SetTransitions();
             currentState = State.Bored;
         }

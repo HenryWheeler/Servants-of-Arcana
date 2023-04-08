@@ -40,7 +40,8 @@
           "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
           "$values": [
             1,
-            2
+            2,
+            3
           ]
         },
         "range": 30,

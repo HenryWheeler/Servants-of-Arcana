@@ -101,24 +101,24 @@ namespace Servants_of_Arcana.Systems
 
             for (int y = 0; y < entries.Count; y++)
             {
-                int offsetX = 3;
-                int offsetY = (y * 3) + 5;
+                int offsetX = 1;
+                int offsetY = (y * 3) + 2;
                 if (selection == y)
                 {
-                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 8, '-'), Color.Yellow, Color.Black);
+                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 6, '-'), Color.Yellow, Color.Black);
 
                     Program.manualConsole.SetGlyph(offsetX, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '>'));
-                    Program.manualConsole.SetGlyph((Program.manualConsole.Width / 2) - offsetX * 2, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
+                    Program.manualConsole.SetGlyph((Program.manualConsole.Width / 2) - offsetX * 6, offsetY, new ColoredGlyph(Color.Yellow, Color.Black, '<'));
                 }
                 else
                 {
-                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 8, '-'), Color.Gray, Color.Black);
+                    Program.manualConsole.Print(offsetX, offsetY, entries[y].name.Align(HorizontalAlignment.Center, (Program.manualConsole.Width / 2) - 6, '-'), Color.Gray, Color.Black);
                 }
             }
 
-            Math.DisplayToConsole(Program.manualConsole, entries[selection].entry, (Program.manualConsole.Width / 2) + 5, 1, 0, 5, false);
+            Math.DisplayToConsole(Program.manualConsole, entries[selection].entry, (Program.manualConsole.Width / 2) + 5, 1, 0, 2, false);
 
-            Program.manualConsole.DrawBox(new Rectangle((Program.manualConsole.Width / 2) - 5, 4, 10, Program.manualConsole.Height - 7),
+            Program.manualConsole.DrawBox(new Rectangle((Program.manualConsole.Width / 2) - 5, 1, 10, Program.manualConsole.Height - 2),
             ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
 
             Program.CreateConsoleBorder(Program.manualConsole);

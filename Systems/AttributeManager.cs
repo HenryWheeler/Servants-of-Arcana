@@ -37,8 +37,11 @@ namespace Servants_of_Arcana
 
             display += $"{spacer}{spacer}Open Manual with Yellow*?.";
 
-            Math.DisplayToConsole(Program.playerConsole, display, 2, 2, 1, 5);
-            Program.CreateConsoleBorder(Program.playerConsole, true);
+            Program.inventoryConsole.UpdateLists(entity.GetComponent<InventoryComponent>().items);
+
+            Math.DisplayToConsole(Program.playerConsole, display, 2, 0);
+            Program.rootConsole.Children.MoveToTop(Program.playerConsole);
+            Program.rootConsole.Children.MoveToTop(Program.inventoryConsole);
         }
     }
 }

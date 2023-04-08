@@ -390,7 +390,7 @@ namespace Servants_of_Arcana
             {
                 if (movement == "Target")
                 {
-                    AddComponent(new Movement(new List<int>() { 1, 2 }));
+                    AddComponent(new Movement(new List<int>() { 1, 2, 3 }));
                     DijkstraMap.CreateMap(new List<Vector>() { target }, "ParticlePath");
                 }
                 else if (movement == "Attached")
@@ -411,7 +411,7 @@ namespace Servants_of_Arcana
             {
                 if (copy.movement == "Target")
                 {
-                    AddComponent(new Movement(new List<int>() { 1, 2 }));
+                    AddComponent(new Movement(new List<int>() { 1, 2, 3 }));
                     DijkstraMap.CreateMap(new List<Vector>() { copy.target }, "ParticlePath");
                 }
                 else if (copy.movement == "Attached")

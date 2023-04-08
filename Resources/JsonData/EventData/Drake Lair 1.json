@@ -15,34 +15,12 @@
       {
         "$type": "Servants_of_Arcana.SpawnDetails, Servants of Arcana",
         "onSpawn": null,
-        "minWidth": 7,
-        "minHeight": 7,
-        "maxWidth": 15,
-        "maxHeight": 15,
+        "minWidth": 4,
+        "minHeight": 4,
+        "maxWidth": 10,
+        "maxHeight": 10,
         "type": "Sphere",
         "usedRoom": null
-      },
-      {
-        "$type": "Servants_of_Arcana.SpawnTiles, Servants of Arcana",
-        "tileNames": {
-          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
-          "$values": [
-            "Fungus-Covered Ground"
-          ]
-        },
-        "amountToSpawn": 50
-      },
-      {
-        "$type": "Servants_of_Arcana.SpawnTiles, Servants of Arcana",
-        "tileNames": {
-          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
-          "$values": [
-            "Purple Mushroom",
-            "Green Mushroom",
-            "Red Mushroom"
-          ]
-        },
-        "amountToSpawn": 3
       },
       {
         "$type": "Servants_of_Arcana.SpawnMinions, Servants of Arcana",
@@ -54,7 +32,7 @@
         "minionNames": {
           "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
           "$values": [
-            "Green Mushroam"
+            "Sea-Drake"
           ]
         },
         "amountToSummon": 1,

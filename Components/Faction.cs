@@ -10,7 +10,10 @@ namespace Servants_of_Arcana
     public class Faction : Component
     {
         public string faction { get; set; }
-        public override void SetDelegates() { }
+        public override void SetDelegates() 
+        {
+            FactionManager.AddHatedFactions(Math.ReturnAIController(entity));
+        }
         public Faction(string faction)
         {
             this.faction = faction;

@@ -15,8 +15,10 @@
       {
         "$type": "Servants_of_Arcana.SpawnDetails, Servants of Arcana",
         "onSpawn": null,
-        "width": 7,
-        "height": 7,
+        "minWidth": 7,
+        "minHeight": 7,
+        "maxWidth": 15,
+        "maxHeight": 15,
         "type": "Sphere",
         "usedRoom": null
       },

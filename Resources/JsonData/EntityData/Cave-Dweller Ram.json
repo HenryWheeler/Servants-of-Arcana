@@ -116,7 +116,7 @@
       },
       {
         "$type": "Servants_of_Arcana.Faction, Servants of Arcana",
-        "faction": "Enemy"
+        "faction": "Beast"
       },
       {
         "$type": "Servants_of_Arcana.Harmable, Servants of Arcana"
@@ -161,9 +161,7 @@
         },
         "hatedFactions": {
           "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
-          "$values": [
-            "Player"
-          ]
+          "$values": []
         },
         "target": null,
         "interest": 15,

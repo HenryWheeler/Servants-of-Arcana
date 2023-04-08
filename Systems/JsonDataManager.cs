@@ -91,22 +91,44 @@ namespace Servants_of_Arcana
 
             return entity;
         }
+        /// <summary>
+        /// Note to anyone looking at this code, if you want to save your own entity change the file path to whatever is correct for your computer, 
+        /// otherwise thie will not work.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="name"></param>
         public static void SaveEntity(Entity entity, string name)
         {
-            //entity.ClearImbeddedComponents();
+            string path = "C:\\Users\\hlwea\\Desktop\\Servants of Arcana\\Resources\\JsonData\\EntityData\\";
+
             if (!Directory.Exists(entityPath)) Directory.CreateDirectory(entityPath);
-            File.WriteAllText(Path.Combine(entityPath, name + ".json"), JsonConvert.SerializeObject(entity, options));
+            File.WriteAllText(Path.Combine(path, name + ".json"), JsonConvert.SerializeObject(entity, options));
         }
+        /// <summary>
+        /// Note to anyone looking at this code, if you want to save your own event change the file path to whatever is correct for your computer, 
+        /// otherwise thie will not work.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="name"></param>
         public static void SaveEvent(Event entity, string name)
         {
-            //entity.ClearImbeddedComponents();
+            string path = "C:\\Users\\hlwea\\Desktop\\Servants of Arcana\\Resources\\JsonData\\EventData\\";
+
             if (!Directory.Exists(eventPath)) Directory.CreateDirectory(eventPath);
-            File.WriteAllText(Path.Combine(eventPath, name + ".json"), JsonConvert.SerializeObject(entity, options));
+            File.WriteAllText(Path.Combine(path, name + ".json"), JsonConvert.SerializeObject(entity, options));
         }
+        /// <summary>
+        /// Note to anyone looking at this code, if you want to save your own table change the file path to whatever is correct for your computer, 
+        /// otherwise thie will not work.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="name"></param>
         public static void SaveTable(RandomTable table)
         {
+            string path = "C:\\Users\\hlwea\\Desktop\\Servants of Arcana\\Resources\\JsonData\\TableData\\";
+
             if (!Directory.Exists(tablePath)) Directory.CreateDirectory(tablePath);
-            File.WriteAllText(Path.Combine(tablePath, table.name + ".json"), JsonConvert.SerializeObject(table, options));
+            File.WriteAllText(Path.Combine(path, table.name + ".json"), JsonConvert.SerializeObject(table, options));
         }
     }
     public class RandomTableManager

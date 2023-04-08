@@ -32,7 +32,7 @@ namespace Servants_of_Arcana
                 if (entity.GetComponent<PlayerController>() != null)
                 {
                     ShadowcastFOV.ClearSight();
-                    ShadowcastFOV.Compute(entity.GetComponent<Vector>(), 10);
+                    ShadowcastFOV.Compute(entity.GetComponent<Vector>(), entity.GetComponent<Attributes>().sight);
                 }
 
                 //Program.DrawMap();

@@ -18,6 +18,7 @@ namespace Servants_of_Arcana
     {
         public bool autoPathing = false;
         public bool pathingToTarget = false;
+        public bool confirming = false;
         public Vector lastPosition { get; set; }
         public override void Execute()
         {
@@ -33,7 +34,11 @@ namespace Servants_of_Arcana
     class KeyboardComponent : KeyboardConsoleComponent
     {
         public bool confirming = false;
-        private event Action keyboardEvent;
+        public event Action keyboardEvent;
+        public void ClearEvent()
+        {
+            keyboardEvent = null;
+        }
         public override void ProcessKeyboard(IScreenObject host, Keyboard info, out bool handled)
         {
             if (confirming)
@@ -43,30 +48,58 @@ namespace Servants_of_Arcana
                     Program.rootConsole.Children.MoveToBottom(Program.interactionConsole);
 
                     confirming = false;
+                    if (Program.player != null)
+                    {
+                        Program.player.GetComponent<PlayerController>().confirming = false;
+                    }
                     keyboardEvent.Invoke();
-                    keyboardEvent = null;
+                    ClearEvent();
                 }
                 else if (info.IsKeyPressed(Keys.Enter))
                 {
                     Program.rootConsole.Children.MoveToBottom(Program.interactionConsole);
 
                     confirming = false;
+                    if (Program.player != null)
+                    {
+                        Program.player.GetComponent<PlayerController>().confirming = false;
+                    }
                     keyboardEvent.Invoke();
-                    keyboardEvent = null;
+                    ClearEvent();
                 }
                 else if (info.IsKeyPressed(Keys.N))
                 {
                     Program.rootConsole.Children.MoveToBottom(Program.interactionConsole);
 
                     confirming = false;
-                    keyboardEvent = null;
+                    if (Program.player != null)
+                    {
+                        Program.player.GetComponent<PlayerController>().confirming = false;
+                    }
+
+                    if (InteractionManager.popupActive) 
+                    {
+                        InteractionManager.CreateItemDisplay(InventoryManager.selectedItem);
+                    }
+
+                    ClearEvent();
                 }
                 else if (info.IsKeyPressed(Keys.Escape))
                 {
                     Program.rootConsole.Children.MoveToBottom(Program.interactionConsole);
 
                     confirming = false;
-                    keyboardEvent = null;
+                    if (Program.player != null)
+                    {
+                        Program.player.GetComponent<PlayerController>().confirming = false;
+                    }
+
+                    if (InteractionManager.popupActive)
+                    {
+                        InteractionManager.CreateItemDisplay(InventoryManager.selectedItem);
+                    }
+
+                    ClearEvent();
                 }
             }
             else if (Program.isGameActive)
@@ -79,6 +112,7 @@ namespace Servants_of_Arcana
                         if (info.IsKeyPressed(Keys.Escape)) 
                         {
                             confirming = true;
+                            Program.player.GetComponent<PlayerController>().confirming = true;
                             keyboardEvent += CancelPathing;
                             InteractionManager.CreateConfirmationPrompt("Cancel Pathing?");
                         }
@@ -116,6 +150,7 @@ namespace Servants_of_Arcana
                         if (info.IsKeyPressed(Keys.Escape)) 
                         {
                             confirming = true;
+                            Program.player.GetComponent<PlayerController>().confirming = true;
                             keyboardEvent += CancelPathing;
                             InteractionManager.CreateConfirmationPrompt("Cancel Pathing?");
                         }
@@ -152,6 +187,7 @@ namespace Servants_of_Arcana
                             if (Program.tiles[vector2.x, vector2.y].GetComponent<Draw>().character == '<')
                             {
                                 confirming = true;
+                                Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += DescendFloor;
 
                                 InteractionManager.CreateConfirmationPrompt($"Ascend to a higher floor?");
@@ -159,6 +195,7 @@ namespace Servants_of_Arcana
                             else if (Program.tiles[DungeonGenerator.stairSpot.x, DungeonGenerator.stairSpot.y].GetComponent<Visibility>().explored)
                             {
                                 confirming = true;
+                                Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += PathToStairs;
 
                                 InteractionManager.CreateConfirmationPrompt($"Begin pathing to stairs?");
@@ -166,12 +203,13 @@ namespace Servants_of_Arcana
                         }
                         else if (info.IsKeyPressed(Keys.OemPeriod)) { Program.player.GetComponent<TurnComponent>().EndTurn(); }
                         else if (info.IsKeyPressed(Keys.L)) { Look.StartLooking(); }
-                        else if (info.IsKeyPressed(Keys.I)) { InventoryManager.OpenInventory(); }
+                        //else if (info.IsKeyPressed(Keys.I)) { InventoryManager.OpenInventory(); }
                         //else if (info.IsKeyPressed(Keys.E)) { InventoryManager.OpenEquipment(); }
                         else if (info.IsKeyPressed(Keys.G)) { InventoryManager.GetItem(Program.player); }
                         else if (info.IsKeyPressed(Keys.Q)) 
                         {
                             confirming = true;
+                            Program.player.GetComponent<PlayerController>().confirming = true;
                             keyboardEvent += QuitGame;
 
                             InteractionManager.CreateConfirmationPrompt($"Quit game?");
@@ -187,11 +225,12 @@ namespace Servants_of_Arcana
                         else if (info.IsKeyPressed(Keys.A))
                         {
                             confirming = true;
+                            Program.player.GetComponent<PlayerController>().confirming = true;
                             keyboardEvent += BeginAutoPath;
 
                             InteractionManager.CreateConfirmationPrompt($"Begin automatic pathing?");
                         }
-                        else if (info.IsKeyPressed(Keys.OemQuestion))
+                        else if (info.IsKeyDown(Keys.LeftShift) && info.IsKeyPressed(Keys.OemQuestion))
                         {
                             ManualManager.OpenManual();
                         }
@@ -216,29 +255,16 @@ namespace Servants_of_Arcana
                 }
                 else if (InventoryManager.isInventoryOpen)
                 {
-                    if (info.IsKeyPressed(Keys.I)) { InventoryManager.CloseInventory(); }
-                    else if (info.IsKeyPressed(Keys.Escape)) { InventoryManager.CloseInventory(); }
-                    else if (info.IsKeyPressed(Keys.Up)) { InventoryManager.MoveSelection(true); }
-                    else if (info.IsKeyPressed(Keys.Down)) { InventoryManager.MoveSelection(false); ; }
-                    else if (info.IsKeyPressed(Keys.Left)) { InventoryManager.MoveSelection(true); }
-                    else if (info.IsKeyPressed(Keys.Right)) { InventoryManager.MoveSelection(false); }
-                    else if (info.IsKeyPressed(Keys.NumPad8)) { InventoryManager.MoveSelection(true); }
-                    else if (info.IsKeyPressed(Keys.NumPad9)) { InventoryManager.MoveSelection(false); }
-                    else if (info.IsKeyPressed(Keys.NumPad6)) { InventoryManager.MoveSelection(false); }
-                    else if (info.IsKeyPressed(Keys.NumPad3)) { InventoryManager.MoveSelection(false); }
-                    else if (info.IsKeyPressed(Keys.NumPad2)) { InventoryManager.MoveSelection(false); }
-                    else if (info.IsKeyPressed(Keys.NumPad1)) { InventoryManager.MoveSelection(true); }
-                    else if (info.IsKeyPressed(Keys.NumPad4)) { InventoryManager.MoveSelection(true); }
-                    else if (info.IsKeyPressed(Keys.NumPad7)) { InventoryManager.MoveSelection(true); }
+                    if (info.IsKeyPressed(Keys.Escape)) { InventoryManager.CloseInventoryDisplay(); }
                     else if (info.IsKeyPressed(Keys.E)) 
                     {
                         InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
 
-                        if (inventory.items.Count > 0 && InventoryManager.selectedItem < inventory.items.Count) 
+                        if (inventory.items.Count > 0) 
                         {
-                            if (inventory.items[InventoryManager.selectedItem].GetComponent<Equipable>() != null)
+                            if (InventoryManager.selectedItem.GetComponent<Equipable>() != null)
                             {
-                                Equipable equipable = inventory.items[InventoryManager.selectedItem].GetComponent<Equipable>();
+                                Equipable equipable = InventoryManager.selectedItem.GetComponent<Equipable>();
 
                                 if (equipable.equipped)
                                 {
@@ -249,6 +275,7 @@ namespace Servants_of_Arcana
                                     else
                                     {
                                         confirming = true;
+                                        Program.player.GetComponent<PlayerController>().confirming = true;
                                         keyboardEvent += UnequipItem;
 
                                         InteractionManager.CreateConfirmationPrompt($"Unequip the {equipable.entity.GetComponent<Description>().name}?");
@@ -259,6 +286,7 @@ namespace Servants_of_Arcana
                                     if (inventory.ReturnSlot(equipable.slot).item == null)
                                     {
                                         confirming = true;
+                                        Program.player.GetComponent<PlayerController>().confirming = true;
                                         keyboardEvent += EquipItem;
 
                                         InteractionManager.CreateConfirmationPrompt($"Equip the {equipable.entity.GetComponent<Description>().name}?");
@@ -267,12 +295,13 @@ namespace Servants_of_Arcana
                                     {
                                         if (!inventory.ReturnSlot(equipable.slot).item.GetComponent<Equipable>().removable)
                                         {
-                                            Log.Add($"You cannot equip the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name} because the " +
+                                            Log.Add($"You cannot equip the {InventoryManager.selectedItem.GetComponent<Description>().name} because the " +
                                                 $"{inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is unequipable.");
                                         }
                                         else
                                         {
                                             confirming = true;
+                                            Program.player.GetComponent<PlayerController>().confirming = true;
                                             keyboardEvent += EquipItem;
 
                                             InteractionManager.CreateConfirmationPrompt(new List<string>() { $"The {inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is already equipped.", 
@@ -283,7 +312,7 @@ namespace Servants_of_Arcana
                             }
                             else
                             {
-                                Log.Add($"You cannot equip the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name}.");
+                                Log.Add($"You cannot equip the {InventoryManager.selectedItem.GetComponent<Description>().name}.");
                             }
                         }
                     }
@@ -291,22 +320,24 @@ namespace Servants_of_Arcana
                     {
                         InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
 
-                        if (inventory.items.Count > 0 && InventoryManager.selectedItem < inventory.items.Count)
+                        if (inventory.items.Count > 0)
                         {
-                            if (inventory.items[InventoryManager.selectedItem].GetComponent<Equipable>() != null &&
-                                inventory.items[InventoryManager.selectedItem].GetComponent<Equipable>().equipped)
+                            if (InventoryManager.selectedItem.GetComponent<Equipable>() != null &&
+                                    InventoryManager.selectedItem.GetComponent<Equipable>().equipped)
                             {
                                 confirming = true;
+                                Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += DropItem;
 
-                                InteractionManager.CreateConfirmationPrompt(new List<string>() { $"The {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name} is equipped.", "Drop anyways?" });
+                                InteractionManager.CreateConfirmationPrompt(new List<string>() { $"The {InventoryManager.selectedItem.GetComponent<Description>().name} is equipped.", "Drop anyways?" });
                             }
                             else
                             {
                                 confirming = true;
+                                Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += DropItem;
 
-                                InteractionManager.CreateConfirmationPrompt($"Drop the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name}?");
+                                InteractionManager.CreateConfirmationPrompt($"Drop the {InventoryManager.selectedItem.GetComponent<Description>().name}?");
                             }
                         }
                     }
@@ -314,18 +345,19 @@ namespace Servants_of_Arcana
                     {
                         InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
 
-                        if (inventory.items.Count > 0 && InventoryManager.selectedItem < inventory.items.Count)
+                        if (inventory.items.Count > 0)
                         {
-                            if (inventory.items[InventoryManager.selectedItem].GetComponent<Usable>() != null)
+                            if (InventoryManager.selectedItem.GetComponent<Usable>() != null)
                             {
                                 confirming = true;
+                                Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += UseItem;
 
-                                InteractionManager.CreateConfirmationPrompt($"{inventory.items[InventoryManager.selectedItem].GetComponent<Usable>().action} the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name}?");
+                                InteractionManager.CreateConfirmationPrompt($"{InventoryManager.selectedItem.GetComponent<Usable>().action} the {InventoryManager.selectedItem.GetComponent<Description>().name}?");
                             }
                             else
                             {
-                                Log.Add($"You cannot use the {inventory.items[InventoryManager.selectedItem].GetComponent<Description>().name}.");
+                                Log.Add($"You cannot use the {InventoryManager.selectedItem.GetComponent<Description>().name}.");
                             }
                         }
                     }
@@ -352,6 +384,7 @@ namespace Servants_of_Arcana
                     if (info.IsKeyPressed(Keys.Escape))
                     {
                         confirming = true;
+                        Program.player.GetComponent<PlayerController>().confirming = true;
                         keyboardEvent += StopTargeting;
 
                         InteractionManager.CreateConfirmationPrompt($"Stop targeting and return to inventory?");
@@ -363,6 +396,7 @@ namespace Servants_of_Arcana
                             if (TargetingSystem.requiredTargetsMet)
                             {
                                 confirming = true;
+                                Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += TargetingSystemUseItem;
 
                                 InteractionManager.CreateConfirmationPrompt($"Use the {TargetingSystem.currentUsedItem.entity.GetComponent<Description>().name}?");
@@ -415,12 +449,12 @@ namespace Servants_of_Arcana
         public void EquipItem()
         {
             InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
-            InventoryManager.EquipItem(Program.player, inventory.items[InventoryManager.selectedItem]);
+            InventoryManager.EquipItem(Program.player, InventoryManager.selectedItem);
         }
         public void UnequipItem()
         {
             InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
-            InventoryManager.UnequipItem(Program.player, inventory.items[InventoryManager.selectedItem]);
+            InventoryManager.UnequipItem(Program.player, InventoryManager.selectedItem);
         }
         public void DropItem()
         {
@@ -429,7 +463,7 @@ namespace Servants_of_Arcana
         public void UseItem()
         {
             InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
-            InventoryManager.UseItem(Program.player, inventory.items[InventoryManager.selectedItem], Program.player.GetComponent<Vector>());
+            InventoryManager.UseItem(Program.player, InventoryManager.selectedItem, Program.player.GetComponent<Vector>());
         }
         public void TargetingSystemUseItem()
         {

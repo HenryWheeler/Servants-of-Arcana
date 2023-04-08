@@ -19,18 +19,18 @@
         "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
         "fColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
-          "_packedValue": 4278222848
+          "_packedValue": 4287299584
         },
         "bColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
           "_packedValue": 4278190080
         },
-        "character": "\u0006"
+        "character": "D"
       },
       {
         "$type": "Servants_of_Arcana.Description, Servants of Arcana",
-        "name": "Green Mushroam",
-        "description": "A large seemingly immobile green mushroom. You do not feel comfortable around it."
+        "name": "Sea-Drake",
+        "description": "A large scaled drake, this large creature razes the high seas and is known for keeping large hoards of treasures."
       },
       {
         "$type": "Servants_of_Arcana.InventoryComponent, Servants of Arcana",
@@ -89,8 +89,8 @@
                     },
                     {
                       "$type": "Servants_of_Arcana.Description, Servants of Arcana",
-                      "name": "Fungal Protuberance",
-                      "description": "Fungus Thing."
+                      "name": "Talons",
+                      "description": "Talons."
                     },
                     {
                       "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
@@ -101,10 +101,10 @@
                     },
                     {
                       "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
-                      "toHitBonus": 2,
+                      "toHitBonus": 0,
                       "damageBonus": 0,
-                      "damageDie1": 1,
-                      "damageDie2": 3
+                      "damageDie1": 2,
+                      "damageDie2": 8
                     }
                   ]
                 }
@@ -116,27 +116,29 @@
       },
       {
         "$type": "Servants_of_Arcana.Faction, Servants of Arcana",
-        "faction": "Plant"
+        "faction": "Drake"
       },
       {
         "$type": "Servants_of_Arcana.Harmable, Servants of Arcana"
       },
       {
         "$type": "Servants_of_Arcana.Attributes, Servants of Arcana",
-        "maxHealth": 5,
-        "health": 5,
-        "maxEnergy": 0.6,
-        "strength": 1,
-        "intelligence": -3,
-        "armorValue": 8,
-        "sight": 2
+        "maxHealth": 50,
+        "health": 50,
+        "maxEnergy": 0.8,
+        "strength": 2,
+        "intelligence": 3,
+        "armorValue": 14,
+        "sight": 10
       },
       {
         "$type": "Servants_of_Arcana.Movement, Servants of Arcana",
         "moveTypes": {
           "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
           "$values": [
-            1
+            1,
+            2,
+            3
           ]
         }
       },
@@ -148,7 +150,7 @@
         "controller": null
       },
       {
-        "$type": "Servants_of_Arcana.PlantAI, Servants of Arcana",
+        "$type": "Servants_of_Arcana.BeastAI, Servants of Arcana",
         "transitions": {
           "$type": "System.Collections.Generic.Dictionary`2[[Servants_of_Arcana.AIController+StateMachine, Servants of Arcana],[Servants_of_Arcana.AIController+State, Servants of Arcana]], System.Private.CoreLib"
         },
@@ -162,16 +164,39 @@
           "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
           "$values": []
         },
-        "home": null,
         "target": null,
-        "interest": 10,
-        "baseInterest": 10,
-        "maxDistance": 1,
+        "interest": 50,
+        "baseInterest": 50,
+        "maxDistance": 10,
         "minDistance": 0,
-        "hate": 150,
-        "fear": 0,
-        "greed": 0,
-        "abilityChance": 10
+        "hate": 100,
+        "fear": 5,
+        "greed": 40,
+        "abilityChance": 25
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2,
+            3
+          ]
+        },
+        "range": 15,
+        "strength": 3,
+        "requiredTargets": 0,
+        "action": ""
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",
+        "strength": 3,
+        "message": "The Sea-Drake shoots a ball of flame!",
+        "onUse": true,
+        "fireball": true
       }
     ]
   }

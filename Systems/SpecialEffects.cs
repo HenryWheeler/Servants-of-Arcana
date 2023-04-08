@@ -294,7 +294,7 @@ namespace Servants_of_Arcana
                 }
             }
         }
-        public static Room SpawnPrefab(Room room, int width, int height, string type)
+        public static Room SpawnPrefab(Room room, int minWidth, int minHeight, int maxWidth, int maxHeight, string type)
         {
             foreach (Tile tile in room.tiles)
             {
@@ -303,13 +303,20 @@ namespace Servants_of_Arcana
                 Program.dungeonGenerator.towerTiles.Remove(tile);
             }
 
-            Room newRoom = new Room(width, height, room.corner);
+            int width = Program.dungeonGenerator.seed.Next(minWidth, maxWidth + 1);
+            int height = Program.dungeonGenerator.seed.Next(minHeight, maxHeight + 1);
+
+            Room newRoom;
 
             switch (type)
             {
                 case "Sphere":
                     {
-                        float radius = (width + height) / 4;
+                        //int average = (int)MathF.Max(width, height);
+                        newRoom = new Room(width, height, room.corner);
+
+
+                        float radius =  (width + height) / 4;
 
                         int top = (int)MathF.Ceiling(newRoom.y - radius),
                             bottom = (int)MathF.Floor(newRoom.y + radius);
@@ -340,11 +347,62 @@ namespace Servants_of_Arcana
                                 newRoom.tiles[x, y] = Program.tiles[_X, _Y];
                             }
                         }
-                        break;
+                        return newRoom;
+                    }
+                case "Torus":
+                    {
+                        //int average = (int)MathF.Max(width, height);
+                        newRoom = new Room(width, height, room.corner);
+
+
+                        float radius = (width + height) / 4;
+
+                        for (int i = 0; i < 2; i++)
+                        {
+                            int top = (int)MathF.Ceiling(newRoom.y - radius),
+                            bottom = (int)MathF.Floor(newRoom.y + radius);
+
+                            for (int y = top; y <= bottom; y++)
+                            {
+                                int dy = y - newRoom.y;
+                                float dx = MathF.Sqrt(radius * radius - dy * dy);
+                                int left = (int)MathF.Ceiling(newRoom.x - dx),
+                                    right = (int)MathF.Floor(newRoom.x + dx);
+
+                                for (int x = left; x <= right; x++)
+                                {
+                                    if (CheckIfPrefabHasSpace(x, y))
+                                    {
+                                        if (i == 0)
+                                        {
+                                            Program.dungeonGenerator.CreateFloor(x, y);
+                                        }
+                                        else
+                                        {
+                                            Program.dungeonGenerator.CreateWall(x, y);
+                                        }
+                                    }
+                                }
+                            }
+
+                            radius /= 2;
+                        }
+
+                        for (int x = 0; x < width; x++)
+                        {
+                            for (int y = 0; y < height; y++)
+                            {
+                                int _X = room.corner.x + x;
+                                int _Y = room.corner.y + y;
+
+                                newRoom.tiles[x, y] = Program.tiles[_X, _Y];
+                            }
+                        }
+                        return newRoom;
                     }
             }
 
-            return newRoom;
+            return null;
         }
         public static bool CheckIfPrefabHasSpace(int x, int y)
         {
@@ -353,6 +411,7 @@ namespace Servants_of_Arcana
                 for (int x2 = x - 1; x2 < x + 1; x2++)
                 {
                     if (!Math.CheckBounds(x2, y2)) return false;
+                    if (Program.tiles[x, y].terrainType != 0) return false; 
                 }
             }
             return true;

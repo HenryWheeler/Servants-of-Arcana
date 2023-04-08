@@ -126,7 +126,7 @@ namespace Servants_of_Arcana
                 return true;
             }
         }
-        public static int DisplayToConsole(TitleConsole console, string logOut, int a, int b, int m = 0, int y = 2, bool clear = true)
+        public static int DisplayToConsole(SadConsole.Console console, string logOut, int a, int b, int m = 0, int y = 2, bool clear = true)
         {
             if (clear)
             {

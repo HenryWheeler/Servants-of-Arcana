@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.Event, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnDetails, Servants of Arcana",
+        "onSpawn": null,
+        "minWidth": 7,
+        "minHeight": 7,
+        "maxWidth": 15,
+        "maxHeight": 15,
+        "type": "Torus",
+        "usedRoom": null
+      }
+    ]
+  }
+}

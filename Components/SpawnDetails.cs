@@ -10,8 +10,10 @@ namespace Servants_of_Arcana
     public class SpawnDetails : Component
     {
         public Action<Room> onSpawn;
-        public int width { get; set; }
-        public int height { get; set; }
+        public int minWidth { get; set; }
+        public int minHeight { get; set; }
+        public int maxWidth { get; set; }
+        public int maxHeight { get; set; }
         public string type { get; set; } = "None";
         public Room usedRoom { get; set; }
         public override void SetDelegates() { }
@@ -21,7 +23,7 @@ namespace Servants_of_Arcana
 
             if (type != "None")
             {
-                usedRoom = SpecialEffects.SpawnPrefab(origin, width, height, type);
+                usedRoom = SpecialEffects.SpawnPrefab(origin, minWidth, minHeight, maxWidth, maxHeight, type);
 
                 Program.dungeonGenerator.rooms.Remove(origin);
                 Program.dungeonGenerator.rooms.Add(usedRoom);
@@ -34,10 +36,12 @@ namespace Servants_of_Arcana
 
             onSpawn?.Invoke(usedRoom);
         }
-        public SpawnDetails(int width, int height, string type = "None")
+        public SpawnDetails(int minWidth, int minHeight, int maxWidth, int maxHeight, string type = "None")
         {
-            this.width = width;
-            this.height = height;
+            this.minWidth = minWidth;
+            this.minHeight = minHeight;
+            this.maxWidth = maxWidth;
+            this.maxHeight = maxHeight;
             this.type = type;
         }
         public SpawnDetails() { }

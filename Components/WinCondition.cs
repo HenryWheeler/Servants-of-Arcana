@@ -25,9 +25,11 @@ namespace Servants_of_Arcana
                 TurnManager.entities.Clear();
                 Program.isGameActive = false;
 
-                Program.ClearSFX();
+
                 Program.floor = 0;
+                Program.ClearSFX();
                 ShadowcastFOV.RevealAll();
+                Program.rootConsole.particles.Clear();
                 Program.FloorFadeAway();
                 Program.CreateWinMessage();
             }

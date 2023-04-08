@@ -24,6 +24,17 @@ namespace Servants_of_Arcana
             {
                 AttributeManager.UpdateAttributes(Program.player);
             }
+            
+            if (Math.ReturnAIController(entity) != null && attacker.GetComponent<Faction>() != null)
+            {
+                AIController ai = Math.ReturnAIController(entity);
+                if (!ai.hatedEntities.Contains(attacker))
+                {
+                    ai.hatedEntities.Add(attacker);
+                }
+                ai.currentInput = AIController.Input.Hurt;
+                ai.target = attacker;
+            }
 
             if (attributes.health <= 0)
             {

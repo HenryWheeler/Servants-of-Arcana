@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using SadConsole;
 using SadConsole.Components;
 using SadConsole.Entities;
+using SadConsole.Input;
 using SadConsole.Instructions;
 using SadRogue.Primitives;
 using Servants_of_Arcana.Components;
@@ -18,12 +19,12 @@ namespace Servants_of_Arcana
     {
         public static RootConsole rootConsole { get; set; }
         public static TitleConsole logConsole { get; set; }
-        public static TitleConsole mapConsole { get; set; }
+        public static Console mapConsole { get; set; }
         public static TitleConsole playerConsole { get; set; }
-        public static TitleConsole inventoryConsole { get; set; }
+        public static InventoryConsole inventoryConsole { get; set; }
         public static TitleConsole lookConsole { get; set; }
         public static TitleConsole targetConsole { get; set; }
-        public static TitleConsole interactionConsole { get; set; }
+        public static InteractionConsole interactionConsole { get; set; }
         public static TitleConsole manualConsole { get; set; }
         public static TitleConsole loadingConsole { get; set; }
         public static Console titleConsole { get; set; }
@@ -36,24 +37,24 @@ namespace Servants_of_Arcana
         public static int screenHeight = 55;
 
         //The size of the map console
-        public static int mapWidth = 70;
-        public static int mapHeight = 40;
+        public static int mapWidth = (int)MathF.Ceiling((70 / 1.5f));
+        public static int mapHeight = (int)MathF.Ceiling((40 / 1.5f));
 
-        public static int interactionWidth = 66;
-        public static int interactionHeight = 42;
+        public static int interactionWidth = 50;
+        public static int interactionHeight = 35;
 
         //The size of the ingame map
         public static int gameWidth = 115;
         public static int gameHeight = 115;
 
-        private static int messageWidth = 100;
+        private static int messageWidth = 70;
         private static int messageHeight = 15;
 
         private static int rogueWidth = 30;
-        private static int rogueHeight = 40;
+        private static int rogueHeight = 20;
 
-        private static int inventoryWidth = 100;
-        private static int inventoryHeight = 40;
+        private static int inventoryWidth = 30;
+        private static int inventoryHeight = 35;
 
         private static int targetWidth = 30;
         private static int targetHeight = 40;
@@ -92,13 +93,14 @@ namespace Servants_of_Arcana
 
             rootConsole = new RootConsole(Game.Instance.ScreenCellsX, Game.Instance.ScreenCellsY);
 
-            mapConsole = new TitleConsole("< Map >", mapWidth, mapHeight) { Position = new Point(0, 0) };
-            logConsole = new TitleConsole("< Message Log >", messageWidth, messageHeight) { Position = new Point(0, mapHeight) };
-            playerConsole = new TitleConsole("< The Rogue @ >", rogueWidth, rogueHeight) { Position = new Point(mapWidth, 0) };
-            inventoryConsole = new TitleConsole("< Inventory >", inventoryWidth, inventoryHeight) { Position = new Point(0, 0) };
-            targetConsole = new TitleConsole("< Targeting >", targetWidth, targetHeight) { Position = new Point(mapWidth, 0) };
-            lookConsole = new TitleConsole("< Looking >", lookWidth, lookHeight) { Position = new Point(mapWidth, 0) };
-            interactionConsole = new TitleConsole("< Interaction >", interactionWidth, interactionHeight) { Position = new Point(interactionWidth - ((screenWidth - 1) / 2), interactionHeight - (int)(screenHeight / 1.5f)) };
+            mapConsole = new Console(mapWidth, mapHeight) { Position = new Point(0, 0) };
+            mapConsole.FontSize = new Point(18, 18);
+            logConsole = new TitleConsole("< Message Log >", messageWidth, messageHeight) { Position = new Point(0, (int)(mapHeight * 1.5f)) };
+            playerConsole = new TitleConsole("< The Rogue @ >", rogueWidth, rogueHeight) { Position = new Point((int)(mapWidth * 1.5f), 0) };
+            inventoryConsole = new InventoryConsole(inventoryWidth, inventoryHeight) { Position = new Point((int)(mapWidth * 1.5f), rogueHeight) };
+            targetConsole = new TitleConsole("< Targeting >", targetWidth, targetHeight) { Position = new Point((int)(mapWidth * 1.5f), 0) };
+            lookConsole = new TitleConsole("< Looking >", lookWidth, lookHeight) { Position = new Point((int)(mapWidth * 1.5f), 0) };
+            interactionConsole = new InteractionConsole(interactionWidth, interactionHeight) { Position = new Point((screenWidth / 2) - (interactionWidth / 2), (screenHeight / 2) - (interactionHeight / 2)) };
             manualConsole = new TitleConsole("< Manual >", screenWidth, screenHeight) { Position = new Point(0, 0) };
             loadingConsole = new TitleConsole("< Loading >", screenWidth, screenHeight) { Position = new Point(0, 0) };
             titleConsole = new Console(screenWidth, screenHeight) { Position = new Point(0, 0) };
@@ -122,8 +124,9 @@ namespace Servants_of_Arcana
             Game.Instance.Screen.IsFocused = true;
             rootConsole.Children.MoveToTop(logConsole);
             rootConsole.Children.MoveToTop(playerConsole);
+            rootConsole.Children.MoveToTop(inventoryConsole);
+
             rootConsole.Children.MoveToBottom(interactionConsole);
-            rootConsole.Children.MoveToBottom(inventoryConsole);
             rootConsole.Children.MoveToBottom(manualConsole);
             rootConsole.Children.MoveToBottom(loadingConsole);
 
@@ -198,7 +201,7 @@ namespace Servants_of_Arcana
             {
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-            }, 7, 7, "Sphere");
+            }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn, "Mushroom Spawn Event 1");
 
             Event mushroomSpawn2 = new Event(0, 0, new List<Component>()
@@ -206,7 +209,7 @@ namespace Servants_of_Arcana
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
                 new SpawnMinions("", new List<string>() { "Purple Mushroam" }, 1, "Spawn"),
-            }, 7, 7, "Sphere");
+            }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn2, "Mushroom Spawn Event 2");
 
             Event mushroomSpawn3 = new Event(0, 0, new List<Component>()
@@ -214,7 +217,7 @@ namespace Servants_of_Arcana
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
                 new SpawnMinions("", new List<string>() { "Green Mushroam" }, 1, "Spawn"),
-            }, 8, 8, "Sphere");
+            }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn3, "Mushroom Spawn Event 3");
 
             Event mushroomSpawn4 = new Event(0, 0, new List<Component>()
@@ -222,8 +225,13 @@ namespace Servants_of_Arcana
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
                 new SpawnMinions("", new List<string>() { "Red Mushroam" }, 1, "Spawn"),
-            }, 6, 6, "Sphere");
+            }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn4, "Mushroom Spawn Event 4");
+
+            Event torusTest = new Event(0, 0, new List<Component>()
+            {
+            }, 7, 7, 15, 15, "Torus");
+            JsonDataManager.SaveEvent(torusTest, "Torus Test");
 
 
             Tile mushroom = new Tile(0, 0, Color.MediumPurple, Color.Black, (char)6, "Purple Mushroom", "A large immobile purple mushroom.", 1, true);
@@ -238,6 +246,7 @@ namespace Servants_of_Arcana
             Tile fungusCoveredGround = new Tile(0, 0, Color.DarkGreen, Color.Black, '`', "Fungus-Covered Ground", "A dense patch of small mushrooms and fungus.", 1, false);
             JsonDataManager.SaveEntity(fungusCoveredGround, "Fungus-Covered Ground");
 
+
             Entity fungi1 = new Entity(new List<Component>()
             {
                 new Actor(),
@@ -245,7 +254,7 @@ namespace Servants_of_Arcana
                 new Draw(Color.MediumPurple, Color.Black, (char)6),
                 new Description("Purple Mushroam", "A large seemingly immobile purple mushroom. You do not feel comfortable around it."),
                 new InventoryComponent(),
-                new Faction("Enemy"),
+                new Faction("Plant"),
                 new Harmable(),
                 new Attributes(5, .6f, 1, -3, 8, 2),
                 new Movement(new List<int>() { 1 }),
@@ -275,7 +284,7 @@ namespace Servants_of_Arcana
                 new Draw(Color.Green, Color.Black, (char)6),
                 new Description("Green Mushroam", "A large seemingly immobile green mushroom. You do not feel comfortable around it."),
                 new InventoryComponent(),
-                new Faction("Enemy"),
+                new Faction("Plant"),
                 new Harmable(),
                 new Attributes(5, .6f, 1, -3, 8, 2),
                 new Movement(new List<int>() { 1 }),
@@ -295,7 +304,7 @@ namespace Servants_of_Arcana
                 new Draw(Color.MediumVioletRed, Color.Black, (char)6),
                 new Description("Red Mushroam", "A large seemingly immobile red mushroom. You do not feel comfortable around it."),
                 new InventoryComponent(),
-                new Faction("Enemy"),
+                new Faction("Plant"),
                 new Harmable(),
                 new Attributes(5, .6f, 1, -3, 8, 2),
                 new Movement(new List<int>() { 1 }),
@@ -316,7 +325,7 @@ namespace Servants_of_Arcana
                 new Draw(Color.SandyBrown, Color.Black, 'r'),
                 new Description("Cave-Dweller Ram", "A shaggy ram with knotted long fur. It is highly aggresive and seems to attack anything that it sees move."),
                 new InventoryComponent(),
-                new Faction("Enemy"),
+                new Faction("Beast"),
                 new Harmable(),
                 new Attributes(5, .6f, 1, -1, 8, 3),
                 new Movement(new List<int>() { 1, 2 }),
@@ -347,7 +356,7 @@ namespace Servants_of_Arcana
                 new Draw(Color.SlateBlue, Color.Black, 's'),
                 new Description("Skeletal Boneling", "While one of the weakest of those past death, it still strikes a deep fear into you."),
                 new InventoryComponent(),
-                new Faction("Enemy"),
+                new Faction("Undead"),
                 new Harmable(),
                 new Attributes(6, .8f, 1, 0, 6, 4),
                 new Movement(new List<int>() { 1, 2 }),
@@ -366,7 +375,7 @@ namespace Servants_of_Arcana
                 new Draw(Color.SlateGray, Color.Black, 's'),
                 new Description("Skeletal Bonelord", "A lord of the those past death, while made of little more than bone and sinew the strength from which it commands strikes fear into you."),
                 new InventoryComponent(),
-                new Faction("Enemy"),
+                new Faction("Undead"),
                 new Harmable(),
                 new Attributes(15, .8f, 2, 1, 8, 6),
                 new Movement(new List<int>() { 1, 2 }),
@@ -378,6 +387,73 @@ namespace Servants_of_Arcana
 
             Math.ClearTransitions(boneLord);
             JsonDataManager.SaveEntity(boneLord, "Skeletal Bonelord");
+
+            Entity hawk = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.LightBlue, Color.Black, 'h'),
+                new Description("Seafoam Hawk", "A small hawk the color of seafoam, it is most comfortable flying above rough seas and roosting in the crevices of ancient structures."),
+                new InventoryComponent(),
+                new Faction("Beast"),
+                new Harmable(),
+                new Attributes(5, .8f, 1, 1, 6, 8),
+                new Movement(new List<int>() { 1, 2, 3 }),
+                new TurnComponent(),
+                new BeastAI(30, 0, 1, 10, 50, 5, 0),
+
+            });
+
+            Entity hawkTalon = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Talons", "Talons."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(0, 0, 2, 2),
+            });
+
+            InventoryManager.EquipItem(hawk, hawkTalon);
+            Math.ClearTransitions(hawk);
+            JsonDataManager.SaveEntity(hawk, "Seafoam Hawk");
+
+            Event drakeLair = new Event(0, 0, new List<Component>()
+            {
+                new SpawnMinions("", new List<string>() { "Sea-Drake" }, 1, "Spawn"),
+            }, 4, 4, 10, 10, "Sphere");
+            JsonDataManager.SaveEvent(drakeLair, "Drake Lair 1");
+
+            Entity seaDrake = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.DarkBlue, Color.Black, 'D'),
+                new Description("Sea-Drake", "A large scaled drake, this large creature razes the high seas and is known for keeping large hoards of treasures."),
+                new InventoryComponent(),
+                new Faction("Drake"),
+                new Harmable(),
+                new Attributes(50, .8f, 2, 3, 14, 10),
+                new Movement(new List<int>() { 1, 2, 3 }),
+                new TurnComponent(),
+                new BeastAI(50, 0, 10, 25, 100, 5, 40),
+                new Usable(15, 3, 0, "", new List<int>() { 1, 2, 3 }),
+                new Explode(3, true, "The Sea-Drake shoots a ball of flame!", true),
+            });
+
+            Entity seaDrakeTalons = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Talons", "Talons."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(0, 0, 2, 8),
+            });
+
+            InventoryManager.EquipItem(seaDrake, seaDrakeTalons);
+            Math.ClearTransitions(seaDrake);
+            JsonDataManager.SaveEntity(seaDrake, "Sea-Drake");
 
 
             for (int i = 0; i < 2; i++)
@@ -419,6 +495,7 @@ namespace Servants_of_Arcana
 
             dungeonGenerator.GenerateTowerFloor();
             dungeonGenerator.PlacePlayer();
+            dungeonGenerator.decayChance += 2;
 
             rootConsole.Children.MoveToBottom(loadingConsole);
 
@@ -581,7 +658,7 @@ namespace Servants_of_Arcana
                 y++;
             }
 
-            CreateConsoleBorder(mapConsole);
+            //CreateConsoleBorder(mapConsole);
 
             mapConsole.IsDirty = true;
         }
@@ -638,18 +715,12 @@ namespace Servants_of_Arcana
         }
         public static void CreateConsoleBorder(TitleConsole console, bool includeTitle = true)
         {
-            int finalHeight = 0;
-            for (int i = 0; i < 3; i++)
-            {
-                finalHeight++;
+            console.DrawBox(new Rectangle(0, 0, console.Width, console.Height),
+            ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.AntiqueWhite, Color.Black)));
 
-                Color color = new Color(Color.AntiqueWhite, + + (30 * (i + 1)));
-                console.DrawBox(new Rectangle(i, i, console.Width - (i * 2), console.Height - (i * 2)),
-                ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(color, Color.Black)));
-            }
             if (includeTitle)
             {
-                console.Print(finalHeight, finalHeight, console.title.Align(HorizontalAlignment.Center, console.Width - (finalHeight * 2), (char)196), Color.AntiqueWhite, Color.Black);
+                console.Print(0, 0, console.title.Align(HorizontalAlignment.Center, console.Width, (char)196), Color.AntiqueWhite, Color.Black);
             }
             console.IsDirty = true;
         }
@@ -707,9 +778,230 @@ namespace Servants_of_Arcana
         public RootConsole(int _width, int _height)
             : base(_width, _height) { }
     }
+    public class InventoryConsole : Console
+    {
+        public List<InventoryDisplaySlot> items = new List<InventoryDisplaySlot>();
+        public override void Render(TimeSpan delta)
+        {
+            this.DrawBox(new Rectangle(0, 0, Width, Height),
+                ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.AntiqueWhite, Color.Black)));
+            base.Render(delta);
+        }
+        public void UpdateLists(List<Entity> items)
+        {
+            this.Fill(Color.Black, Color.Black, 176);
+            this.items.Clear();
+
+            int y = 1;
+
+            for (int i = 0; i < 11; i++)
+            {
+                if (i < items.Count && items[i] != null)
+                {
+                    this.items.Add(new InventoryDisplaySlot(this, items[i], new Vector(1, y), 28, 3));
+                }
+                else
+                {
+                    this.items.Add(new InventoryDisplaySlot(this, null, new Vector(1, y), 28, 3));
+                }
+
+                y += 3;
+            }
+
+            foreach (InventoryDisplaySlot slot in this.items)
+            {
+                slot.Draw(false);
+            }
+
+            IsDirty = true;
+        }
+        public void ProcessSlotUpdate(MouseScreenObjectState state)
+        {
+            foreach (InventoryDisplaySlot slot in items)
+            {
+                if (slot.CheckIfMouseValid(state))
+                {
+                    if (state.Mouse.LeftClicked)
+                    {
+                        if (slot.item != null && !Look.looking && !TargetingSystem.isTargeting && 
+                            Program.player.GetComponent<TurnComponent>().isAlive && !Program.player.GetComponent<PlayerController>().confirming)
+                        {
+                            slot.selected = true;
+                            InventoryManager.OpenInventoryDisplay(slot.item);
+
+                            foreach (InventoryDisplaySlot temp in items)
+                            {
+                                temp.selected = false;
+                            }
+                        }
+                        else
+                        {
+                            Log.Add("You cannot select an empty slot.");
+                        }
+                    }
+
+                    slot.Draw(true);
+                }
+                else
+                {
+                    slot.Draw(false);
+                }
+            }
+        }
+        public override bool ProcessMouse(MouseScreenObjectState state)
+        {
+            ProcessSlotUpdate(state);
+
+            return base.ProcessMouse(state);
+        }
+        public InventoryConsole(int _width, int _height)
+            : base(_width, _height)
+        {
+            this.Fill(Color.Black, Color.Black, 176);
+        }
+    }
+    public class InventoryDisplaySlot
+    {
+        public InventoryConsole parent { get; set; }
+        public Entity item { get; set; }
+        public Vector corner { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        public bool selected { get; set; }
+        public bool CheckIfMouseValid(MouseScreenObjectState state)
+        {
+            if (!state.IsOnScreenObject) return false;
+            if (corner.x + 1 <= state.SurfaceCellPosition.X && corner.y + 1 <= state.SurfaceCellPosition.Y &&
+                corner.x + width - 1 >= state.SurfaceCellPosition.X && corner.y + height - 1 >= state.SurfaceCellPosition.Y)
+            {
+                return true;
+            }
+            else return false;
+        }
+        public void Draw(bool highlighted)
+        {
+            if (highlighted || selected)
+            {
+                parent.DrawBox(new Rectangle(corner.x, corner.y, width, height),
+                ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, 
+                new ColoredGlyph(Color.AntiqueWhite, Color.Black), new ColoredGlyph(Color.White, Color.White)));
+
+                if (item != null)
+                {
+                    if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                    {
+                        parent.Print(corner.x, corner.y + 1, $"{item.GetComponent<Description>().name} - Equipped".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                    }
+                    else
+                    {
+                        parent.Print(corner.x, corner.y + 1, item.GetComponent<Description>().name.Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                    }
+                }
+                else
+                {
+                    parent.Print(corner.x, corner.y + 1, "Empty".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                }
+            }
+            else
+            {
+                parent.DrawBox(new Rectangle(corner.x, corner.y, width, height),
+                ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, 
+                new ColoredGlyph(Color.AntiqueWhite, Color.Black), new ColoredGlyph(Color.Black, Color.Black)));
+
+                if (item != null)
+                {
+                    if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped) 
+                    {
+                        parent.Print(corner.x, corner.y + 1, $"{item.GetComponent<Description>().name} - Equipped".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                    }
+                    else
+                    {
+                        parent.Print(corner.x, corner.y + 1, item.GetComponent<Description>().name.Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                    }
+                }
+                else
+                {
+                    parent.Print(corner.x, corner.y + 1, "Empty".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                }
+            }
+
+            parent.IsDirty = true;
+        }
+        public InventoryDisplaySlot(InventoryConsole parent, Entity item, Vector corner, int width, int height)
+        {
+            this.parent = parent;
+            this.item = item;
+            this.corner = corner;
+            this.width = width;
+            this.height = height;
+        }
+    }
+    public class InteractionConsole : Console
+    {
+        public bool selected { get; set; } = false;
+        public override void Render(TimeSpan delta)
+        {
+            this.DrawBox(new Rectangle(0, 0, Width, Height),
+                ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.AntiqueWhite, Color.Black)));
+
+            if (InteractionManager.popupActive && InventoryManager.isInventoryOpen &&
+                !Program.rootConsole.GetSadComponent<KeyboardComponent>().confirming)
+            {
+                this.DrawBox(new Rectangle(Width - 3, 0, 3, 3),
+                    ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.AntiqueWhite, Color.Black)));
+
+                if (selected)
+                {
+                    this.Print(Width - 2, 1, "X", Color.Black, Color.White);
+                }
+                else
+                {
+                    this.Print(Width - 2, 1, "X", Color.White, Color.Black);
+                }
+            }
+
+            base.Render(delta);
+        }
+        public override bool ProcessMouse(MouseScreenObjectState state)
+        {
+            if (state.IsOnScreenObject && state.SurfaceCellPosition.X <= Width && 
+                state.SurfaceCellPosition.X >= Width - 3 && state.SurfaceCellPosition.Y <= 3 && state.SurfaceCellPosition.Y >= 0 && 
+                InteractionManager.popupActive && InventoryManager.isInventoryOpen && 
+                !Program.rootConsole.GetSadComponent<KeyboardComponent>().confirming)
+            {
+                if (state.Mouse.LeftClicked)
+                {
+                    InventoryManager.CloseInventoryDisplay();
+                }
+
+                selected = true;
+
+                IsDirty = true;
+            }
+            else
+            {
+                selected = false;
+
+                IsDirty = true;
+            }
+
+            return base.ProcessMouse(state);
+        }
+        public InteractionConsole(int _width, int _height)
+            : base(_width, _height)
+        {
+            this.Fill(Color.Black, Color.Black, 176);
+        }
+    }
     public class TitleConsole : Console
     {
         public string title { get; set; }
+        public override void Render(TimeSpan delta)
+        {
+            this.DrawBox(new Rectangle(0, 0, Width, Height),
+                ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.AntiqueWhite, Color.Black)));
+            base.Render(delta);
+        }
         public TitleConsole(string _title, int _width, int _height)
             : base(_width, _height)
         {

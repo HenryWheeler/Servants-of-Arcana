@@ -116,7 +116,7 @@
       },
       {
         "$type": "Servants_of_Arcana.Faction, Servants of Arcana",
-        "faction": "Enemy"
+        "faction": "Undead"
       },
       {
         "$type": "Servants_of_Arcana.Harmable, Servants of Arcana"

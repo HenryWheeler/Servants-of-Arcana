@@ -30,8 +30,8 @@ namespace Servants_of_Arcana
             Program.logConsole.Fill(Color.Black, Color.Black);
 
             int m = 0;
-            int y = 3;
-            int c = 3;
+            int y = 0;
+            int c = 1;
 
             string[] temp = log.ToArray<string>();
             //temp.Reverse();
@@ -45,7 +45,7 @@ namespace Servants_of_Arcana
                     string[] split = text.Split('*');
                     if (split.Count() == 1)
                     {
-                        if (split[0].Contains("+")) { y += 2 + m; c = 3; }
+                        if (split[0].Contains("+")) { y += 2 + m; c = 1; }
                         else
                         {
                             if (c + split[0].Length > Program.logConsole.Width - 5) { y += 2 + m; c = 1; }
@@ -55,7 +55,7 @@ namespace Servants_of_Arcana
                     }
                     else
                     {
-                        if (split[1].Contains("+")) { y += 2 + m; c = 3; }
+                        if (split[1].Contains("+")) { y += 2 + m; c = 1; }
                         else
                         {
                             if (c + split[0].Length > Program.logConsole.Width - 5) { y += 2 + m; c = 1; }

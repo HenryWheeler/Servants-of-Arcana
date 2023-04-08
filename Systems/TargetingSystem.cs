@@ -44,15 +44,15 @@ namespace Servants_of_Arcana
 
             AttributeManager.UpdateAttributes(Program.player);
 
+            if (returnToInventory)
+            {
+                InventoryManager.OpenInventoryDisplay(currentUsedItem.entity);
+            }
+
             currentUsedItem = null;
 
             Program.ClearUISFX();
             Program.MoveCamera(Program.player.GetComponent<Vector>());
-
-            if (returnToInventory)
-            {
-                InventoryManager.OpenInventory();
-            }
         }
         public static void MoveReticle(Vector direction)
         {

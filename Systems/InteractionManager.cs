@@ -11,17 +11,19 @@ namespace Servants_of_Arcana
 {
     public class InteractionManager
     {
+        public static bool popupActive = false;
         public static void CreateConfirmationPrompt(string prompt)
         {
             CreateConfirmationPrompt(new List<string> { prompt });
         }
         public static void CreateConfirmationPrompt(List<string> prompts)
         {
+            Program.interactionConsole.Position = new Point((Program.screenWidth / 2) - (Program.interactionWidth / 2), (Program.screenHeight / 2) - (Program.interactionHeight / 2));
             Program.rootConsole.Children.MoveToTop(Program.interactionConsole);
 
             Program.interactionConsole.Fill(Color.Black, Color.Black);
 
-            Program.interactionConsole.DrawBox(new Rectangle(3, 4, Program.interactionConsole.Width - 6, Program.interactionConsole.Height - 7),
+            Program.interactionConsole.DrawBox(new Rectangle(1, 1, Program.interactionConsole.Width - 2, Program.interactionConsole.Height - 2),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
 
             int baseLength = 11;
@@ -45,8 +47,6 @@ namespace Servants_of_Arcana
             }
 
             Program.interactionConsole.Print((Program.interactionConsole.Width / 2) - ("< Y / N >".Length / 2), (int)(Program.interactionConsole.Height / 1.5f), "< Y / N >", Color.Yellow, Color.Black);
-
-            Program.CreateConsoleBorder(Program.interactionConsole);
         }
         public static void CreatePopup(string popup)
         {
@@ -54,11 +54,12 @@ namespace Servants_of_Arcana
         }
         public static void CreatePopup(List<string> popups)
         {
+            Program.interactionConsole.Position = new Point((Program.screenWidth / 2) - (Program.interactionWidth / 2), (Program.screenHeight / 2) - (Program.interactionHeight / 2));
             Program.rootConsole.Children.MoveToTop(Program.interactionConsole);
 
             Program.interactionConsole.Fill(Color.Black, Color.Black);
 
-            Program.interactionConsole.DrawBox(new Rectangle(3, 4, Program.interactionConsole.Width - 6, Program.interactionConsole.Height - 7),
+            Program.interactionConsole.DrawBox(new Rectangle(1, 1, Program.interactionConsole.Width - 2, Program.interactionConsole.Height - 2),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
 
             int baseLength = 11;
@@ -80,8 +81,39 @@ namespace Servants_of_Arcana
                 Program.interactionConsole.Print((Program.interactionConsole.Width / 2) - ($"< {prompt} >".Length / 2), startY, $"< {prompt} >", Color.Yellow, Color.Black);
                 startY += 2;
             }
+        }
+        public static void CreateItemDisplay(Entity item)
+        {
+            popupActive = true;
+            Program.interactionConsole.Position = new Point(((int)(Program.mapWidth * 1.5f) / 2) - (Program.interactionWidth / 2), (int)((Program.mapHeight * 1.5f) / 2) - (Program.interactionHeight / 2));
+            Program.rootConsole.Children.MoveToTop(Program.interactionConsole);
+            Program.interactionConsole.Fill(Color.Black, Color.Black);
 
-            Program.CreateConsoleBorder(Program.interactionConsole);
+            string description = item.GetComponent<Description>().description;
+
+            if (item.GetComponent<Equipable>() != null)
+            {
+                description += $" + + This item is equipped in your {item.GetComponent<Equipable>().slot}.";
+                description += $" + Press Yellow*E to equip it.";
+                if (!item.GetComponent<Equipable>().removable)
+                {
+                    description += " + It cannot be unequipped.";
+                }
+            }
+
+            if (item.GetComponent<Usable>() != null)
+            {
+                description += $" + + This item can be used.";
+                description += $" + Press Yellow*U to use it.";
+            }
+
+            Math.DisplayToConsole(Program.interactionConsole, $"{description}", 2, 1, 0, 2, false);
+        }
+        public static void ClosePopup()
+        {
+            popupActive = false;
+            Program.rootConsole.Children.MoveToBottom(Program.interactionConsole);
+            Program.interactionConsole.Position = new Point((Program.screenWidth / 2) - (Program.interactionWidth / 2), (Program.screenHeight / 2) - (Program.interactionHeight / 2));
         }
     }
 }

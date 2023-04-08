@@ -56,7 +56,7 @@ namespace Servants_of_Arcana
                 Description description = null;
                 if (!Program.tiles[reticlePosition.x, reticlePosition.y].GetComponent<Visibility>().visible)
                 {
-                    Program.lookConsole.DrawBox(new Rectangle(3, 4, Program.lookConsole.Width - 6, Program.lookConsole.Height - 7), 
+                    Program.lookConsole.DrawBox(new Rectangle(1, 1, Program.lookConsole.Width - 2, Program.lookConsole.Height - 2), 
                     ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
                     Program.lookConsole.Print(4, Program.lookConsole.Height / 2 - 3, " You cannot look at ".Align(HorizontalAlignment.Center, Program.lookConsole.Width - 8, (char)177), Color.AntiqueWhite);
                     Program.lookConsole.Print(4, Program.lookConsole.Height / 2 - 1, " what you cannot see. ".Align(HorizontalAlignment.Center, Program.lookConsole.Width - 8, (char)177), Color.AntiqueWhite);
@@ -76,65 +76,9 @@ namespace Servants_of_Arcana
 
                 if (description != null)
                 {
-                    //string health = "";
-
-                    /*
-                    if (description.entity != null && description.entity.GetComponent<PronounSet>() != null)
-                    {
-                        if (description.entity.GetComponent<PronounSet>().present)
-                        {
-                            health += $"{description.name} is: + ";
-                        }
-                        else
-                        {
-                            health += $"{description.name} are: + ";
-                        }
-
-                        if (Math.ReturnAI(description.entity) != null)
-                        {
-                            health += $"{Math.ReturnAI(description.entity).currentState}, ";
-
-                            if (description.entity.GetComponent<Harmable>().statusEffects.Count == 0)
-                            {
-                                health += "and ";
-                            }
-                        }
-
-                        Attributes stats = description.entity.GetComponent<Attributes>();
-
-                        if (stats.hp == stats.hpCap) { health += "Green*Uninjured"; }
-                        else if (stats.hp <= stats.hpCap && stats.hp >= stats.hpCap / 2) { health += "Yellow*Hurt"; }
-                        else { health += "Red*Badly Red*Hurt"; }
-
-                        if (description.entity.GetComponent<Harmable>().statusEffects.Count == 0)
-                        {
-                            health += ".";
-                        }
-                        else
-                        {
-                            health += ", + ";
-                        }
-
-                        for (int i = 0; i < description.entity.GetComponent<Harmable>().statusEffects.Count; i++)
-                        {
-                            if (i == description.entity.GetComponent<Harmable>().statusEffects.Count - 1)
-                            {
-                                health += $"and {description.entity.GetComponent<Harmable>().statusEffects[i]}. + ";
-                            }
-                            else
-                            {
-                                health += $"{description.entity.GetComponent<Harmable>().statusEffects[i]}, ";
-                            }
-                        }
-                    }
-                    */
-
-
-                    //Create boxes to surround look menu, and display information.
-
-                    Math.DisplayToConsole(Program.lookConsole, $"{description.name}", 3, 1, 0, 6, false);
-                    Program.lookConsole.DrawLine(new Point(0, 10), new Point(Program.lookConsole.Width, 10), (char)196, Color.AntiqueWhite, Color.Black);
-                    Math.DisplayToConsole(Program.lookConsole, $"{description.description}", 3, 1, 0, 12, false);
+                    Math.DisplayToConsole(Program.lookConsole, $"{description.name}", 1, 1, 0, 3, false);
+                    Program.lookConsole.DrawLine(new Point(0, 5), new Point(Program.lookConsole.Width, 5), (char)196, Color.AntiqueWhite, Color.Black);
+                    Math.DisplayToConsole(Program.lookConsole, $"{description.description}", 1, 1, 0, 7, false);
                 }
 
                 Program.CreateConsoleBorder(Program.lookConsole);
