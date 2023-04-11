@@ -66,13 +66,13 @@ namespace Servants_of_Arcana
                 }
                 else if (entity.GetComponent<PlayerController>() != null)
                 {
-                    Log.Add($"You cannot move there.");
+                    Log.Add($"{Program.playerName} cannot move there.");
                     return;
                 }
             }
             else if (entity.GetComponent<PlayerController>() != null)
             {
-                Log.Add("You cannot move there.");
+                Log.Add($"{Program.playerName} cannot move there.");
                 return;
             }
 

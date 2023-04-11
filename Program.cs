@@ -30,6 +30,9 @@ namespace Servants_of_Arcana
         public static Console titleConsole { get; set; }
         public static Entity player { get; set; }
         public static bool isGameActive { get; set; } = false;
+        public static bool isPlayerCreatingCharacter { get; set; } = false;
+        public static bool devTesting = false;
+        public static string playerName { get; set; }
         public static DungeonGenerator generator { get; set; }
 
         //The Size of the root console
@@ -51,10 +54,10 @@ namespace Servants_of_Arcana
         private static int messageHeight = 15;
 
         private static int rogueWidth = 30;
-        private static int rogueHeight = 20;
+        private static int rogueHeight = 23;
 
         private static int inventoryWidth = 30;
-        private static int inventoryHeight = 35;
+        private static int inventoryHeight = 32;
 
         private static int targetWidth = 30;
         private static int targetHeight = 40;
@@ -160,13 +163,33 @@ namespace Servants_of_Arcana
 
             player.GetComponent<Harmable>().onDeath += PlayerDeath;
 
+            player.GetComponent<Description>().name = playerName;
+
             AttributeManager.UpdateAttributes(player);
             ShadowcastFOV.Compute(player.GetComponent<Vector>(), player.GetComponent<Attributes>().sight);
 
             player.SetDelegates();
         }
+        public static void StartCharacterCreation()
+        {
+            if (devTesting)
+            {
+                playerName = "Gork";
+                StartNewGame();
+            }
+            else
+            {
+                isPlayerCreatingCharacter = true;
+                rootConsole.Children.MoveToTop(titleConsole);
+
+                playerName = "";
+
+                InteractionManager.CharacterCreationDisplay();
+            }
+        }
         public static void StartNewGame()
         {
+            isPlayerCreatingCharacter = false;
             rootConsole.Children.MoveToBottom(titleConsole);
 
             JsonDataManager jsonDataManager = new JsonDataManager();
@@ -180,7 +203,7 @@ namespace Servants_of_Arcana
             player = new Entity();
             player.AddComponent(new Vector(0, 0));
             player.AddComponent(new Draw(Color.Lime, Color.Black, '@'));
-            player.AddComponent(new Description("You", "It's you."));
+            player.AddComponent(new Description(playerName, "It's you."));
             player.AddComponent(new Attributes(20, 1f, 1, 1, 10, 50));
             player.AddComponent(new TurnComponent());
             player.AddComponent(new Movement(new List<int> { 1, 2 }));
@@ -208,7 +231,7 @@ namespace Servants_of_Arcana
             {
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-                new SpawnMinions("", new List<string>() { "Purple Mushroam" }, 1, "Spawn"),
+                new SpawnMinions(new List<string>() { "Purple Mushroam" }, 1, "Spawn"),
             }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn2, "Mushroom Spawn Event 2");
 
@@ -216,7 +239,7 @@ namespace Servants_of_Arcana
             {
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-                new SpawnMinions("", new List<string>() { "Green Mushroam" }, 1, "Spawn"),
+                new SpawnMinions(new List<string>() { "Green Mushroam" }, 1, "Spawn"),
             }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn3, "Mushroom Spawn Event 3");
 
@@ -224,7 +247,7 @@ namespace Servants_of_Arcana
             {
                 new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
                 new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-                new SpawnMinions("", new List<string>() { "Red Mushroam" }, 1, "Spawn"),
+                new SpawnMinions(new List<string>() { "Red Mushroam" }, 1, "Spawn"),
             }, 7, 7, 15, 15, "Sphere");
             JsonDataManager.SaveEvent(mushroomSpawn4, "Mushroom Spawn Event 4");
 
@@ -382,7 +405,7 @@ namespace Servants_of_Arcana
                 new TurnComponent(),
                 new UndeadAI(50, 0, 1, 10, 150, 0, 0),
                 new SpawnDetails(),
-                new SpawnMinions("", new List<string>() { "Skeletal Boneling" }, 2, "Spawn"),
+                new SpawnMinions(new List<string>() { "Skeletal Boneling" }, 2, "Spawn"),
             });
 
             Math.ClearTransitions(boneLord);
@@ -418,9 +441,33 @@ namespace Servants_of_Arcana
             Math.ClearTransitions(hawk);
             JsonDataManager.SaveEntity(hawk, "Seafoam Hawk");
 
+            Event hawkRoom = new Event(0, 0, new List<Component>()
+            {
+                new SpawnTiles(new List<string>() { "Nest" }, 3),
+                new SpawnMinions(new List<string>() { "Seafoam Hawk" }, 4, "Spawn"),
+                new SpawnItems(new List<string>() { "Hawk Egg" }, 3),
+            }, 4, 4, 10, 10, "Sphere");
+            JsonDataManager.SaveEvent(hawkRoom, "Hawk Nest");
+
+            Entity hawkEgg = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '%'),
+                new Description("Hawk Egg", "A small white egg speckled with blue."),
+                new Heal(3),
+                new Usable(0, 3, 1, "Consume", "devours the egg."),
+                new Charges(1),
+            });
+
+            JsonDataManager.SaveEntity(hawkEgg, "Hawk Egg");
+
+            Tile nest = new Tile(0, 0, Color.LightGray, Color.Black, '*', "Nest", "A large messy pile of soft down, sticks, and fur. It is rather comfortable, no wonder eggs tend to like it.", 1, false);
+            JsonDataManager.SaveEntity(nest, "Nest");
+
             Event drakeLair = new Event(0, 0, new List<Component>()
             {
-                new SpawnMinions("", new List<string>() { "Sea-Drake" }, 1, "Spawn"),
+                new SpawnMinions(new List<string>() { "Sea-Drake" }, 1, "Spawn"),
             }, 4, 4, 10, 10, "Sphere");
             JsonDataManager.SaveEvent(drakeLair, "Drake Lair 1");
 
@@ -437,8 +484,8 @@ namespace Servants_of_Arcana
                 new Movement(new List<int>() { 1, 2, 3 }),
                 new TurnComponent(),
                 new BeastAI(50, 0, 10, 25, 100, 5, 40),
-                new Usable(15, 3, 0, "", new List<int>() { 1, 2, 3 }),
-                new Explode(3, true, "The Sea-Drake shoots a ball of flame!", true),
+                new Usable(15, 3, 0, "", "shoots a ball of flame!", new List<int>() { 1, 2, 3 }),
+                new Explode(3, true, true),
             });
 
             Entity seaDrakeTalons = new Entity(new List<Component>()
@@ -455,6 +502,25 @@ namespace Servants_of_Arcana
             Math.ClearTransitions(seaDrake);
             JsonDataManager.SaveEntity(seaDrake, "Sea-Drake");
 
+            Entity boomerang = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.LightGray, Color.Black, ')'),
+                new Description("Boomerang", "A curved projectile made of carved bone. It can be thrown or held but looks somewhat fragile."),
+                new Equipable(true, "Weapon"),
+                new WeaponComponent(0, 0, 1, 4),
+                new Fragile(10, "fractures into many small shards."),
+                new Boomerang(),
+                new Usable(20, 0, 0, "Throw", "throws the boomerang.", new List<int>() { 1, 2, 3 }),
+            });
+
+            JsonDataManager.SaveEntity(boomerang, "Boomerang");
+
+            for (int i = 0; i < 2; i++)
+            {
+                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Boomerang"), player);
+            }
 
             for (int i = 0; i < 2; i++)
             {
@@ -794,15 +860,29 @@ namespace Servants_of_Arcana
 
             int y = 1;
 
-            for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 10; i++)
             {
                 if (i < items.Count && items[i] != null)
                 {
-                    this.items.Add(new InventoryDisplaySlot(this, items[i], new Vector(1, y), 28, 3));
+                    if (i == 9)
+                    {
+                        this.items.Add(new InventoryDisplaySlot(this, items[i], new Vector(1, y), 28, 3, 0));
+                    }
+                    else
+                    {
+                        this.items.Add(new InventoryDisplaySlot(this, items[i], new Vector(1, y), 28, 3, i + 1));
+                    }
                 }
                 else
                 {
-                    this.items.Add(new InventoryDisplaySlot(this, null, new Vector(1, y), 28, 3));
+                    if (i == 9)
+                    {
+                        this.items.Add(new InventoryDisplaySlot(this, null, new Vector(1, y), 28, 3, 0));
+                    }
+                    else
+                    {
+                        this.items.Add(new InventoryDisplaySlot(this, null, new Vector(1, y), 28, 3, i + 1));
+                    }
                 }
 
                 y += 3;
@@ -814,6 +894,29 @@ namespace Servants_of_Arcana
             }
 
             IsDirty = true;
+        }
+        public void SelectItem(int number)
+        {
+            if (number <= 9) 
+            {
+                InventoryDisplaySlot slot = items[number];
+
+                if (slot.item != null && !Look.looking && !TargetingSystem.isTargeting &&
+                    Program.player.GetComponent<TurnComponent>().isAlive && !Program.player.GetComponent<PlayerController>().confirming)
+                {
+                    slot.selected = true;
+                    InventoryManager.OpenInventoryDisplay(slot.item);
+
+                    foreach (InventoryDisplaySlot temp in items)
+                    {
+                        temp.selected = false;
+                    }
+                }
+                else
+                {
+                    Log.Add("You cannot select an empty slot.");
+                }
+            }
         }
         public void ProcessSlotUpdate(MouseScreenObjectState state)
         {
@@ -868,6 +971,7 @@ namespace Servants_of_Arcana
         public int width { get; set; }
         public int height { get; set; }
         public bool selected { get; set; }
+        public int number { get; set; }
         public bool CheckIfMouseValid(MouseScreenObjectState state)
         {
             if (!state.IsOnScreenObject) return false;
@@ -884,7 +988,7 @@ namespace Servants_of_Arcana
             {
                 parent.DrawBox(new Rectangle(corner.x, corner.y, width, height),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, 
-                new ColoredGlyph(Color.AntiqueWhite, Color.Black), new ColoredGlyph(Color.White, Color.White)));
+                new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.White, Color.White)));
 
                 if (item != null)
                 {
@@ -901,12 +1005,14 @@ namespace Servants_of_Arcana
                 {
                     parent.Print(corner.x, corner.y + 1, "Empty".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
                 }
+
+                parent.Print(corner.x + 1, corner.y + 1, $"{number}", Color.Black, Color.White);
             }
             else
             {
                 parent.DrawBox(new Rectangle(corner.x, corner.y, width, height),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, 
-                new ColoredGlyph(Color.AntiqueWhite, Color.Black), new ColoredGlyph(Color.Black, Color.Black)));
+                new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.Black, Color.Black)));
 
                 if (item != null)
                 {
@@ -923,22 +1029,33 @@ namespace Servants_of_Arcana
                 {
                     parent.Print(corner.x, corner.y + 1, "Empty".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
                 }
+
+                parent.Print(corner.x + 1, corner.y + 1, $"{number}", Color.White, Color.Black);
             }
 
             parent.IsDirty = true;
         }
-        public InventoryDisplaySlot(InventoryConsole parent, Entity item, Vector corner, int width, int height)
+        public InventoryDisplaySlot(InventoryConsole parent, Entity item, Vector corner, int width, int height, int number)
         {
             this.parent = parent;
             this.item = item;
             this.corner = corner;
             this.width = width;
             this.height = height;
+            this.number = number;
         }
     }
     public class InteractionConsole : Console
     {
+        public int equipY = 26;
+        public int useY = 29;
+        public int dropY = 32;
         public bool selected { get; set; } = false;
+        public bool equipSelected { get; set; } = false;
+        public bool useSelected { get; set; } = false;
+        public bool dropSelected { get; set; } = false;
+        public bool confirmSelected { get; set; } = false;
+        public bool denySelected { get; set; } = false;
         public override void Render(TimeSpan delta)
         {
             this.DrawBox(new Rectangle(0, 0, Width, Height),
@@ -956,7 +1073,94 @@ namespace Servants_of_Arcana
                 }
                 else
                 {
-                    this.Print(Width - 2, 1, "X", Color.White, Color.Black);
+                    this.Print(Width - 2, 1, "X", Color.Yellow, Color.Black);
+                }
+
+                if (InteractionManager.canUnequip || InteractionManager.canEquip)
+                {
+                    if (equipSelected)
+                    {
+                        if (InteractionManager.canUnequip)
+                        {
+                            this.Print(1, equipY, "Unequip - E".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Black, Color.White);
+                        }
+                        else if (InteractionManager.canEquip)
+                        {
+                            this.Print(1, equipY, "Equip - E".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Black, Color.White);
+                        }
+                    }
+                    else
+                    {
+                        if (InteractionManager.canUnequip)
+                        {
+                            this.Print(1, equipY, "Unequip - E".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Yellow, Color.Black);
+                        }
+                        else if (InteractionManager.canEquip)
+                        {
+                            this.Print(1, equipY, "Equip - E".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Yellow, Color.Black);
+                        }
+                    }
+                }
+                else
+                {
+                    this.Print(1, equipY, "Equip - E".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Gray, Color.Black);
+                }
+                this.DrawBox(new Rectangle(1, equipY - 1, Program.interactionWidth - 2, 3),
+                    ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black)));
+
+                if (InteractionManager.canUse)
+                {
+                    if (useSelected)
+                    {
+                        this.Print(1, useY, $"{InventoryManager.selectedItem.GetComponent<Usable>().action} - U".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Black, Color.White);
+                    }
+                    else
+                    {
+                        this.Print(1, useY, $"{InventoryManager.selectedItem.GetComponent<Usable>().action} - U".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Yellow, Color.Black);
+                    }
+                }
+                else
+                {
+                    this.Print(1, equipY, "Use - U".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Gray, Color.Black);
+                }
+                this.DrawBox(new Rectangle(1, useY - 1, Program.interactionWidth - 2, 3),
+                    ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black)));
+
+                if (dropSelected)
+                {
+                    this.Print(1, dropY, "Drop - D".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Black, Color.White);
+                }
+                else
+                {
+                    this.Print(1, dropY, "Drop - D".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Yellow, Color.Black);
+                }
+                this.DrawBox(new Rectangle(1, dropY - 1, Program.interactionWidth - 2, 3),
+                    ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black)));
+            }
+            else if (Program.rootConsole.GetSadComponent<KeyboardComponent>().confirming)
+            {
+                this.DrawBox(new Rectangle(InteractionManager.confirmPromptPosition.x - 1, InteractionManager.confirmPromptPosition.y - 1, 3, 3),
+                    ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black)));
+
+                this.DrawBox(new Rectangle(InteractionManager.denyPromptPosition.x - 1, InteractionManager.denyPromptPosition.y - 1, 3, 3),
+                    ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black)));
+
+                if (confirmSelected)
+                {
+                    Program.interactionConsole.Print(InteractionManager.confirmPromptPosition.x, InteractionManager.confirmPromptPosition.y, "Y", Color.Black, Color.White);
+                }
+                else
+                {
+                    Program.interactionConsole.Print(InteractionManager.confirmPromptPosition.x, InteractionManager.confirmPromptPosition.y, "Y", Color.Yellow, Color.Black);
+                }
+
+                if (denySelected)
+                {
+                    Program.interactionConsole.Print(InteractionManager.denyPromptPosition.x, InteractionManager.denyPromptPosition.y, "N", Color.Black, Color.White);
+                }
+                else
+                {
+                    Program.interactionConsole.Print(InteractionManager.denyPromptPosition.x, InteractionManager.denyPromptPosition.y, "N", Color.Yellow, Color.Black);
                 }
             }
 
@@ -964,23 +1168,128 @@ namespace Servants_of_Arcana
         }
         public override bool ProcessMouse(MouseScreenObjectState state)
         {
-            if (state.IsOnScreenObject && state.SurfaceCellPosition.X <= Width && 
-                state.SurfaceCellPosition.X >= Width - 3 && state.SurfaceCellPosition.Y <= 3 && state.SurfaceCellPosition.Y >= 0 && 
-                InteractionManager.popupActive && InventoryManager.isInventoryOpen && 
+            if (state.IsOnScreenObject && InteractionManager.popupActive && InventoryManager.isInventoryOpen && 
                 !Program.rootConsole.GetSadComponent<KeyboardComponent>().confirming)
             {
-                if (state.Mouse.LeftClicked)
+                if (state.SurfaceCellPosition.X <= Width && state.SurfaceCellPosition.X >= Width - 3 && 
+                    state.SurfaceCellPosition.Y <= 3 && state.SurfaceCellPosition.Y >= 0)
                 {
-                    InventoryManager.CloseInventoryDisplay();
+                    if (state.Mouse.LeftClicked)
+                    {
+                        InventoryManager.CloseInventoryDisplay();
+                    }
+
+                    selected = true;
+                    equipSelected = false;
+                    useSelected = false;
+                    dropSelected = false;
+
+                    IsDirty = true;
                 }
+                else if (state.SurfaceCellPosition.X <= Width - 1 && state.SurfaceCellPosition.X >= 1 &&
+                    state.SurfaceCellPosition.Y >= equipY - 1 && state.SurfaceCellPosition.Y <= equipY + 1)
+                {
+                    if (InteractionManager.canEquip || InteractionManager.canUnequip)
+                    {
+                        if (state.Mouse.LeftClicked)
+                        {
+                            Program.rootConsole.GetSadComponent<KeyboardComponent>().Equip();
+                        }
 
-                selected = true;
+                        selected = false;
+                        equipSelected = true;
+                        useSelected = false;
+                        dropSelected = false;
 
-                IsDirty = true;
+                        IsDirty = true;
+                    }
+                }
+                else if (state.SurfaceCellPosition.X <= Width - 1 && state.SurfaceCellPosition.X >= 1 &&
+                    state.SurfaceCellPosition.Y >= useY - 1 && state.SurfaceCellPosition.Y <= useY + 1 && InteractionManager.canUse)
+                {
+                    if (state.Mouse.LeftClicked)
+                    {
+                        Program.rootConsole.GetSadComponent<KeyboardComponent>().Use();
+                    }
+
+                    selected = false;
+                    equipSelected = false;
+                    useSelected = true;
+                    dropSelected = false;
+
+                    IsDirty = true;
+                }
+                else if (state.SurfaceCellPosition.X <= Width - 1 && state.SurfaceCellPosition.X >= 1 &&
+                    state.SurfaceCellPosition.Y >= dropY - 1 && state.SurfaceCellPosition.Y <= dropY + 1)
+                {
+                    if (state.Mouse.LeftClicked)
+                    {
+                        Program.rootConsole.GetSadComponent<KeyboardComponent>().Drop();
+                    }
+
+                    selected = false;
+                    equipSelected = false;
+                    useSelected = false;
+                    dropSelected = true;
+
+                    IsDirty = true;
+                }
+                else
+                {
+                    selected = false;
+                    equipSelected = false;
+                    useSelected = false;
+                    dropSelected = false;
+                }
+            }
+            else if (state.IsOnScreenObject && Program.rootConsole.GetSadComponent<KeyboardComponent>().confirming)
+            {
+                if (state.SurfaceCellPosition.X <= InteractionManager.confirmPromptPosition.x + 1 && state.SurfaceCellPosition.X >= InteractionManager.confirmPromptPosition.x - 1 && 
+                    state.SurfaceCellPosition.Y <= InteractionManager.confirmPromptPosition.y + 1 && state.SurfaceCellPosition.Y >= InteractionManager.confirmPromptPosition.y - 1)
+                {
+                    if (state.Mouse.LeftClicked)
+                    {
+                        Program.rootConsole.GetSadComponent<KeyboardComponent>().Confirm();
+                    }
+
+                    confirmSelected = true;
+                    denySelected = false;
+
+                    IsDirty = true;
+                }
+                else if (state.SurfaceCellPosition.X <= InteractionManager.denyPromptPosition.x + 1 && state.SurfaceCellPosition.X >= InteractionManager.denyPromptPosition.x - 1 &&
+                    state.SurfaceCellPosition.Y <= InteractionManager.denyPromptPosition.y + 1 && state.SurfaceCellPosition.Y >= InteractionManager.denyPromptPosition.y - 1)
+                {
+                    if (state.Mouse.LeftClicked)
+                    {
+                        Program.rootConsole.GetSadComponent<KeyboardComponent>().Deny();
+                    }
+
+                    confirmSelected = false;
+                    denySelected = true;
+
+                    IsDirty = true;
+                }
+                else
+                {
+                    confirmSelected = false;
+                    denySelected = false;
+                    selected = false;
+                    equipSelected = false;
+                    useSelected = false;
+                    dropSelected = false;
+
+                    IsDirty = true;
+                }
             }
             else
             {
+                confirmSelected = false;
+                denySelected = false;
                 selected = false;
+                equipSelected = false;
+                useSelected = false;
+                dropSelected = false;
 
                 IsDirty = true;
             }

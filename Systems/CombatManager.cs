@@ -15,14 +15,14 @@ namespace Servants_of_Arcana
             {
                 WeaponComponent weaponComponent = weapon.GetComponent<WeaponComponent>();
                 AttackTarget(attacker, reciever, weaponComponent.toHitBonus, weaponComponent.damageBonus, 
-                    weaponComponent.damageDie1, weaponComponent.damageDie2, weapon.GetComponent<Description>().name);
+                    weaponComponent.damageDie1, weaponComponent.damageDie2, weapon.GetComponent<Description>().name, weaponComponent);
             }
             else
             {
                 AttackTarget(attacker, reciever, 0, 0, 1, 1, "Fists");
             }
         }
-        public static void AttackTarget(Entity attacker, Entity reciever, int toHitBonus, int damageBonus, int damageDie1, int damageDie2, string weaponName)
+        public static void AttackTarget(Entity attacker, Entity reciever, int toHitBonus, int damageBonus, int damageDie1, int damageDie2, string weaponName, WeaponComponent weaponComponent = null)
         {
             Harmable harmable = reciever.GetComponent<Harmable>();
             if (harmable != null) 
@@ -39,48 +39,26 @@ namespace Servants_of_Arcana
 
                 if (Program.random.Next(1, 21) + attackerAttributes.strength + toHitBonus >= recieverAttributes.armorValue && dmg > 0)
                 {
+                    weaponComponent?.onHit?.Invoke(attacker, reciever);
+
                     harmable.RecieveDamage(dmg, attacker);
 
-                    if (attacker.GetComponent<PlayerController>() != null && attacker == reciever)
+                    if (attacker == reciever)
                     {
-                        Log.Add($"You hit yourself for {dmg} damage with your {weaponName}!");
-                    }
-                    else if (attacker.GetComponent<PlayerController>() != null)
-                    {
-                        Log.Add($"You hit the {reciever.GetComponent<Description>().name} for {dmg} damage with your {weaponName}!");
-                    }
-                    else if (reciever.GetComponent<PlayerController>() != null)
-                    {
-                        Log.Add($"{attacker.GetComponent<Description>().name} hit you for {dmg} damage with its {weaponName}!");
-                    }
-                    else if (attacker == reciever)
-                    {
-                        Log.Add($"{attacker.GetComponent<Description>().name} hit the itself for {dmg} damage with its {weaponName}!");
+                        Log.Add($"{attacker.GetComponent<Description>().name} hits itself for {dmg} damage with its {weaponName}!");
                     }
                     else
                     {
-                        Log.Add($"{attacker.GetComponent<Description>().name} hit the {reciever.GetComponent<Description>().name} for {dmg} damage with its {weaponName}!");
+                        Log.Add($"{attacker.GetComponent<Description>().name} hits {reciever.GetComponent<Description>().name} for {dmg} damage with its {weaponName}!");
                     }
-                }
-                else if (attacker.GetComponent<PlayerController>() != null && attacker == reciever)
-                {
-                    Log.Add($"You missed yourself.");
-                }
-                else if (attacker.GetComponent<PlayerController>() != null)
-                {
-                    Log.Add($"You missed the {reciever.GetComponent<Description>().name}.");
-                }
-                else if (reciever.GetComponent<PlayerController>() != null)
-                {
-                    Log.Add($"{attacker.GetComponent<Description>().name} missed you.");
                 }
                 else if (attacker == reciever)
                 {
-                    Log.Add($"{attacker.GetComponent<Description>().name} missed itself.");
+                    Log.Add($"{attacker.GetComponent<Description>().name} misses itself.");
                 }
                 else
                 {
-                    Log.Add($"{attacker.GetComponent<Description>().name} missed the {reciever.GetComponent<Description>().name}.");
+                    Log.Add($"{attacker.GetComponent<Description>().name} misses {reciever.GetComponent<Description>().name}.");
                 }
             }
 
@@ -105,22 +83,11 @@ namespace Servants_of_Arcana
                 {
                     harmable.RecieveDamage(dmg, attacker);
 
-                    if (reciever.GetComponent<PlayerController>() != null)
-                    {
-                        Log.Add($"The {weaponName} hit you for {dmg} damage!");
-                    }
-                    else
-                    {
-                        Log.Add($"The {weaponName} hit the {reciever.GetComponent<Description>().name} for {dmg} damage!");
-                    }
-                }
-                if (reciever.GetComponent<PlayerController>() != null)
-                {
-                    Log.Add($"The {weaponName} missed you.");
+                    Log.Add($"The {weaponName} hits {reciever.GetComponent<Description>().name} for {dmg} damage!");
                 }
                 else
                 {
-                    Log.Add($"The {weaponName} missed the {reciever.GetComponent<Description>().name}.");
+                    Log.Add($"The {weaponName} misses {reciever.GetComponent<Description>().name}.");
                 }
             }
 

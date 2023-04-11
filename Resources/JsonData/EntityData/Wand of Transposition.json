@@ -46,7 +46,8 @@
         "range": 30,
         "strength": 10,
         "requiredTargets": 2,
-        "action": "Activate"
+        "action": "Activate",
+        "message": "activates the wand."
       },
       {
         "$type": "Servants_of_Arcana.Charges, Servants of Arcana",

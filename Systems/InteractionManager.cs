@@ -12,6 +12,12 @@ namespace Servants_of_Arcana
     public class InteractionManager
     {
         public static bool popupActive = false;
+        public static Vector confirmPromptPosition { get; set; }
+        public static Vector denyPromptPosition { get; set; }
+        public static bool canUse { get; set; } = false;
+        public static bool canEquip { get; set; } = false;
+        public static bool canUnequip { get; set; } = false;
+        public static bool canDrop { get; set; } = false;
         public static void CreateConfirmationPrompt(string prompt)
         {
             CreateConfirmationPrompt(new List<string> { prompt });
@@ -46,7 +52,8 @@ namespace Servants_of_Arcana
                 startY += 2;
             }
 
-            Program.interactionConsole.Print((Program.interactionConsole.Width / 2) - ("< Y / N >".Length / 2), (int)(Program.interactionConsole.Height / 1.5f), "< Y / N >", Color.Yellow, Color.Black);
+            confirmPromptPosition = new Vector((Program.interactionConsole.Width / 3) + ($"< {baseLength} >".Length / 2), (int)(Program.interactionConsole.Height / 1.5f) - 1);
+            denyPromptPosition = new Vector((int)(Program.interactionConsole.Width / 1.5f) - ($"< {baseLength} >".Length / 2), (int)(Program.interactionConsole.Height / 1.5f) - 1);
         }
         public static void CreatePopup(string popup)
         {
@@ -82,6 +89,29 @@ namespace Servants_of_Arcana
                 startY += 2;
             }
         }
+        public static void CharacterCreationDisplay()
+        {
+            Program.titleConsole.Fill(Color.Black, Color.Black);
+
+            Program.titleConsole.DrawBox(new Rectangle(0, 0, Program.titleConsole.Width, Program.titleConsole.Height),
+                ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.AntiqueWhite, Color.Black)));
+            Program.titleConsole.DrawBox(new Rectangle(1, 1, Program.titleConsole.Width - 2, Program.titleConsole.Height - 2),
+                ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
+
+            Program.titleConsole.DrawBox(new Rectangle(25, 15, 50, 25), ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.Black, Color.Black, 177)));
+
+            Program.titleConsole.Print(26, 18, "- Type Your New Name -".Align(HorizontalAlignment.Center, 47), Color.Yellow, Color.Black);
+            if (Program.playerName.Length <= 19)
+            {
+                Program.titleConsole.Print(26, 30, $"{Program.playerName}{'_'}".Align(HorizontalAlignment.Center, 47), Color.Yellow, Color.Black);
+            }
+            else
+            {
+                Program.titleConsole.Print(26, 30, $"{Program.playerName}".Align(HorizontalAlignment.Center, 47), Color.Yellow, Color.Black);
+            }
+            Program.titleConsole.Print(26, 30, ">", Color.Yellow, Color.Black);
+            Program.titleConsole.Print(73, 30, "<", Color.Yellow, Color.Black);
+        }
         public static void CreateItemDisplay(Entity item)
         {
             popupActive = true;
@@ -91,23 +121,39 @@ namespace Servants_of_Arcana
 
             string description = item.GetComponent<Description>().description;
 
+
+            Program.interactionConsole.DrawLine(new Point(0, (int)(Program.interactionHeight / 1.5f) + 1), new Point(Program.interactionWidth, (int)(Program.interactionHeight / 1.5f) + 1),
+                (char)196, Color.AntiqueWhite, Color.Black);
+
             if (item.GetComponent<Equipable>() != null)
             {
-                description += $" + + This item is equipped in your {item.GetComponent<Equipable>().slot}.";
-                description += $" + Press Yellow*E to equip it.";
-                if (!item.GetComponent<Equipable>().removable)
+                if (item.GetComponent<Equipable>().equipped)
                 {
-                    description += " + It cannot be unequipped.";
+                    canUnequip = true;
+                    canEquip = false;
                 }
+                else
+                {
+                    canUnequip = false;
+                    canEquip = true;
+                }
+            }
+            else
+            {
+                canUnequip = false;
+                canEquip = false;
             }
 
             if (item.GetComponent<Usable>() != null)
             {
-                description += $" + + This item can be used.";
-                description += $" + Press Yellow*U to use it.";
+                canUse = true;
+            }
+            else
+            {
+                canUse = false;
             }
 
-            Math.DisplayToConsole(Program.interactionConsole, $"{description}", 2, 1, 0, 2, false);
+            Math.DisplayToConsole(Program.interactionConsole, $"{description}", 1, 1, 0, 2, false);
         }
         public static void ClosePopup()
         {

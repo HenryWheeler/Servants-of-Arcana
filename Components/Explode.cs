@@ -10,7 +10,6 @@ namespace Servants_of_Arcana.Components
     public class Explode : Component
     {
         public int strength { get; set; }
-        public string message { get; set; }
         public bool onUse { get; set; }
         public bool fireball { get; set; }
         public override void SetDelegates()
@@ -28,7 +27,6 @@ namespace Servants_of_Arcana.Components
         }
         public void Detonate(Entity user, Vector origin)
         {
-            Log.Add(message);
             if (onUse)
             {
                 SpecialEffects.Explosion(user, origin, strength, "Explosion", fireball);
@@ -38,11 +36,10 @@ namespace Servants_of_Arcana.Components
                 SpecialEffects.Explosion(entity, origin, strength, "Explosion", fireball);
             }
         }
-        public Explode(int strength, bool onUse, string message, bool fireball)
+        public Explode(int strength, bool onUse, bool fireball)
         {
             this.strength = strength;
             this.onUse = onUse;
-            this.message = message;
             this.fireball = fireball;
         }
     }

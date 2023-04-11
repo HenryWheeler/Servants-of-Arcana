@@ -19,18 +19,41 @@
         "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
         "fColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
-          "_packedValue": 4278255615
+          "_packedValue": 4292072403
         },
         "bColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
           "_packedValue": 4278190080
         },
-        "character": "!"
+        "character": ")"
       },
       {
         "$type": "Servants_of_Arcana.Description, Servants of Arcana",
-        "name": "Potion of Quick Movements",
-        "description": "A bubbling brew of pale yellow fluid."
+        "name": "Boomerang",
+        "description": "A curved projectile made of carved bone. It can be thrown or held but looks somewhat fragile."
+      },
+      {
+        "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
+        "equipped": false,
+        "onEquip": null,
+        "removable": true,
+        "slot": "Weapon"
+      },
+      {
+        "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
+        "onHit": null,
+        "toHitBonus": 0,
+        "damageBonus": 0,
+        "damageDie1": 1,
+        "damageDie2": 4
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Fragile, Servants of Arcana",
+        "breakChance": 10,
+        "breakText": "fractures into many small shards."
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Boomerang, Servants of Arcana"
       },
       {
         "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
@@ -38,21 +61,17 @@
         "areaOfEffect": null,
         "tileTypes": {
           "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
-          "$values": []
+          "$values": [
+            1,
+            2,
+            3
+          ]
         },
-        "range": 0,
-        "strength": 1,
-        "requiredTargets": 1,
-        "action": "Quaff"
-      },
-      {
-        "$type": "Servants_of_Arcana.Charges, Servants of Arcana",
-        "chargesRemaining": 1
-      },
-      {
-        "$type": "Servants_of_Arcana.IncreaseAttribute, Servants of Arcana",
-        "strength": 0.2,
-        "attribute": "Speed"
+        "range": 20,
+        "strength": 0,
+        "requiredTargets": 0,
+        "action": "Throw",
+        "message": "throws the boomerang."
       }
     ]
   }

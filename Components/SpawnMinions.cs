@@ -13,10 +13,10 @@ namespace Servants_of_Arcana
         public List<string> minionNames { get; set; } 
         public int amountToSummon { get; set; }
         public List<Entity> minions = new List<Entity>();
-        public string delegateName { get; set; }
+        public string delegateType { get; set; }
         public override void SetDelegates()
         {
-            switch (delegateName)
+            switch (delegateType)
             {
                 case "Use":
                     {
@@ -44,12 +44,11 @@ namespace Servants_of_Arcana
         {
             minions = SpecialEffects.SummonMinions(entity, room, minionNames, amountToSummon);
         }
-        public SpawnMinions(string message, List<string> minionNames, int amountToSummon, string delegateName = "Use")
+        public SpawnMinions(List<string> minionNames, int amountToSummon, string delegateType)
         {
-            this.message = message;
             this.minionNames = minionNames;
             this.amountToSummon = amountToSummon;
-            this.delegateName = delegateName;
+            this.delegateType = delegateType;
         }
     }
     /// <summary>
@@ -125,6 +124,6 @@ namespace Servants_of_Arcana
                 }
             }
         }
-        public BoundMinion(string message, List<string> minionNames, int amountToSummon) : base(message, minionNames, amountToSummon) { }
+        public BoundMinion(List<string> minionNames, int amountToSummon) : base(minionNames, amountToSummon, "Use") { }
     }
 }

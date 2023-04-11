@@ -43,7 +43,8 @@
         "range": 0,
         "strength": 0,
         "requiredTargets": 0,
-        "action": "Orate"
+        "action": "Orate",
+        "message": "reads off the scroll."
       },
       {
         "$type": "Servants_of_Arcana.Charges, Servants of Arcana",

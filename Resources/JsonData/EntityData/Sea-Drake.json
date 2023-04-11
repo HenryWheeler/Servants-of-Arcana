@@ -101,6 +101,7 @@
                     },
                     {
                       "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
+                      "onHit": null,
                       "toHitBonus": 0,
                       "damageBonus": 0,
                       "damageDie1": 2,
@@ -189,12 +190,12 @@
         "range": 15,
         "strength": 3,
         "requiredTargets": 0,
-        "action": ""
+        "action": "",
+        "message": "shoots a ball of flame!"
       },
       {
         "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",
         "strength": 3,
-        "message": "The Sea-Drake shoots a ball of flame!",
         "onUse": true,
         "fireball": true
       }

@@ -23,6 +23,16 @@
         "usedRoom": null
       },
       {
+        "$type": "Servants_of_Arcana.SpawnTiles, Servants of Arcana",
+        "tileNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Nest"
+          ]
+        },
+        "amountToSpawn": 3
+      },
+      {
         "$type": "Servants_of_Arcana.SpawnMinions, Servants of Arcana",
         "minions": {
           "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
@@ -32,11 +42,21 @@
         "minionNames": {
           "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
           "$values": [
-            "Sea-Drake"
+            "Seafoam Hawk"
           ]
         },
-        "amountToSummon": 1,
+        "amountToSummon": 4,
         "delegateType": "Spawn"
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnItems, Servants of Arcana",
+        "itemNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Hawk Egg"
+          ]
+        },
+        "amountToSpawn": 3
       }
     ]
   }

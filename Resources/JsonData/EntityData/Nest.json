@@ -1,5 +1,5 @@
 {
-  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "$type": "Servants_of_Arcana.Tile, Servants of Arcana",
   "collectionsToRemove": {
     "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
     "$values": []
@@ -8,7 +8,10 @@
     "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
     "$values": [
       {
-        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+        "$type": "Servants_of_Arcana.Visibility, Servants of Arcana",
+        "opaque": false,
+        "visible": false,
+        "explored": false
       },
       {
         "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
@@ -19,33 +22,22 @@
         "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
         "fColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
-          "_packedValue": 4294967295
+          "_packedValue": 4292072403
         },
         "bColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
           "_packedValue": 4278190080
         },
-        "character": "/"
+        "character": "*"
       },
       {
         "$type": "Servants_of_Arcana.Description, Servants of Arcana",
-        "name": "Shortsword",
-        "description": "A simple sword, but a very effective one."
-      },
-      {
-        "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
-        "equipped": false,
-        "onEquip": null,
-        "removable": true,
-        "slot": "Weapon"
-      },
-      {
-        "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
-        "toHitBonus": 1,
-        "damageBonus": 0,
-        "damageDie1": 1,
-        "damageDie2": 6
+        "name": "Nest",
+        "description": "A large messy pile of soft down, sticks, and fur. It is rather comfortable, no wonder eggs tend to like it."
       }
     ]
-  }
+  },
+  "actor": null,
+  "item": null,
+  "terrainType": 1
 }

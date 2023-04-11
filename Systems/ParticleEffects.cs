@@ -13,8 +13,11 @@ namespace Servants_of_Arcana
 {
     public class ParticleManager
     {
+        public static int currentParticle = 0;
         public static Particle CreateParticle(bool addToSystem, Vector position, int life, int speed, string movement, Draw draw, Vector target = null, bool fade = false, bool alwaysVisible = false, List<Particle> deathParticles = null, bool randomizeCharacter = false, bool showOverActors = false, List<Particle> moveParticles = null)
         {
+            currentParticle++; 
+
             Particle particle = new Particle(life, speed, movement, target, alwaysVisible, showOverActors);
             particle.AddComponent(new Vector(position.x, position.y));
             particle.AddComponent(draw);
@@ -213,6 +216,7 @@ namespace Servants_of_Arcana
         public string movement { get; set; }
         public bool alwaysVisible { get; set; }
         public bool showOverActors { get; set; }
+        public int particleNumber { get; set; }
 
         public Action<Vector> onParticleDeath;
         public Action<Vector> onParticleMove;
@@ -235,9 +239,17 @@ namespace Servants_of_Arcana
                     }
                 case "Target":
                     {
-                        Vector newPosition = DijkstraMap.PathFromMap(this, "ParticlePath");
-                        GetComponent<Vector>().x = newPosition.x;
-                        GetComponent<Vector>().y = newPosition.y;
+                        Vector newPosition = DijkstraMap.PathFromMap(this, $"ParticlePath{particleNumber}");
+                        if (position == newPosition)
+                        {
+                            KillParticle(position);
+                            return; 
+                        }
+                        else
+                        {
+                            GetComponent<Vector>().x = newPosition.x;
+                            GetComponent<Vector>().y = newPosition.y;
+                        }
                         break;
                     }
                 case "Wander":
@@ -380,6 +392,7 @@ namespace Servants_of_Arcana
         }
         public Particle(int life, int speed, string movement, Vector target = null, bool alwaysVisible = false, bool showOverActors = false)
         {
+            particleNumber = ParticleManager.currentParticle;
             this.life = life;
             this.speed = speed;
             this.movement = movement;
@@ -391,7 +404,7 @@ namespace Servants_of_Arcana
                 if (movement == "Target")
                 {
                     AddComponent(new Movement(new List<int>() { 1, 2, 3 }));
-                    DijkstraMap.CreateMap(new List<Vector>() { target }, "ParticlePath");
+                    DijkstraMap.CreateMap(new List<Vector>() { target }, $"ParticlePath{ParticleManager.currentParticle}");
                 }
                 else if (movement == "Attached")
                 {

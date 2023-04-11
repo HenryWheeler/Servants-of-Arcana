@@ -66,4 +66,24 @@ namespace Servants_of_Arcana
         }
         public SpawnTiles() { }
     }
+    [Serializable]
+    public class SpawnItems : Component
+    {
+        public List<string> itemNames { get; set; }
+        public int amountToSpawn { get; set; }
+        public override void SetDelegates()
+        {
+            entity.GetComponent<SpawnDetails>().onSpawn += Spawn;
+        }
+        public void Spawn(Room room)
+        {
+            SpecialEffects.SpawnItems(room, itemNames, amountToSpawn);
+        }
+        public SpawnItems(List<string> itemNames, int amountToSpawn)
+        {
+            this.itemNames = itemNames;
+            this.amountToSpawn = amountToSpawn;
+        }
+        public SpawnItems() { }
+    }
 }

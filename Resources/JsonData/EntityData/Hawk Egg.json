@@ -19,18 +19,22 @@
         "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
         "fColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
-          "_packedValue": 4278190335
+          "_packedValue": 4294967295
         },
         "bColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
           "_packedValue": 4278190080
         },
-        "character": "!"
+        "character": "%"
       },
       {
         "$type": "Servants_of_Arcana.Description, Servants of Arcana",
-        "name": "Potion of Healthy Habits",
-        "description": "A thick ochre brew that feels hot to the touch."
+        "name": "Hawk Egg",
+        "description": "A small white egg speckled with blue."
+      },
+      {
+        "$type": "Servants_of_Arcana.Heal, Servants of Arcana",
+        "strength": 3
       },
       {
         "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
@@ -41,17 +45,14 @@
           "$values": []
         },
         "range": 0,
-        "strength": 10,
+        "strength": 3,
         "requiredTargets": 1,
-        "action": "Quaff"
+        "action": "Consume",
+        "message": "devours the egg."
       },
       {
         "$type": "Servants_of_Arcana.Charges, Servants of Arcana",
         "chargesRemaining": 1
-      },
-      {
-        "$type": "Servants_of_Arcana.Heal, Servants of Arcana",
-        "strength": 10
       }
     ]
   }

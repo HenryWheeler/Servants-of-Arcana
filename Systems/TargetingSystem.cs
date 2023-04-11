@@ -92,7 +92,6 @@ namespace Servants_of_Arcana
         }
         public static void UseSelectedItem()
         {
-            Log.Add($"{Program.player.GetComponent<Description>().name} {currentUsedItem.action} the {currentUsedItem.entity.GetComponent<Description>().name}!");
             currentUsedItem.Use(Program.player, targetedPosition);
 
             if (currentUsedItem.entity.GetComponent<Charges>() != null)
@@ -100,6 +99,11 @@ namespace Servants_of_Arcana
                 currentUsedItem.entity.GetComponent<Charges>().chargesRemaining--;
                 if (currentUsedItem.entity.GetComponent<Charges>().chargesRemaining <= 0)
                 {
+                    if (currentUsedItem.entity.GetComponent<Equipable>() != null && currentUsedItem.entity.GetComponent<Equipable>().equipped)
+                    {
+                        InventoryManager.UnequipItem(Program.player, currentUsedItem.entity, false);
+                    }
+
                     Program.player.GetComponent<InventoryComponent>().items.Remove(currentUsedItem.entity);
                     Log.Add($"The {currentUsedItem.entity.GetComponent<Description>().name} is spent!");
                 }

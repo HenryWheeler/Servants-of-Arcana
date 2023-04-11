@@ -43,7 +43,8 @@
         "range": 0,
         "strength": 0,
         "requiredTargets": 1,
-        "action": "Drink from"
+        "action": "Drink from",
+        "message": "activates the wand."
       },
       {
         "$type": "Servants_of_Arcana.Charges, Servants of Arcana",

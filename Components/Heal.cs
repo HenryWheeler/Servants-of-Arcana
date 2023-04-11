@@ -29,31 +29,6 @@ namespace Servants_of_Arcana
             {
                 attributes.health += strength;
             }
-
-            if (actor == healed)
-            {
-                if (actor.GetComponent<PlayerController>() != null)
-                {
-                    Log.Add("You heal yourself!");
-                }
-                else
-                {
-                    Log.Add($"The {actor.GetComponent<Description>().name} heals itself!");
-                }
-            }
-            else
-            {
-                if (actor.GetComponent<PlayerController>() != null)
-                {
-                    Log.Add($"You heal the {healed.GetComponent<Description>().name}!");
-                }
-                else
-                {
-                    Log.Add($"The {actor.GetComponent<Description>().name} heals the {healed.GetComponent<Description>().name}!");
-                }
-            }
-
-            //Program.CreateSFX(target, new Draw[] { new Draw(Color.Red, Color.Black, (char)3) }, 30, "Attached", 2, target);
         }
         public Heal(int strength)
         {
@@ -79,50 +54,17 @@ namespace Servants_of_Arcana
             {
                 case "Strength":
                     {
-                        if (healed.GetComponent<PlayerController>() != null)
-                        {
-                            Log.Add("You feel mightier!");
-                        }
-                        else
-                        {
-                            Log.Add($"The {healed.GetComponent<Description>().name} feels mightier!");
-                        }
-
                         attributes.strength += (int)strength;
-
-                        //Program.CreateSFX(target, new Draw[] { new Draw(Color.Orange, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
                     }
                 case "Intelligence":
                     {
-                        if (healed.GetComponent<PlayerController>() != null)
-                        {
-                            Log.Add("You feel smarter!");
-                        }
-                        else
-                        {
-                            Log.Add($"The {healed.GetComponent<Description>().name} feels smarter!");
-                        }
-
                         attributes.intelligence += (int)strength;
-
-                        //Program.CreateSFX(target, new Draw[] { new Draw(Color.Blue, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
                     }
                 case "Speed":
                     {
-                        if (healed.GetComponent<PlayerController>() != null)
-                        {
-                            Log.Add("You feel faster!");
-                        }
-                        else
-                        {
-                            Log.Add($"The {healed.GetComponent<Description>().name} feels faster!");
-                        }
-
                         attributes.maxEnergy += strength;
-
-                       // Program.CreateSFX(target, new Draw[] { new Draw(Color.Yellow, Color.Black, (char)19) }, 30, "Attached", 2, target);
                         break;
                     }
             }

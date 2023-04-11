@@ -101,6 +101,34 @@ namespace Servants_of_Arcana
                     new Draw(Color.Red, Color.Black, (char)177), origin, false, false, particles, false, true);
             }
         }
+        public static void Boomerang(Entity creator, Vector target, Entity itemUsed)
+        {
+            Draw draw = itemUsed.GetComponent<Draw>();
+            Vector origin = creator.GetComponent<Vector>();
+
+            if (Program.tiles[target.x, target.y].actor != null)
+            {
+                WeaponComponent weaponComponent = itemUsed.GetComponent<WeaponComponent>();
+                CombatManager.AttackTarget(creator, Program.tiles[target.x, target.y].actor, weaponComponent.toHitBonus, 
+                    weaponComponent.damageBonus, weaponComponent.damageDie1, weaponComponent.damageDie2, 
+                    itemUsed.GetComponent<Description>().name, weaponComponent);
+            }
+
+            int life;
+            List<Node> nodes = AStar.ReturnPath(target, origin);
+
+            if (nodes != null)
+            {
+                life = nodes.Count;
+            }
+            else
+            {
+                life = (int)Math.Distance(target.x, target.y, origin.x, origin.y);
+            }
+
+            Particle boomerangReturn = ParticleManager.CreateParticle(false, target, life, 5, "Target", draw, origin, false, false);
+            ParticleManager.CreateParticle(true, origin, life, 5, "Target", draw, target, false, false, new List<Particle>() { boomerangReturn });
+        }
         public static void Lightning(Entity creator, Vector destination, int strength, int range, string name)
         {
             List<Vector> affectedTiles = AreaOfEffectModels.ReturnLine(creator.GetComponent<Vector>(), destination, range);
@@ -294,6 +322,43 @@ namespace Servants_of_Arcana
                 }
             }
         }
+        public static void SpawnItems(Room room, List<string> minionName, int amountToSummon)
+        {
+            List<Vector> chosenTiles = new List<Vector>();
+
+            foreach (Tile tile in room.tiles)
+            {
+                if (tile != null && tile.terrainType != 0 && !tile.GetComponent<Visibility>().opaque)
+                {
+                    chosenTiles.Add(tile.GetComponent<Vector>());
+                }
+            }
+
+            Vector chosen;
+
+            for (int i = 0; i < amountToSummon; i++)
+            {
+                foreach (string name in minionName)
+                {
+                    if (chosenTiles.Count > 0)
+                    {
+                        chosen = chosenTiles[Program.random.Next(chosenTiles.Count)];
+                        chosenTiles.Remove(chosen);
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                    Entity entity = JsonDataManager.ReturnEntity(name);
+
+                    entity.GetComponent<Vector>().x = chosen.x;
+                    entity.GetComponent<Vector>().y = chosen.y;
+
+                    Program.tiles[chosen.x, chosen.y].item = entity;
+                }
+            }
+        }
         public static Room SpawnPrefab(Room room, int minWidth, int minHeight, int maxWidth, int maxHeight, string type)
         {
             foreach (Tile tile in room.tiles)
@@ -481,25 +546,13 @@ namespace Servants_of_Arcana
                 }
             }
 
-            if (user.GetComponent<PlayerController>() != null && user == target)
-            {
-                Log.Add($"You have swapped places with yourself.");
-            }
-            else if (user.GetComponent<PlayerController>() != null) 
-            {
-                Log.Add($"{user.GetComponent<Description>().name} have swapped places with the {target.GetComponent<Description>().name}.");
-            }
-            else if (target.GetComponent<PlayerController>() != null)
-            {
-                Log.Add($"{user.GetComponent<Description>().name} has swapped places with you.");
-            }
-            else if (user == target)
+            if (user == target)
             {
                 Log.Add($"{user.GetComponent<Description>().name} has swapped places with itself.");
             }
             else
             {
-                Log.Add($"{user.GetComponent<Description>().name} has swapped places with the {target.GetComponent<Description>().name}.");
+                Log.Add($"{user.GetComponent<Description>().name} has swapped places with {target.GetComponent<Description>().name}.");
             }
         }
     }

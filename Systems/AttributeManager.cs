@@ -25,6 +25,7 @@ namespace Servants_of_Arcana
 
             string display = "";
 
+            display += $"{Program.playerName}:{spacer}";
             display += $"Red*Health: {stats.health}/{stats.maxHealth}{spacer}";
 
             display += $"Yellow*Speed: {MathF.Round(stats.maxEnergy, 2)}{spacer}";

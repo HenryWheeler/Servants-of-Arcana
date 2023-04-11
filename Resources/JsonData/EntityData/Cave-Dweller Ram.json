@@ -101,6 +101,7 @@
                     },
                     {
                       "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
+                      "onHit": null,
                       "toHitBonus": 0,
                       "damageBonus": 2,
                       "damageDie1": 2,

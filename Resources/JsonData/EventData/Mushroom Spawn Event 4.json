@@ -50,7 +50,7 @@
           "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
           "$values": []
         },
-        "message": "",
+        "message": null,
         "minionNames": {
           "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
           "$values": [
@@ -58,7 +58,7 @@
           ]
         },
         "amountToSummon": 1,
-        "delegateName": "Spawn"
+        "delegateType": "Spawn"
       }
     ]
   }

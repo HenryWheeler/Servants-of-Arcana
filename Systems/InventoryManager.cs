@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SadRogue.Primitives;
+using SadConsole.Entities;
 
 namespace Servants_of_Arcana
 {
     public class InventoryManager
     {
-        public static int maxInventorySize = 11;
+        public static int maxInventorySize = 10;
         public static bool isInventoryOpen = false;
         public static Entity selectedItem = null;
         public static void OpenInventoryDisplay(Entity item)
@@ -47,7 +48,7 @@ namespace Servants_of_Arcana
 
                     if (actor.GetComponent<PlayerController>() != null)
                     {
-                        Log.Add($"You pick up the {Program.tiles[location.x, location.y].item.GetComponent<Description>().name}.");
+                        Log.Add($"{actor.GetComponent<Description>().name} picks up the {Program.tiles[location.x, location.y].item.GetComponent<Description>().name}.");
                     }
 
                     Program.tiles[location.x, location.y].item = null;
@@ -55,12 +56,12 @@ namespace Servants_of_Arcana
                 }
                 else if (actor.GetComponent<PlayerController>() != null)
                 {
-                    Log.Add($"You are holding too much for you to pick this up.");
+                    Log.Add($"{actor.GetComponent<Description>().name} is holding too much to pick this up.");
                 }
             }
             else if (actor.GetComponent<PlayerController>() != null)
             {
-                Log.Add($"There is nothing there for you to pick up.");
+                Log.Add($"There is nothing for {actor.GetComponent<Description>().name} to pick up.");
             }
 
             AttributeManager.UpdateAttributes(actor);
@@ -112,7 +113,7 @@ namespace Servants_of_Arcana
             {
                 if (actor.GetComponent<PlayerController>() != null)
                 {
-                    Log.Add($"You have no items to drop.");
+                    Log.Add($"{actor.GetComponent<Description>().name} has no items to drop.");
                 }
                 else
                 {
@@ -165,18 +166,14 @@ namespace Servants_of_Arcana
             equipable.equipped = false;
             equipable.onEquip?.Invoke(actor, false);
 
-            if (actor.GetComponent<PlayerController>() != null)
-            {
-                CloseInventoryDisplay();
-                Log.Add($"You unequiped the {item.GetComponent<Description>().name}.");
-            }
-            else
-            {
-                Log.Add($"The {actor.GetComponent<Description>().name} unequip the {item.GetComponent<Description>().name}.");
-            }
-
             if (endTurn) 
             {
+                if (actor.GetComponent<PlayerController>() != null)
+                {
+                    CloseInventoryDisplay();
+                }
+
+                Log.Add($"{actor.GetComponent<Description>().name} unequips the {item.GetComponent<Description>().name}.");
                 actor.GetComponent<TurnComponent>().EndTurn();
             }
 
@@ -200,14 +197,16 @@ namespace Servants_of_Arcana
                             item.GetComponent<Charges>().chargesRemaining--;
                             if (item.GetComponent<Charges>().chargesRemaining <= 0)
                             {
+                                if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                                {
+                                    UnequipItem(actor, item, false);
+                                }
                                 actor.GetComponent<InventoryComponent>().items.Remove(item);
                                 Log.Add($"The {item.GetComponent<Description>().name} is spent!");
                             }
                         }
 
                         CloseInventoryDisplay();
-
-                        Log.Add($"{actor.GetComponent<Description>().name} {use.action} the {item.GetComponent<Description>().name}!");
                     }
                     else
                     {
@@ -226,12 +225,15 @@ namespace Servants_of_Arcana
                         item.GetComponent<Charges>().chargesRemaining--;
                         if (item.GetComponent<Charges>().chargesRemaining <= 0)
                         {
+                            if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                            {
+                                UnequipItem(actor, item, false);
+                            }
+
                             actor.GetComponent<InventoryComponent>().items.Remove(item);
                             Log.Add($"The {item.GetComponent<Description>().name} is spent!");
                         }
                     }
-
-                    Log.Add($"The {actor.GetComponent<Description>().name} {use.action}s the {item.GetComponent<Description>().name}!");
                 }
 
                 actor.GetComponent<TurnComponent>().EndTurn();

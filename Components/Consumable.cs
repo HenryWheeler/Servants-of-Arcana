@@ -26,16 +26,19 @@ namespace Servants_of_Arcana
         public int requiredTargets { get; set; }
         public List<int> tileTypes = new List<int>();
         public string action { get; set; }
+        public string message { get; set; }
         public override void SetDelegates() { }
         public void Use(Entity user, Vector target)
         {
+            Log.Add($"{user.GetComponent<Description>().name} {message}");
             onUse?.Invoke(user, target);
         }
-        public Usable(int range, int strength, int requiredTargets, string action, List<int> tileTypes = null)
+        public Usable(int range, int strength, int requiredTargets, string action, string message, List<int> tileTypes = null)
         {
             this.range = range;
             this.strength = strength;
             this.action = action;
+            this.message = message;
             this.requiredTargets = requiredTargets;
             if (tileTypes != null)
             {

@@ -18,7 +18,7 @@ namespace Servants_of_Arcana
         {
             if (stepper.GetComponent<PlayerController>() != null) 
             {
-                Log.Add($"You open the {entity.GetComponent<Description>().name}.");
+                Log.Add($"{Program.playerName} opens the {entity.GetComponent<Description>().name}.");
             }
             if (!open) 
             {

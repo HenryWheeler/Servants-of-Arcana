@@ -13,6 +13,7 @@ namespace Servants_of_Arcana
         public int damageBonus { get; set; }
         public int damageDie1 { get; set; }
         public int damageDie2 { get; set; }
+        public Action<Entity, Entity> onHit;
         public override void SetDelegates() { }
         public WeaponComponent(int toHitBonus, int damageBonus, int damageDie1, int damageDie2) 
         {
