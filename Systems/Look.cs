@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SadRogue.Primitives;
 using System.Collections.Specialized;
+using Servants_of_Arcana.Systems;
 
 namespace Servants_of_Arcana
 {
@@ -24,6 +25,8 @@ namespace Servants_of_Arcana
 
             Program.playerConsole.Clear();
             Program.rootConsole.Children.MoveToTop(Program.lookConsole);
+            Program.rootConsole.Children.MoveToBottom(Program.playerConsole);
+            Program.rootConsole.Children.MoveToBottom(Program.inventoryConsole);
 
             Program.ClearUISFX();
             MoveReticle(new Vector(0, 0));
@@ -35,6 +38,7 @@ namespace Servants_of_Arcana
 
             Program.lookConsole.Clear();
             Program.rootConsole.Children.MoveToTop(Program.playerConsole);
+            Program.rootConsole.Children.MoveToTop(Program.inventoryConsole);
 
             AttributeManager.UpdateAttributes(Program.player);
 
@@ -52,6 +56,8 @@ namespace Servants_of_Arcana
                 reticlePosition.x += direction.x;
                 reticlePosition.y += direction.y;
 
+                bool itemUnknown = false;
+
 
                 Description description = null;
                 if (!Program.tiles[reticlePosition.x, reticlePosition.y].GetComponent<Visibility>().visible)
@@ -67,6 +73,10 @@ namespace Servants_of_Arcana
                 }
                 else if (Program.tiles[reticlePosition.x, reticlePosition.y].item != null)
                 {
+                    if (!ItemIdentityManager.IsItemIdentified(Program.tiles[reticlePosition.x, reticlePosition.y].item.GetComponent<Description>().name))
+                    {
+                        itemUnknown = true;
+                    }
                     description = Program.tiles[reticlePosition.x, reticlePosition.y].item.GetComponent<Description>();
                 }
                 else
@@ -76,9 +86,17 @@ namespace Servants_of_Arcana
 
                 if (description != null)
                 {
-                    Math.DisplayToConsole(Program.lookConsole, $"{description.name}", 1, 1, 0, 3, false);
+                    if (itemUnknown)
+                    {
+                        Math.DisplayToConsole(Program.lookConsole, $"Unknown Item", 1, 1, 0, 3, false);
+                        Math.DisplayToConsole(Program.lookConsole, "You have no idea what this item could be. Only through use could its identity be discovered.", 1, 1, 0, 7, false);
+                    }
+                    else
+                    {
+                        Math.DisplayToConsole(Program.lookConsole, $"{description.name}", 1, 1, 0, 3, false);
+                        Math.DisplayToConsole(Program.lookConsole, $"{description.description}", 1, 1, 0, 7, false);
+                    }
                     Program.lookConsole.DrawLine(new Point(0, 5), new Point(Program.lookConsole.Width, 5), (char)196, Color.AntiqueWhite, Color.Black);
-                    Math.DisplayToConsole(Program.lookConsole, $"{description.description}", 1, 1, 0, 7, false);
                 }
 
                 Program.CreateConsoleBorder(Program.lookConsole);

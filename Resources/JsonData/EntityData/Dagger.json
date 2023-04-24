@@ -1,0 +1,52 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4294967295
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": ")"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Dagger",
+        "description": "A small sharp pointy item."
+      },
+      {
+        "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
+        "equipped": false,
+        "onEquip": null,
+        "removable": true,
+        "slot": "Weapon"
+      },
+      {
+        "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
+        "onHit": null,
+        "toHitBonus": 2,
+        "damageBonus": 0,
+        "damageDie1": 1,
+        "damageDie2": 4
+      }
+    ]
+  }
+}

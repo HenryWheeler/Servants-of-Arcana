@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "Fish",
+    "2": "Fish",
+    "3": "Fish",
+    "4": "Fish",
+    "5": "Fish",
+    "6": "Fish",
+    "7": "Fish",
+    "8": "Fish",
+    "9": "Fish",
+    "10": "Fish",
+    "11": "Fish",
+    "12": "Fish",
+    "13": "Fish",
+    "14": "Fish",
+    "15": "Fish",
+    "16": "Fish",
+    "17": "Fish",
+    "18": "Fish",
+    "19": "Fish",
+    "20": "Fish"
+  },
+  "name": "Flooded-Enemies"
+}

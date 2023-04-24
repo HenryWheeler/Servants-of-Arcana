@@ -1,0 +1,79 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4280953509
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": ")"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Gork's Hammer",
+        "description": "A very large powerful looking bludgeoning tool. Engraved into it is an inscription + + Through my fury I will remake the world - Gork."
+      },
+      {
+        "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
+        "equipped": false,
+        "onEquip": null,
+        "removable": true,
+        "slot": "Weapon"
+      },
+      {
+        "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
+        "onHit": null,
+        "toHitBonus": 10,
+        "damageBonus": 0,
+        "damageDie1": 10,
+        "damageDie2": 10
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",
+        "strength": 5,
+        "onUse": true,
+        "fireball": false
+      },
+      {
+        "$type": "Servants_of_Arcana.Components.Boomerang, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2,
+            3
+          ]
+        },
+        "range": 30,
+        "strength": 5,
+        "requiredTargets": 0,
+        "action": "Throw",
+        "message": "throws the hammer."
+      }
+    ]
+  }
+}

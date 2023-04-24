@@ -15,6 +15,20 @@
 	
   <ItemGroup>
     <None Remove="Icon.bmp" />
+    <None Remove="Resources\JsonData\TableData\DropList\DungeonThemes.json" />
+    <None Remove="Resources\JsonData\TableData\Flooded-Enemies.json" />
+    <None Remove="Resources\JsonData\TableData\Flooded\Flooded-Items.json" />
+    <None Remove="Resources\JsonData\TableData\Flooded\Flooded-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Infested\Infested-Enemies.json" />
+    <None Remove="Resources\JsonData\TableData\Infested\Infested-Items.json" />
+    <None Remove="Resources\JsonData\TableData\Infested\Infested-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Items - Copy.json" />
+    <None Remove="Resources\JsonData\TableData\Normal\Normal-Enemies.json" />
+    <None Remove="Resources\JsonData\TableData\Normal\Normal-Items.json" />
+    <None Remove="Resources\JsonData\TableData\Normal\Normal-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Enemies.json" />
+    <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Items.json" />
+    <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Tiles.json" />
     <None Remove="Resources\logo.ans" />
   </ItemGroup>
 

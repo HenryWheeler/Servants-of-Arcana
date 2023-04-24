@@ -45,6 +45,37 @@ namespace Servants_of_Arcana
                 RandomTable table = JsonConvert.DeserializeObject<RandomTable>(File.ReadAllText(filePath), options);
                 pullData.Add(table);
             }
+
+            foreach (string filePath in Directory.GetFiles(tablePath + "/DropList"))
+            {
+                RandomTable table = JsonConvert.DeserializeObject<RandomTable>(File.ReadAllText(filePath), options);
+                pullData.Add(table);
+            }
+
+            foreach (string filePath in Directory.GetFiles(tablePath + "/Flooded"))
+            {
+                RandomTable table = JsonConvert.DeserializeObject<RandomTable>(File.ReadAllText(filePath), options);
+                pullData.Add(table);
+            }
+
+            foreach (string filePath in Directory.GetFiles(tablePath + "/Infested"))
+            {
+                RandomTable table = JsonConvert.DeserializeObject<RandomTable>(File.ReadAllText(filePath), options);
+                pullData.Add(table);
+            }
+
+            foreach (string filePath in Directory.GetFiles(tablePath + "/Normal"))
+            {
+                RandomTable table = JsonConvert.DeserializeObject<RandomTable>(File.ReadAllText(filePath), options);
+                pullData.Add(table);
+            }
+
+            foreach (string filePath in Directory.GetFiles(tablePath + "/Overgrown"))
+            {
+                RandomTable table = JsonConvert.DeserializeObject<RandomTable>(File.ReadAllText(filePath), options);
+                pullData.Add(table);
+            }
+
             return pullData;
         }
         public static Entity ReturnEntity(string name)
@@ -55,16 +86,45 @@ namespace Servants_of_Arcana
             entity.SetDelegates();
             if (entity.GetComponent<InventoryComponent>() != null)
             {
-                foreach (Entity item in entity.GetComponent<InventoryComponent>().items)
+                InventoryComponent component = entity.GetComponent<InventoryComponent>();
+
+                List<Entity> inventoryItems = new List<Entity>();
+                List<Entity> equipmentItems = new List<Entity>();
+                foreach (Entity item in component.items)
                 {
-                    item.SetDelegates();
-                }
-                foreach (EquipmentSlot slot in entity.GetComponent<InventoryComponent>().equipment)
-                {
-                    if (slot.item != null)
+                    bool foundSlot = false;
+                    foreach (EquipmentSlot slot in component.equipment)
                     {
-                        slot.item.SetDelegates();
+                        if (slot.item != null && item == slot.item)
+                        {
+                            equipmentItems.Add(new Entity(slot.item.components));
+                            foundSlot = true;
+                        }
                     }
+
+                    if (!foundSlot)
+                    {
+                        inventoryItems.Add(new Entity(item.components));
+                    }
+                }
+                component.items.Clear();
+
+                foreach (Entity item in equipmentItems)
+                {
+                    foreach (EquipmentSlot slot in component.equipment)
+                    {
+                        if (slot.slotName == item.GetComponent<Equipable>().slot)
+                        {
+                            component.items.Add(item);
+                            slot.item = item;
+                            item.SetDelegates();
+                        }
+                    }
+                }
+                foreach (Entity item in inventoryItems)
+                {
+                    component.items.Add(item);
+                    item.SetDelegates();
                 }
             }
 
@@ -143,6 +203,16 @@ namespace Servants_of_Arcana
         public static void CreateNew(string tableName, Dictionary<int, string> tableDictionary)
         {
             JsonDataManager.SaveTable(new RandomTable(tableName, tableDictionary));
+        }
+        public static string RetrieveRandomSpecified(string table, int modifier, bool useSeed)
+        {
+            if (spawnTables.ContainsKey(table))
+            {
+                if (modifier == 0) { modifier = 1; }
+                if (useSeed) { return spawnTables[table].table[Program.dungeonGenerator.seed.Next(1, 20) + modifier]; }
+                else { return spawnTables[table].table[Program.random.Next(1, 20) + modifier]; }
+            }
+            else { throw new Exception("Referenced table does not exist"); }
         }
         public static string RetrieveRandomItem(int modifier, bool useSeed)
         {

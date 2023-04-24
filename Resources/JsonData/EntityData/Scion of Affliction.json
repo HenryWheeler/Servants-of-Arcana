@@ -1,0 +1,186 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Actor, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278215680
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "E"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Scion of Affliction",
+        "description": "A lithe foul humanoid, it is covered in bulging pustules and warts, each seeping with bile. Beneath its foul exterior lies a more horrid core, an air of burning trash and scum is about this creature."
+      },
+      {
+        "$type": "Servants_of_Arcana.InventoryComponent, Servants of Arcana",
+        "items": {
+          "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
+          "$values": []
+        },
+        "equipment": {
+          "$type": "Servants_of_Arcana.EquipmentSlot[], Servants of Arcana",
+          "$values": [
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Armor"
+            },
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Off Hand"
+            },
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Magic Item"
+            },
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Weapon"
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Servants_of_Arcana.Faction, Servants of Arcana",
+        "faction": "Elemental"
+      },
+      {
+        "$type": "Servants_of_Arcana.Harmable, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Attributes, Servants of Arcana",
+        "status": null,
+        "maxHealth": 20,
+        "health": 20,
+        "maxEnergy": 0.8,
+        "strength": 2,
+        "intelligence": 0,
+        "armorValue": 11,
+        "sight": 6
+      },
+      {
+        "$type": "Servants_of_Arcana.Movement, Servants of Arcana",
+        "moveTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1
+          ]
+        }
+      },
+      {
+        "$type": "Servants_of_Arcana.TurnComponent, Servants of Arcana",
+        "onTurnEnd": null,
+        "isAlive": true,
+        "isTurnActive": false,
+        "currentEnergy": 0.0,
+        "controller": null
+      },
+      {
+        "$type": "Servants_of_Arcana.ElementalAI, Servants of Arcana",
+        "transitions": {
+          "$type": "System.Collections.Generic.Dictionary`2[[Servants_of_Arcana.AIController+StateMachine, Servants of Arcana],[Servants_of_Arcana.AIController+State, Servants of Arcana]], System.Private.CoreLib"
+        },
+        "currentState": 5,
+        "currentInput": 9,
+        "hatedEntities": {
+          "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
+          "$values": []
+        },
+        "hatedFactions": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": []
+        },
+        "dungeonSection": 0,
+        "target": null,
+        "interest": 50,
+        "baseInterest": 50,
+        "maxDistance": 10,
+        "minDistance": 0,
+        "hate": 100,
+        "fear": 0,
+        "greed": 0,
+        "abilityChance": 25
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2,
+            3
+          ]
+        },
+        "range": 15,
+        "strength": 3,
+        "requiredTargets": 0,
+        "action": "",
+        "message": "spits a fetid ball of bile!"
+      },
+      {
+        "$type": "Servants_of_Arcana.ApplyPoison, Servants of Arcana",
+        "timeRemaining": 3,
+        "strength": 1,
+        "radius": 3,
+        "type": "Sphere"
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnDetails, Servants of Arcana",
+        "onSpawn": null,
+        "minWidth": 0,
+        "minHeight": 0,
+        "maxWidth": 0,
+        "maxHeight": 0,
+        "type": "None",
+        "usedRoom": null
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnItems, Servants of Arcana",
+        "itemNames": null,
+        "randomize": false,
+        "useRandomTable": false,
+        "amountToSpawn": 1,
+        "type": "Death"
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnItems, Servants of Arcana",
+        "itemNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Wretched Claw"
+          ]
+        },
+        "randomize": false,
+        "useRandomTable": false,
+        "amountToSpawn": 0,
+        "type": "Equip"
+      }
+    ]
+  }
+}

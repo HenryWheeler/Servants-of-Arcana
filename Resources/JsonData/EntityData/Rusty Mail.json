@@ -1,0 +1,55 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4288252023
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "["
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Rusty Mail",
+        "description": "A rusty coat of iron rings, while it may protect you it won't be pleasant."
+      },
+      {
+        "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
+        "equipped": false,
+        "onEquip": null,
+        "removable": true,
+        "slot": "Armor"
+      },
+      {
+        "$type": "Servants_of_Arcana.Attributes, Servants of Arcana",
+        "status": null,
+        "maxHealth": 0,
+        "health": 0,
+        "maxEnergy": 0.0,
+        "strength": 0,
+        "intelligence": 0,
+        "armorValue": 2,
+        "sight": 0
+      }
+    ]
+  }
+}

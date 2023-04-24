@@ -49,6 +49,26 @@ namespace Servants_of_Arcana
                 if (damage >= attributes.maxHealth / 4) { ParticleManager.CreateBloodStain(vector); }
             }
         }
+        /// <summary>
+        /// Use this version when applying damage from status effects
+        /// </summary>
+        /// <param name="damage"></param>
+        public void RecieveDamage(int damage)
+        {
+            Attributes attributes = entity.GetComponent<Attributes>();
+
+            attributes.health -= damage;
+
+            if (entity.GetComponent<PlayerController> != null)
+            {
+                AttributeManager.UpdateAttributes(Program.player);
+            }
+
+            if (attributes.health <= 0)
+            {
+                Die(entity);
+            }
+        }
         public void Die(Entity killer)
         {
             TurnComponent component = entity.GetComponent<TurnComponent>();
@@ -66,7 +86,7 @@ namespace Servants_of_Arcana
 
             if (entity.GetComponent<PlayerController>() != null)
             {
-                Log.Add("You die.");
+                Log.Add($"{Program.playerName} dies.");
             }
             else
             {

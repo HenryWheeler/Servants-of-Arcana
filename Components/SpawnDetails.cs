@@ -70,19 +70,84 @@ namespace Servants_of_Arcana
     public class SpawnItems : Component
     {
         public List<string> itemNames { get; set; }
+        public bool randomize { get; set; } = false;
+        public bool useRandomTable { get; set; } = false;
         public int amountToSpawn { get; set; }
+        public string type { get; set; }
         public override void SetDelegates()
         {
-            entity.GetComponent<SpawnDetails>().onSpawn += Spawn;
+            if (type == "Spawn")
+            {
+                entity.GetComponent<SpawnDetails>().onSpawn += Spawn;
+            }
+            else if (type == "Equip")
+            {
+                entity.GetComponent<SpawnDetails>().onSpawn += Equip;
+            }
+            else if (type == "Death")
+            {
+                entity.GetComponent<Harmable>().onDeath += Spawn;
+            }
         }
         public void Spawn(Room room)
         {
             SpecialEffects.SpawnItems(room, itemNames, amountToSpawn);
         }
+        public void Equip(Room room)
+        {
+            if (useRandomTable)
+            {
+                int random;
+                if (randomize)
+                {
+                    random = Program.dungeonGenerator.seed.Next(1, amountToSpawn);
+                }
+                else
+                {
+                    random = amountToSpawn;
+                }
+
+                for (int i = 0; i < random; i++)
+                {
+                    InventoryManager.EquipItem(entity, JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomSpecified(itemNames.First(), 0, true)), false);
+                }
+            }
+            foreach (string item in itemNames)
+            {
+                InventoryManager.EquipItem(entity, JsonDataManager.ReturnEntity(item), false);
+            }
+        }
+        public void Spawn(Entity attacker, Vector deathSite)
+        {
+            string name = RandomTableManager.RetrieveRandomSpecified($"{entity.GetComponent<Description>().name}", 0, false);
+            if (name != "None")
+            {
+                SpecialEffects.SpawnItems(deathSite, 1, new List<string>() { name }, amountToSpawn);
+            }
+        }
         public SpawnItems(List<string> itemNames, int amountToSpawn)
         {
             this.itemNames = itemNames;
             this.amountToSpawn = amountToSpawn;
+            type = "Spawn";
+        }
+        public SpawnItems(List<string> itemNames)
+        {
+            this.itemNames = itemNames;
+            type = "Equip";
+        }
+        public SpawnItems(string table, int maxRandom)
+        {
+            this.itemNames = itemNames;
+            this.amountToSpawn = maxRandom;
+            randomize = true;
+            useRandomTable = true;
+            type = "Equip";
+        }
+        public SpawnItems(int amountToSpawn)
+        {
+            this.amountToSpawn = amountToSpawn;
+            type = "Death";
         }
         public SpawnItems() { }
     }

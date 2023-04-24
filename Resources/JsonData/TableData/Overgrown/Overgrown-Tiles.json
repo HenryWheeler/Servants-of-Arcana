@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "Plants",
+    "2": "Plants",
+    "3": "Plants",
+    "4": "Plants",
+    "5": "Plants",
+    "6": "Plants",
+    "7": "Plants",
+    "8": "Plants",
+    "9": "Plants",
+    "10": "Plants",
+    "11": "Firebomb Trap",
+    "12": "Firebomb Trap",
+    "13": "Firebomb Trap",
+    "14": "Firebomb Trap",
+    "15": "Firebomb Trap",
+    "16": "Firebomb Trap",
+    "17": "Firebomb Trap",
+    "18": "Firebomb Trap",
+    "19": "Firebomb Trap",
+    "20": "Firebomb Trap"
+  },
+  "name": "Overgrown-Tiles"
+}

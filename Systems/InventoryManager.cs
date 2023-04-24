@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SadRogue.Primitives;
 using SadConsole.Entities;
+using Servants_of_Arcana.Systems;
 
 namespace Servants_of_Arcana
 {
@@ -48,7 +49,14 @@ namespace Servants_of_Arcana
 
                     if (actor.GetComponent<PlayerController>() != null)
                     {
-                        Log.Add($"{actor.GetComponent<Description>().name} picks up the {Program.tiles[location.x, location.y].item.GetComponent<Description>().name}.");
+                        if (!ItemIdentityManager.IsItemIdentified(Program.tiles[location.x, location.y].item.GetComponent<Description>().name))
+                        {
+                            Log.Add($"{actor.GetComponent<Description>().name} picks up the unknown item.");
+                        }
+                        else
+                        {
+                            Log.Add($"{actor.GetComponent<Description>().name} picks up the {Program.tiles[location.x, location.y].item.GetComponent<Description>().name}.");
+                        }
                     }
 
                     Program.tiles[location.x, location.y].item = null;
@@ -83,7 +91,14 @@ namespace Servants_of_Arcana
                     {
                         if (!item.GetComponent<Equipable>().removable)
                         {
-                            Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because it is unequipable.");
+                            if (!ItemIdentityManager.IsItemIdentified(item.GetComponent<Description>().name))
+                            {
+                                Log.Add($"{actor.GetComponent<Description>().name} cannot drop the unknown item because it is unequipable.");
+                            }
+                            else
+                            {
+                                Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because it is unequipable.");
+                            }
                             return;
                         }
                         else
@@ -98,7 +113,14 @@ namespace Servants_of_Arcana
 
                     if (actor.GetComponent<PlayerController>() != null)
                     {
-                        Log.Add($"{actor.GetComponent<Description>().name} dropped the {item.GetComponent<Description>().name}.");
+                        if (!ItemIdentityManager.IsItemIdentified(item.GetComponent<Description>().name))
+                        {
+                            Log.Add($"{actor.GetComponent<Description>().name} dropped the unknown item.");
+                        }
+                        else
+                        {
+                            Log.Add($"{actor.GetComponent<Description>().name} dropped the {item.GetComponent<Description>().name}.");
+                        }
                         CloseInventoryDisplay();
                     }
 
@@ -106,7 +128,14 @@ namespace Servants_of_Arcana
                 }
                 else
                 {
-                    Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because there is something already there.");
+                    if (!ItemIdentityManager.IsItemIdentified(item.GetComponent<Description>().name))
+                    {
+                        Log.Add($"{actor.GetComponent<Description>().name} cannot drop the unknown item because there is something already there.");
+                    }
+                    else
+                    {
+                        Log.Add($"{actor.GetComponent<Description>().name} cannot drop the {item.GetComponent<Description>().name} because there is something already there.");
+                    }
                 }
             }
             else
@@ -138,6 +167,18 @@ namespace Servants_of_Arcana
             equipable.equipped = true;
             equipable.onEquip?.Invoke(actor, true);
 
+            if (item.GetComponent<Attributes>() != null)
+            {
+                Attributes itemAttributes = item.GetComponent<Attributes>();
+                Attributes actorAttributes = actor.GetComponent<Attributes>();
+
+                actorAttributes.maxHealth += itemAttributes.maxHealth;
+                actorAttributes.armorValue += itemAttributes.armorValue;
+                actorAttributes.maxEnergy += itemAttributes.maxEnergy;
+                actorAttributes.strength += itemAttributes.strength;
+                actorAttributes.intelligence += itemAttributes.intelligence;
+                actorAttributes.sight += itemAttributes.sight;
+            }
 
             if (actor.GetComponent<PlayerController>() != null)
             {
@@ -165,6 +206,19 @@ namespace Servants_of_Arcana
             slot.item = null;
             equipable.equipped = false;
             equipable.onEquip?.Invoke(actor, false);
+
+            if (item.GetComponent<Attributes>() != null)
+            {
+                Attributes itemAttributes = item.GetComponent<Attributes>();
+                Attributes actorAttributes = actor.GetComponent<Attributes>();
+
+                actorAttributes.maxHealth -= itemAttributes.maxHealth;
+                actorAttributes.armorValue -= itemAttributes.armorValue;
+                actorAttributes.maxEnergy -= itemAttributes.maxEnergy;
+                actorAttributes.strength -= itemAttributes.strength;
+                actorAttributes.intelligence -= itemAttributes.intelligence;
+                actorAttributes.sight -= itemAttributes.sight;
+            }
 
             if (endTurn) 
             {

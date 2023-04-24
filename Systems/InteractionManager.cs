@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SadRogue.Primitives;
 using Newtonsoft.Json.Bson;
+using Servants_of_Arcana.Systems;
 
 namespace Servants_of_Arcana
 {
@@ -153,7 +154,14 @@ namespace Servants_of_Arcana
                 canUse = false;
             }
 
-            Math.DisplayToConsole(Program.interactionConsole, $"{description}", 1, 1, 0, 2, false);
+            if (ItemIdentityManager.IsItemIdentified(item.GetComponent<Description>().name))
+            {
+                Math.DisplayToConsole(Program.interactionConsole, $"{description}", 1, 1, 0, 2, false);
+            }
+            else
+            {
+                Math.DisplayToConsole(Program.interactionConsole, $"You have no idea what this item could be. Only through use could its identity be discovered.", 1, 1, 0, 2, false);
+            }
         }
         public static void ClosePopup()
         {

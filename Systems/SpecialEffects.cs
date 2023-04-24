@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using SadConsole.Entities;
 using SadConsole.UI.Controls;
 using SadRogue.Primitives;
 
@@ -89,11 +90,9 @@ namespace Servants_of_Arcana
                 Particle initialFireball1 = ParticleManager.CreateParticle(false, new Vector(0, 0), 5, 5, "Wander",
                     new Draw(Color.DarkOrange, Color.Black, (char)176), null, true, false);
                 fireBallParticles.Add(initialFireball1);
-                fireBallParticles.Add(initialFireball1);
 
                 Particle initialFireball2 = ParticleManager.CreateParticle(false, new Vector(0, 0), 5, 5, "Wander",
                     new Draw(Color.Red, Color.Black, (char)177), null, true, false);
-                fireBallParticles.Add(initialFireball2);
                 fireBallParticles.Add(initialFireball2);
 
 
@@ -184,6 +183,25 @@ namespace Servants_of_Arcana
                         entity.GetComponent<MinionAI>().SetMaster(summoner);
                     }
 
+                    Vector vector = entity.GetComponent<Vector>();
+
+                    if (Program.dungeonGenerator.subdivision1Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 1;
+                    }
+                    else if (Program.dungeonGenerator.subdivision2Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 2;
+                    }
+                    else if (Program.dungeonGenerator.subdivision3Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 3;
+                    }
+                    else if (Program.dungeonGenerator.subdivision4Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 4;
+                    }
+
                     TurnManager.AddActor(entity.GetComponent<TurnComponent>());
                     Math.SetTransitions(entity);
 
@@ -230,6 +248,24 @@ namespace Servants_of_Arcana
 
                     Program.tiles[chosen.x, chosen.y].actor = entity;
 
+                    Vector vector = entity.GetComponent<Vector>();
+
+                    if (Program.dungeonGenerator.subdivision1Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 1;
+                    }
+                    else if (Program.dungeonGenerator.subdivision2Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 2;
+                    }
+                    else if (Program.dungeonGenerator.subdivision3Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 3;
+                    }
+                    else if (Program.dungeonGenerator.subdivision4Tiles.Contains(vector))
+                    {
+                        Math.ReturnAIController(entity).dungeonSection = 4;
+                    }
 
                     if (entity.GetComponent<MinionAI>() != null)
                     {
@@ -334,6 +370,45 @@ namespace Servants_of_Arcana
                 }
             }
 
+            Vector chosen;
+
+            for (int i = 0; i < amountToSummon; i++)
+            {
+                foreach (string name in minionName)
+                {
+                    if (chosenTiles.Count > 0)
+                    {
+                        chosen = chosenTiles[Program.random.Next(chosenTiles.Count)];
+                        chosenTiles.Remove(chosen);
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                    Entity entity = JsonDataManager.ReturnEntity(name);
+
+                    entity.GetComponent<Vector>().x = chosen.x;
+                    entity.GetComponent<Vector>().y = chosen.y;
+
+                    Program.tiles[chosen.x, chosen.y].item = entity;
+                }
+            }
+        }
+        public static void SpawnItems(Vector origin, int offset, List<string> minionName, int amountToSummon)
+        {
+            List<Vector> chosenTiles = new List<Vector>();
+
+            for (int x = origin.x - offset; x <= origin.x + offset; x++)
+            {
+                for (int y = origin.y - offset; y <= origin.y + offset; y++)
+                {
+                    if (Math.CheckBounds(x, y) && Program.tiles[x, y].terrainType != 0 && Program.tiles[x, y].terrainType != 3 && new Vector(x, y) != origin && !chosenTiles.Contains(new Vector(x, y)))
+                    {
+                        chosenTiles.Add(new Vector(x, y));
+                    }
+                }
+            }
             Vector chosen;
 
             for (int i = 0; i < amountToSummon; i++)
@@ -554,6 +629,95 @@ namespace Servants_of_Arcana
             {
                 Log.Add($"{user.GetComponent<Description>().name} has swapped places with {target.GetComponent<Description>().name}.");
             }
+        }
+        public static void Dig(Entity creator, Vector destination)
+        {
+            List<Vector> affectedTiles = AreaOfEffectModels.ReturnLine(creator.GetComponent<Vector>(), destination, 1000);
+
+            foreach (Vector vector in affectedTiles)
+            {
+                Tile tile = Program.tiles[vector.x, vector.y];
+
+                if (tile != null && tile.terrainType == 0)
+                {
+                    tile.terrainType = 1;
+                    tile.GetComponent<Draw>().character = '.';
+
+                    Vector origin = creator.GetComponent<Vector>();
+                    int life = (int)((Math.Distance(origin.x, origin.y, vector.x, vector.y) + 1) / 5);
+
+                    Particle deathParticle4 = ParticleManager.CreateParticle(false, vector, 5, 5, "None",
+                        new Draw(Color.Gray, Color.Black, (char)176), null, false, false, null, true);
+
+                    Particle deathParticle3 = ParticleManager.CreateParticle(false, vector, 5, 5, "None",
+                        new Draw(Color.Gray, Color.Black, (char)176), null, true, false, new List<Particle>() { deathParticle4 }, true);
+
+                    Particle deathParticle2 = ParticleManager.CreateParticle(false, vector, 10 - life, 5, "None",
+                        new Draw(Color.Gray, Color.Black, (char)176), null, true, false, new List<Particle>() { deathParticle3 }, true);
+
+                    Particle explosionParticle = ParticleManager.CreateParticle(true, vector, life, 5, "None",
+                        new Draw(Color.Black, Color.Black, (char)177), null, false, false, new List<Particle>() { deathParticle2 }, true);
+                }
+            }
+        }
+        public static void Poison(Entity user, Vector origin, string type, int strength, int radius, int time)
+        {
+            List<Vector> affectedTiles = new List<Vector>();
+
+            switch (type)
+            {
+                case "Sphere":
+                    {
+                        affectedTiles = AreaOfEffectModels.ReturnSphere(origin, origin, radius);
+                        break;
+                    }
+                case "Line":
+                    {
+                        affectedTiles = AreaOfEffectModels.ReturnLine(user.GetComponent<Vector>(), origin, radius);
+                        break;
+                    }
+            }
+
+            foreach (Vector tile in affectedTiles)
+            {
+                if (Math.CheckBounds(tile.x, tile.y))
+                {
+                    if (Program.tiles[tile.x, tile.y].actor != null)
+                    {
+                        ApplyPoison(Program.tiles[tile.x, tile.y].actor, strength, time);
+                    }
+                    else
+                    {
+                        Vector center = user.GetComponent<Vector>();
+
+                        ParticleManager.CreateParticle(true, tile, (int)Math.Distance(center.x, center.y, tile.x, tile.y), 5, "None",
+                            new Draw(Color.Green, Color.Black, (char)177), null, false, true);
+                    }
+
+                    if (Program.tiles[tile.x, tile.y].terrainType != 3)
+                    {
+                        if (Program.random.Next(1, 101) > 50)
+                        {
+                            Program.tiles[tile.x, tile.y].GetComponent<Draw>().fColor = Color.DarkGreen;
+                        }
+                        else
+                        {
+                            Program.tiles[tile.x, tile.y].GetComponent<Draw>().fColor = Color.Green;
+                        }
+                    }
+                }
+            }
+        }
+        public static void ApplyPoison(Entity target, int strength, int time)
+        {
+            target.AddComponent(new Poison(time, strength));
+            Vector vector = target.GetComponent<Vector>();
+            Particle particle = ParticleManager.CreateParticle(false, vector, 5, 5, "Attached", new Draw(Color.Green, Color.Black, (char)3), vector, true, false, null, false, true);
+            ParticleManager.CreateParticle(true, vector, 5, 5, "Attached", new Draw(Color.Green, Color.Black, (char)3), vector, true, false, new List<Particle>() { particle }, false, true);
+
+            Log.Add($"{target.GetComponent<Description>().name} has been poisoned!");
+
+            target.SetDelegates();
         }
     }
     public class AreaOfEffectModels

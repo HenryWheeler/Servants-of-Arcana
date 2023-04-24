@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "Flooded",
+    "2": "Flooded",
+    "3": "Flooded",
+    "4": "Flooded",
+    "5": "Flooded",
+    "6": "Overgrown",
+    "7": "Overgrown",
+    "8": "Overgrown",
+    "9": "Overgrown",
+    "10": "Overgrown",
+    "11": "Infested",
+    "12": "Infested",
+    "13": "Infested",
+    "14": "Infested",
+    "15": "Infested",
+    "16": "Normal",
+    "17": "Normal",
+    "18": "Normal",
+    "19": "Normal",
+    "20": "Normal"
+  },
+  "name": "Dungeon Themes"
+}

@@ -73,6 +73,7 @@
       },
       {
         "$type": "Servants_of_Arcana.Attributes, Servants of Arcana",
+        "status": null,
         "maxHealth": 15,
         "health": 15,
         "maxEnergy": 0.8,
@@ -93,6 +94,7 @@
       },
       {
         "$type": "Servants_of_Arcana.TurnComponent, Servants of Arcana",
+        "onTurnEnd": null,
         "isAlive": true,
         "isTurnActive": false,
         "currentEnergy": 0.0,

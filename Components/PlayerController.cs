@@ -108,16 +108,12 @@ namespace Servants_of_Arcana
                         {
                             List<Vector> unexploredTiles = new List<Vector>();
 
-                            for (int x = 2; x < Program.gameWidth - 4; x++)
+                            foreach (Tile tile in Program.dungeonGenerator.towerTiles)
                             {
-                                for (int y = 2; y < Program.gameHeight - 4; y++)
+                                if (tile != null && tile.terrainType == 1 && !tile.GetComponent<Visibility>().explored)
                                 {
-                                    Tile tile = Program.tiles[x, y];
-                                    if (tile != null && tile.terrainType == 1 && !tile.GetComponent<Visibility>().explored)
-                                    {
-                                        Vector vector = tile.GetComponent<Vector>();
-                                        unexploredTiles.Add(vector);
-                                    }
+                                    Vector vector = tile.GetComponent<Vector>();
+                                    unexploredTiles.Add(vector);
                                 }
                             }
 
@@ -210,11 +206,13 @@ namespace Servants_of_Arcana
                         }
                         else if (info.IsKeyPressed(Keys.A))
                         {
+                            /*
                             confirming = true;
                             Program.player.GetComponent<PlayerController>().confirming = true;
                             keyboardEvent += BeginAutoPath;
 
                             InteractionManager.CreateConfirmationPrompt($"Begin automatic pathing?");
+                            */
                         }
                         else if (info.IsKeyDown(Keys.LeftShift) && info.IsKeyPressed(Keys.OemQuestion))
                         {
@@ -761,8 +759,16 @@ namespace Servants_of_Arcana
                         {
                             if (!inventory.ReturnSlot(equipable.slot).item.GetComponent<Equipable>().removable)
                             {
-                                Log.Add($"You cannot equip the {InventoryManager.selectedItem.GetComponent<Description>().name} because the " +
-                                    $"{inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is unequipable.");
+                                if (!ItemIdentityManager.IsItemIdentified(InventoryManager.selectedItem.GetComponent<Description>().name))
+                                {
+                                    Log.Add($"You cannot equip the unknown item because the " +
+                                        $"{inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is unequipable.");
+                                }
+                                else
+                                {
+                                    Log.Add($"You cannot equip the {InventoryManager.selectedItem.GetComponent<Description>().name} because the " +
+                                        $"{inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is unequipable.");
+                                }
                             }
                             else
                             {
@@ -770,15 +776,30 @@ namespace Servants_of_Arcana
                                 Program.player.GetComponent<PlayerController>().confirming = true;
                                 keyboardEvent += EquipItem;
 
-                                InteractionManager.CreateConfirmationPrompt(new List<string>() { $"The {inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is already equipped.",
+                                if (!ItemIdentityManager.IsItemIdentified(equipable.entity.GetComponent<Description>().name))
+                                {
+                                    InteractionManager.CreateConfirmationPrompt(new List<string>() { $"The {inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is already equipped.",
+                                                $"Equip the unknown item anyways?" });
+                                }
+                                else
+                                {
+                                    InteractionManager.CreateConfirmationPrompt(new List<string>() { $"The {inventory.ReturnSlot(equipable.slot).item.GetComponent<Description>().name} is already equipped.",
                                                 $"Equip the {equipable.entity.GetComponent<Description>().name} anyways?" });
+                                }
                             }
                         }
                     }
                 }
                 else
                 {
-                    Log.Add($"You cannot equip the {InventoryManager.selectedItem.GetComponent<Description>().name}.");
+                    if (!ItemIdentityManager.IsItemIdentified(InventoryManager.selectedItem.GetComponent<Description>().name))
+                    {
+                        Log.Add($"You cannot equip the unknown.");
+                    }
+                    else
+                    {
+                        Log.Add($"You cannot equip the {InventoryManager.selectedItem.GetComponent<Description>().name}.");
+                    }
                 }
             }
         }
@@ -794,7 +815,14 @@ namespace Servants_of_Arcana
                     Program.player.GetComponent<PlayerController>().confirming = true;
                     keyboardEvent += UseItem;
 
-                    InteractionManager.CreateConfirmationPrompt($"{InventoryManager.selectedItem.GetComponent<Usable>().action} the {InventoryManager.selectedItem.GetComponent<Description>().name}?");
+                    if (ItemIdentityManager.IsItemIdentified(InventoryManager.selectedItem.GetComponent<Description>().name)) 
+                    {
+                        InteractionManager.CreateConfirmationPrompt($"{InventoryManager.selectedItem.GetComponent<Usable>().action} the {InventoryManager.selectedItem.GetComponent<Description>().name}?");
+                    }
+                    else
+                    {
+                        InteractionManager.CreateConfirmationPrompt($"Use the unknown item?");
+                    }
                 }
                 else
                 {
@@ -829,12 +857,17 @@ namespace Servants_of_Arcana
         }
         public void EquipItem()
         {
-            InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
+            Description description = InventoryManager.selectedItem.GetComponent<Description>();
+            if (!ItemIdentityManager.IsItemIdentified(description.name))
+            {
+                Log.Add($"{Program.playerName} has identified the unknown item as a {description.name}");
+                ItemIdentityManager.IdentifyItem(description.name);
+            }
+
             InventoryManager.EquipItem(Program.player, InventoryManager.selectedItem);
         }
         public void UnequipItem()
         {
-            InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
             InventoryManager.UnequipItem(Program.player, InventoryManager.selectedItem);
         }
         public void DropItem()
@@ -843,7 +876,12 @@ namespace Servants_of_Arcana
         }
         public void UseItem()
         {
-            InventoryComponent inventory = Program.player.GetComponent<InventoryComponent>();
+            Description description = InventoryManager.selectedItem.GetComponent<Description>();
+            if (!ItemIdentityManager.IsItemIdentified(description.name))
+            {
+                Log.Add($"{Program.playerName} has identified the unknown item as a {description.name}");
+                ItemIdentityManager.IdentifyItem(description.name);
+            }
             InventoryManager.UseItem(Program.player, InventoryManager.selectedItem, Program.player.GetComponent<Vector>());
         }
         public void TargetingSystemUseItem()

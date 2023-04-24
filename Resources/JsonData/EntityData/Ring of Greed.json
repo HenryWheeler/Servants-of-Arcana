@@ -1,0 +1,49 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278245375
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "="
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Ring of Greed",
+        "description": "A small golden band, it is the last remnant of a creature whose existence was dominated by greed. Donning the ring is a choice one cannot return from. Will you repeat that cycle?"
+      },
+      {
+        "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
+        "equipped": false,
+        "onEquip": null,
+        "removable": false,
+        "slot": "Magic Item"
+      },
+      {
+        "$type": "Servants_of_Arcana.TrueSight, Servants of Arcana",
+        "range": 50,
+        "type": "Item"
+      }
+    ]
+  }
+}

@@ -36,6 +36,74 @@ namespace Servants_of_Arcana.Components
             }
             patrolComponent.lastPosition = vector;
         }
+        public static void ActionRecall(AIController AI)
+        {
+            switch (AI.dungeonSection)
+            {
+                case 1:
+                    {
+                        Vector vector = DijkstraMap.PathFromMap(AI.entity, $"Subdivision-1-Root");
+
+                        if (Program.dungeonGenerator.subdivision1Tiles.Contains(AI.entity.GetComponent<Vector>()))
+                        {
+                            AI.currentInput = AIController.Input.Bored;
+                            AI.Execute();
+                        }
+                        else
+                        {
+                            AI.entity.GetComponent<Movement>().Move(vector);
+                        }
+                        return;
+                    }
+                case 2:
+                    {
+                        Vector vector = DijkstraMap.PathFromMap(AI.entity, $"Subdivision-2-Root");
+
+                        if (Program.dungeonGenerator.subdivision2Tiles.Contains(AI.entity.GetComponent<Vector>()))
+                        {
+                            AI.currentInput = AIController.Input.Bored;
+                            AI.Execute();
+                        }
+                        else
+                        {
+                            AI.entity.GetComponent<Movement>().Move(vector);
+                        }
+                        return;
+                    }
+                case 3:
+                    {
+                        Vector vector = DijkstraMap.PathFromMap(AI.entity, $"Subdivision-3-Root");
+
+                        if (Program.dungeonGenerator.subdivision3Tiles.Contains(AI.entity.GetComponent<Vector>()))
+                        {
+                            AI.currentInput = AIController.Input.Bored;
+                            AI.Execute();
+                        }
+                        else
+                        {
+                            AI.entity.GetComponent<Movement>().Move(vector);
+                        }
+                        return;
+                    }
+                case 4:
+                    {
+                        Vector vector = DijkstraMap.PathFromMap(AI.entity, $"Subdivision-4-Root");
+
+                        if (Program.dungeonGenerator.subdivision4Tiles.Contains(AI.entity.GetComponent<Vector>()))
+                        {
+                            AI.currentInput = AIController.Input.Bored;
+                            AI.Execute();
+                        }
+                        else
+                        {
+                            AI.entity.GetComponent<Movement>().Move(vector);
+                        }
+                        return;
+                    }
+            }
+
+            AI.entity.GetComponent<TurnComponent>().EndTurn();
+        }
         public static void ActionWander(AIController AI)
         {
             List<Vector> chosenTiles = new List<Vector>();

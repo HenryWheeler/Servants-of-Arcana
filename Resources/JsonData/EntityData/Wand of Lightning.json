@@ -23,7 +23,7 @@
         },
         "bColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
-          "_packedValue": 4278255615
+          "_packedValue": 4278190080
         },
         "character": "/"
       },

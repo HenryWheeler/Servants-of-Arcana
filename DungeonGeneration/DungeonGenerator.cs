@@ -1,15 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using SadConsole.SerializedTypes;
 using SadRogue.Primitives;
 
 namespace Servants_of_Arcana
@@ -28,8 +22,24 @@ namespace Servants_of_Arcana
         public static int patrolRouteCount;
         public List<Tile> towerTiles = new List<Tile>();
         public List<Tile> skyTiles = new List<Tile>();
+
+        public string subdivision1Theme;
+        public string subdivision2Theme;
+        public string subdivision3Theme;
+        public string subdivision4Theme;
+
+        public List<Vector> subdivision1Tiles = new List<Vector>();
+        public List<Vector> subdivision2Tiles = new List<Vector>();
+        public List<Vector> subdivision3Tiles = new List<Vector>();
+        public List<Vector> subdivision4Tiles = new List<Vector>();
+
+        public List<Room> subdivision1Rooms = new List<Room>();
+        public List<Room> subdivision2Rooms = new List<Room>();
+        public List<Room> subdivision3Rooms = new List<Room>();
+        public List<Room> subdivision4Rooms = new List<Room>();
+
         public Draw[,] backgroundImprint = new Draw[Program.gameWidth, Program.gameHeight];
-        public float baseRadius = 45.5f;
+        public float baseRadius = 50.5f;
         /// <summary>
         /// The chance for some parts of the structure to be decayed when created.
         /// </summary>
@@ -109,26 +119,152 @@ namespace Servants_of_Arcana
                 }
             }
 
-            int roomsToGenerate = 50;
-            int minRoomSize = 5;
-            int maxRoomSize = 14;
+            subdivision1Theme = RandomTableManager.RetrieveRandomSpecified("Dungeon Themes", 0, true);
+            subdivision2Theme = subdivision1Theme;
+            subdivision3Theme = subdivision1Theme;
+            subdivision4Theme = subdivision1Theme;
 
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+            while (subdivision2Theme == subdivision1Theme)
+            {
+                subdivision2Theme = RandomTableManager.RetrieveRandomSpecified("Dungeon Themes", 0, true);
+            }
+            while (subdivision3Theme == subdivision1Theme || subdivision3Theme == subdivision2Theme)
+            {
+                subdivision3Theme = RandomTableManager.RetrieveRandomSpecified("Dungeon Themes", 0, true);
+            }
+            while (subdivision4Theme == subdivision1Theme || subdivision4Theme == subdivision2Theme || subdivision4Theme == subdivision3Theme)
+            {
+                subdivision4Theme = RandomTableManager.RetrieveRandomSpecified("Dungeon Themes", 0, true);
+            }
 
-            Room lastRoom = CreateRoom(center.x, center.y, 8, 8);
+            int subdivision1X = 0, subdivision1Y = 0, subdivision1Width = (Program.gameWidth / 2) - seed.Next(-10, 11), subdivision1Height = (Program.gameHeight / 2) - seed.Next(-10, 11), 
+                subdivision2X = subdivision1Width, subdivision2Y = 0, subdivision2Width = Program.gameWidth - subdivision1Width, subdivision2Height = (Program.gameHeight / 2) - seed.Next(-10, 11),
+                subdivision3X = 0, subdivision3Y = subdivision1Height, subdivision3Width = subdivision1Width, subdivision3Height = Program.gameHeight - subdivision1Height,
+                subdivision4X = subdivision3Width, subdivision4Y = subdivision2Height, subdivision4Width = Program.gameWidth - subdivision3Width, subdivision4Height = Program.gameHeight - subdivision2Height;
+
+            for (int x = subdivision1X; x < subdivision1Width; x++)
+            {
+                for (int y = subdivision1Y; y < subdivision1Height; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        subdivision1Tiles.Add(new Vector(x, y));
+                    }
+                }
+            }
+            for (int x = subdivision2X; x < subdivision2Width + subdivision2X; x++)
+            {
+                for (int y = subdivision2Y; y < subdivision2Height; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        subdivision2Tiles.Add(new Vector(x, y));
+                    }
+                }
+            }
+            for (int x = subdivision3X; x < subdivision3Width; x++)
+            {
+                for (int y = subdivision3Y; y < subdivision3Height + subdivision3Y; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        subdivision3Tiles.Add(new Vector(x, y));
+                    }
+                }
+            }
+            for (int x = subdivision4X; x < subdivision4Width + subdivision4X; x++)
+            {
+                for (int y = subdivision4Y; y < subdivision4Height + subdivision4Y; y++)
+                {
+                    if (Math.CheckBounds(x, y))
+                    {
+                        subdivision4Tiles.Add(new Vector(x, y));
+                    }
+                }
+            }
+
+
+            Room lastRoom = CreateFirstRoom(center.x - 6, center.y - 6, 12, 12);
             rooms.Add(lastRoom);
+
+            CreateDungeonSection(subdivision1Rooms, subdivision1Tiles, subdivision1X, subdivision1Y, subdivision1Width, subdivision1Height, new List<List<Vector>>() { subdivision2Tiles, subdivision3Tiles, subdivision4Tiles }, subdivision1Theme);
+            CreateDungeonSection(subdivision2Rooms, subdivision2Tiles, subdivision2X, subdivision2Y, subdivision2Width, subdivision2Height, new List<List<Vector>>() { subdivision1Tiles, subdivision3Tiles, subdivision4Tiles }, subdivision2Theme);
+            CreateDungeonSection(subdivision3Rooms, subdivision3Tiles, subdivision3X, subdivision3Y, subdivision3Width, subdivision3Height, new List<List<Vector>>() { subdivision1Tiles, subdivision2Tiles, subdivision4Tiles }, subdivision3Theme);
+            CreateDungeonSection(subdivision4Rooms, subdivision4Tiles, subdivision4X, subdivision4Y, subdivision4Width, subdivision4Height, new List<List<Vector>>() { subdivision1Tiles, subdivision2Tiles, subdivision3Tiles }, subdivision4Theme);
+
+            
+            PopulateDungeonSection(subdivision1Rooms, subdivision1Theme, 1);
+            PopulateDungeonSection(subdivision2Rooms, subdivision2Theme, 2);
+            PopulateDungeonSection(subdivision3Rooms, subdivision3Theme, 3);
+            PopulateDungeonSection(subdivision4Rooms, subdivision4Theme, 4);
+            
+
+            //SpawnEvents();
+
+            CreateWindows();
+
+            CreateOutsidePassages();
+
+            CreateDoors();
+
+            CreateStaircase();
+
+            CreatePatrolLocations();
+
+            UpdateWalls();
+
+            CreateImprint();
+
+            foreach (Tile tile in Program.tiles)
+            {
+                if (tile != null && tile.terrainType == 3)
+                {
+                    tile.GetComponent<Visibility>().explored = true;
+                }
+            }
+
+            DijkstraMap.CreateMap(new List<Vector>() { new Vector(subdivision1Rooms[0].x, subdivision1Rooms[0].y) }, "Subdivision-1-Root");
+            DijkstraMap.CreateMap(new List<Vector>() { new Vector(subdivision2Rooms[0].x, subdivision2Rooms[0].y) }, "Subdivision-2-Root");
+            DijkstraMap.CreateMap(new List<Vector>() { new Vector(subdivision3Rooms[0].x, subdivision3Rooms[0].y) }, "Subdivision-3-Root");
+            DijkstraMap.CreateMap(new List<Vector>() { new Vector(subdivision4Rooms[0].x, subdivision4Rooms[0].y) }, "Subdivision-4-Root");
+
+            /*
+            foreach (Vector vector in subdivision1Tiles)
+            {
+                Program.tiles[vector.x, vector.y].GetComponent<Draw>().fColor = Color.Orange;
+            }
+            foreach (Vector vector in subdivision2Tiles)
+            {
+                Program.tiles[vector.x, vector.y].GetComponent<Draw>().fColor = Color.Blue;
+            }
+            foreach (Vector vector in subdivision3Tiles)
+            {
+                Program.tiles[vector.x, vector.y].GetComponent<Draw>().fColor = Color.Green;
+            }
+            foreach (Vector vector in subdivision4Tiles)
+            {
+                Program.tiles[vector.x, vector.y].GetComponent<Draw>().fColor = Color.Yellow;
+            }
+            */
+        }
+        public void CreateDungeonSection(List<Room> rooms, List<Vector> dungeonSection, int x, int y, int width, int height, List<List<Vector>> negativeDungeonSpace, string type)
+        {
+            int roomsToGenerate = seed.Next(20, 25);
+            int minRoomSize = 5;
+            int maxRoomSize = 11;
 
             int tryCount = 0;
 
-            for (int i = 0; i < roomsToGenerate - 1; i++)
+            for (int i = 0; i < roomsToGenerate; i++)
             {
-                int xSP = seed.Next(0, Program.gameWidth);
-                int ySP = seed.Next(0, Program.gameHeight);
+                int xSP = seed.Next(x, x + width);
+                int ySP = seed.Next(y, y + height);
                 int rW = seed.Next(minRoomSize, maxRoomSize);
                 int rH = seed.Next(minRoomSize, maxRoomSize);
 
-                if (!CheckIfHasSpace(xSP, ySP, xSP + rW - 1, ySP + rH - 1))
+                if (!dungeonSection.Contains(new Vector(xSP, ySP)) || !dungeonSection.Contains(new Vector(xSP + rW, ySP)) ||
+                    !dungeonSection.Contains(new Vector(xSP, ySP + rH)) || !dungeonSection.Contains(new Vector(xSP + rW, ySP + rH)) || 
+                    !CheckIfHasSpace(xSP, ySP, xSP + rW - 1, ySP + rH - 1))
                 {
                     tryCount++;
 
@@ -143,41 +279,159 @@ namespace Servants_of_Arcana
 
                 tryCount = 0;
 
-                Room room = CreateRoom(xSP, ySP, rW, rH);
-                rooms.Add(room);
+                Room room;
+                room = CreateRoom(xSP, ySP, rW, rH);
 
-                lastRoom = room;
+                Program.dungeonGenerator.rooms.Add(room);
+                rooms.Add(room);
             }
 
-            stopwatch.Stop();
+            CreatePassages(rooms);
 
-            SpawnEvents();
-
-            CreateWindows();
-
-            CreateOutsidePassages();
-
-            CreatePassages();
-
-            CreateDoors();
-
-            CreateStaircase();
-
-            CreatePatrolLocations();
-
-            UpdateWalls();
-
-            //PopulateFloor();
-
-            CreateImprint();
-
-            foreach (Tile tile in Program.tiles)
+            if (type == "Flooded")
             {
-                if (tile != null && tile.terrainType == 3)
+                FloodRandomRooms(rooms, dungeonSection);
+            }
+        }
+        public void FloodRandomRooms(List<Room> rooms, List<Vector> dungeonSection)
+        {
+            int roomsToFlood = (int)(rooms.Count / 1.5f);
+
+            List<Room> flooded = new List<Room>();
+
+            for (int i = 0; i < roomsToFlood; i++)
+            {
+                Room room = null;
+                bool choosingRoom = true;
+
+                while (choosingRoom)
                 {
-                    tile.GetComponent<Visibility>().explored = true;
+                    room = rooms[seed.Next(0, rooms.Count)];
+
+                    if (flooded.Contains(room)) { continue; }
+                    else { choosingRoom = false; }
+                }
+
+                flooded.Add(room);
+
+                ConcurrentQueue<Vector> checkList = new ConcurrentQueue<Vector>();
+                HashSet<Vector> tempList = new HashSet<Vector>();
+                checkList.Enqueue(new Vector(room.x, room.y));
+                tempList.Add(new Vector(room.x, room.y));
+                List<Vector> floodTiles = new List<Vector>();
+
+                int strength;
+
+                if (seed.Next(1, 101) > 75) { strength = (room.width + room.height) / 2; }
+                else { strength = (room.width + room.height) / 8; }
+                
+                for (int o = 0; o < strength; o++)
+                {
+                    for (int v = 0; v < checkList.Count; v++)
+                    {
+                        checkList.TryDequeue(out Vector vector);
+                        CheckNeighbors(floodTiles, tempList, checkList, vector.x, vector.y);
+                    }
+                    tempList.Clear();
+                }
+
+                foreach (Vector vector in floodTiles)
+                {
+                    CreateWater(vector.x, vector.y);
+                }
+
+                foreach (Room roomRef in rooms)
+                {
+                    foreach (Tile tile in roomRef.tiles)
+                    {
+                        if (tile.terrainType == 0)
+                        {
+                            Vector vector = tile.GetComponent<Vector>();
+                            int waterCount = 0;
+
+                            for (int y2 = vector.y - 1; y2 <= vector.y + 1; y2++)
+                            {
+                                for (int x2 = vector.x - 1; x2 <= vector.x + 1; x2++)
+                                {
+                                    if (Program.tiles[x2, y2].terrainType == 2) { waterCount++; }
+                                }
+                            }
+
+                            if (waterCount >= 4)
+                            {
+                                CreateWater(vector.x, vector.y);
+                            }
+                        }
+                    }
+                }
+
+                DijkstraMap.CreateMap(floodTiles, "Flood", 10);
+
+                int[,] map = DijkstraMap.maps["Flood"];
+
+                for (int y = 0; y <= Program.gameHeight; y++)
+                {
+                    for (int x = 0; x <= Program.gameWidth; x++)
+                    {
+                        if (Math.CheckBounds(x, y) && map[x, y] < 1000)
+                        {
+                            for (int y2 = y - 1; y2 <= y + 1; y2++)
+                            {
+                                for (int x2 = x - 1; x2 <= x + 1; x2++)
+                                {
+                                    if (Program.tiles[x2, y2].terrainType == 0)
+                                    {
+                                        Program.tiles[x2, y2].GetComponent<Draw>().fColor = 
+                                            new Color(Color.LightSlateGray.R + map[x, y] * 5, Color.LightSlateGray.G + 
+                                            map[x, y] * 5, Color.LightSlateGray.B + map[x, y] * 5);
+                                    }
+                                    else if (Program.tiles[x2, y2].GetComponent<Draw>().character == '.')
+                                    {
+                                        Program.tiles[x2, y2].GetComponent<Draw>().fColor =
+                                            new Color(Color.DarkSlateGray.R + map[x, y] * 5, Color.DarkSlateGray.G +
+                                            map[x, y] * 5, Color.DarkSlateGray.B + map[x, y] * 5);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+        }
+        private static void CheckNeighbors(List<Vector> check, HashSet<Vector> tempList, ConcurrentQueue<Vector> checkList, int x, int y)
+        {
+            for (int y2 = y - 1; y2 <= y + 1; y2++)
+            {
+                if (CheckBoundsAndWalls(x, y2))
+                {
+                    Vector vector = new Vector(x, y2);
+                    if (!tempList.Contains(vector))
+                    {
+                        check.Add(vector);
+                        tempList.Add(vector);
+                        checkList.Enqueue(vector);
+                    }
+                }
+                else { continue; }
+            }
+            for (int x2 = x - 1; x2 <= x + 1; x2++)
+            {
+                if (CheckBoundsAndWalls(x2, y))
+                {
+                    Vector vector = new Vector(x2, y);
+                    if (!tempList.Contains(vector))
+                    {
+                        check.Add(vector);
+                        tempList.Add(vector);
+                        checkList.Enqueue(vector);
+                    }
+                }
+                else { continue; }
+            }
+        }
+        private static bool CheckBoundsAndWalls(int x, int y)
+        {
+            return x >= 1 && x <= Program.gameWidth - 1 && y >= 1 && y <= Program.gameHeight - 1 && Program.tiles[x, y].terrainType != 0;
         }
         public void CreateOutsidePassages()
         {
@@ -512,103 +766,126 @@ namespace Servants_of_Arcana
                 }
             }
         }
-        public void PopulateFloor()
+        public void PopulateDungeonSection(List<Room> rooms, string theme, int section)
         {
-            int totalActorsToSpawn = seed.Next(15, 30) + Program.floor;
+            int totalActorsToSpawn = seed.Next(10, 15) + Program.floor;
             int totalItemsToSpawn = seed.Next(6, 10);
-            int totalObstaclesToSpawn = seed.Next(3, 6);
+            int totalObstaclesToSpawn = seed.Next(50, 100);
 
-            foreach (Room room in rooms)
+            for (int i = 0; i < totalObstaclesToSpawn; i++)
             {
-                int actorsToSpawn = 0;
-                int itemsToSpawn = 0;
-                int obstaclesToSpawn = 0;
-
-                if (totalActorsToSpawn > 0)
-                {
-                    totalActorsToSpawn--;
-                    actorsToSpawn = 1;
-                }
-
-                if (totalItemsToSpawn > 0)
-                {
-                    totalItemsToSpawn--;
-                    itemsToSpawn = 1;
-                }
-
-                if (totalObstaclesToSpawn > 0)
-                {
-                    totalObstaclesToSpawn--;
-                    obstaclesToSpawn = 1;
-                }
+                Room room = rooms[seed.Next(rooms.Count)];
 
                 List<Tile> viableTiles = new List<Tile>();
-                
-                foreach (Tile tile in room.tiles)
+
+                foreach (Tile reference in room.tiles)
                 {
-                    if (tile != null && tile.terrainType != 0)
+                    if (reference != null && reference.terrainType != 0)
                     {
-                        viableTiles.Add(tile);
+                        viableTiles.Add(reference);
                     }
                 }
 
                 if (viableTiles.Count <= 0) { continue; }
 
-                for (int i = 0; i < actorsToSpawn; i++)
+                Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
+                viableTiles.Remove(tile);
+                Vector vector = tile.GetComponent<Vector>();
+
+                string name = RandomTableManager.RetrieveRandomSpecified($"{theme}-Tiles", 0, true);
+
+                if (name == "None")
                 {
-                    Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
-                    viableTiles.Remove(tile);
-                    Vector vector = tile.GetComponent<Vector>();
+                    continue;
+                }
 
-                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomEnemy(0, true));
+                Tile entity = JsonDataManager.ReturnTile(name);
 
-                    entity.GetComponent<Vector>().x = vector.x;
-                    entity.GetComponent<Vector>().y = vector.y;
+                entity.GetComponent<Vector>().x = vector.x;
+                entity.GetComponent<Vector>().y = vector.y;
 
-                    tile.actor = entity;
-                    TurnManager.AddActor(entity.GetComponent<TurnComponent>());
-                    Math.SetTransitions(entity);
+                Program.tiles[vector.x, vector.y] = entity;
 
-                    if (entity.GetComponent<SpawnDetails>() != null)
+                entity.GetComponent<SpawnDetails>()?.onSpawn?.Invoke(room);
+            }
+
+            for (int i = 0; i < totalActorsToSpawn; i++)
+            {
+                int tryCount = 0;
+
+                Room room = rooms[seed.Next(rooms.Count)];
+
+                Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomSpecified($"{theme}-Enemies", 0, true));
+                Movement movement = entity.GetComponent<Movement>();
+
+                List<Tile> viableTiles = new List<Tile>();
+
+                foreach (Tile reference in room.tiles)
+                {
+                    Vector v = reference.GetComponent<Vector>();
+                    if (reference != null && Program.tiles[v.x, v.y].actor == null && movement.moveTypes.Contains(Program.tiles[v.x, v.y].terrainType))
                     {
-                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke(room);
+                        viableTiles.Add(reference);
                     }
                 }
-                for (int i = 0; i < itemsToSpawn; i++)
+
+                if (viableTiles.Count <= 0) 
                 {
-                    Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
-                    viableTiles.Remove(tile);
-                    Vector vector = tile.GetComponent<Vector>();
-
-                    Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomItem(0, true));
-
-                    entity.GetComponent<Vector>().x = vector.x;
-                    entity.GetComponent<Vector>().y = vector.y;
-
-                    tile.item = entity;
-
-                    if (entity.GetComponent<SpawnDetails>() != null)
+                    tryCount++; 
+                    i--;
+                    
+                    if (tryCount > 50)
                     {
-                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke(room);
+                        break;
+                    }
+
+                    continue; }
+
+                Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
+                viableTiles.Remove(tile);
+                Vector vector = tile.GetComponent<Vector>();
+
+                entity.GetComponent<Vector>().x = vector.x;
+                entity.GetComponent<Vector>().y = vector.y;
+
+                Program.tiles[vector.x, vector.y].actor = entity;
+                TurnManager.AddActor(entity.GetComponent<TurnComponent>());
+                Math.SetTransitions(entity);
+
+                Math.ReturnAIController(entity).dungeonSection = section;
+
+                entity.GetComponent<SpawnDetails>()?.onSpawn?.Invoke(room);
+            }
+
+            for (int i = 0; i < totalItemsToSpawn; i++)
+            {
+                Room room = rooms[seed.Next(rooms.Count)];
+
+                List<Tile> viableTiles = new List<Tile>();
+
+                foreach (Tile reference in room.tiles)
+                {
+                    Vector v = reference.GetComponent<Vector>();
+                    if (reference != null && Program.tiles[v.x, v.y].terrainType != 0)
+                    {
+                        viableTiles.Add(reference);
                     }
                 }
-                for (int i = 0; i < obstaclesToSpawn; i++)
-                {
-                    Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
-                    viableTiles.Remove(tile);
-                    Vector vector = tile.GetComponent<Vector>();
 
-                    Tile entity = JsonDataManager.ReturnTile(RandomTableManager.RetrieveRandomTile(0, true));
+                if (viableTiles.Count <= 0) { continue; }
 
-                    entity.GetComponent<Vector>().x = vector.x;
-                    entity.GetComponent<Vector>().y = vector.y;
-                    Program.tiles[vector.x, vector.y] = entity;
+                Tile tile = viableTiles[seed.Next(0, viableTiles.Count - 1)];
+                viableTiles.Remove(tile);
+                Vector vector = tile.GetComponent<Vector>();
 
-                    if (entity.GetComponent<SpawnDetails>() != null)
-                    {
-                        entity.GetComponent<SpawnDetails>().onSpawn?.Invoke(room);
-                    }
-                }
+                Entity entity = JsonDataManager.ReturnEntity(RandomTableManager.RetrieveRandomSpecified($"{theme}-Items", 0, true));
+
+                entity.GetComponent<Vector>().x = vector.x;
+                entity.GetComponent<Vector>().y = vector.y;
+
+                Program.tiles[vector.x, vector.y].item = entity;
+
+                entity.GetComponent<SpawnDetails>()?.onSpawn?.Invoke(room);
             }
         }
         public void ClearDungeon()
@@ -631,6 +908,16 @@ namespace Servants_of_Arcana
             rooms.Clear();
             towerTiles.Clear();
             skyTiles.Clear();
+
+            subdivision1Tiles.Clear();
+            subdivision2Tiles.Clear();
+            subdivision3Tiles.Clear();
+            subdivision4Tiles.Clear();
+
+            subdivision1Rooms.Clear();
+            subdivision2Rooms.Clear();
+            subdivision3Rooms.Clear();
+            subdivision4Rooms.Clear();
         }
         public void CreatePatrolLocations()
         {
@@ -732,6 +1019,7 @@ namespace Servants_of_Arcana
             tile.GetComponent<Draw>().character = '+';
             tile.GetComponent<Draw>().fColor = Color.White;
             tile.GetComponent<Description>().name = "Door";
+            tile.GetComponent<Description>().description = "A sturdy door made from worked stone.";
 
             tile.AddComponent(new DoorComponent());
             tile.AddComponent(new Trap());
@@ -740,7 +1028,7 @@ namespace Servants_of_Arcana
 
             Program.tiles[placement.x, placement.y] = tile;
         }
-        public void CreatePassages()
+        public void CreatePassages(List<Room> rooms)
         {
             bool creatingPassages = true;
             List<Room> checkList = rooms.ToList();
@@ -749,126 +1037,112 @@ namespace Servants_of_Arcana
             checkList.Remove(first);
             completed.Add(first);
 
-            while (creatingPassages) 
+
+            while (creatingPassages)
             {
                 List<Room> currentCheck = new List<Room>();
 
-                Room current = null;
-                Room secondCurrent = null;
+                Room currentRef = null;
+                Room secondCurrentRef = null;
 
-                foreach (Room r in checkList)
+
+                foreach (Room c in completed)
                 {
-                    foreach (Room c in completed)
+                    if (secondCurrentRef == null)
                     {
-                        if (secondCurrent == null)
-                        {
-                            secondCurrent = c;
-                        }
-                        if (current == null)
-                        {
-                            current = r;
-                        }
-                        
-                        if (Math.Distance(current.x, current.y, c.x, c.y) > Math.Distance(r.x, r.y, c.x, c.y))
-                        {
-                            current = r;
-                        }
+                        secondCurrentRef = c;
+                    }
+                    if (currentRef == null)
+                    {
+                        currentRef = checkList.First();
+                    }
 
-                        if (Math.Distance(r.x, r.y, secondCurrent.x, secondCurrent.y) > Math.Distance(r.x, r.y, c.x, c.y))
-                        {
-                            secondCurrent = c;
-                        }
+
+
+                    if (Math.Distance(currentRef.x, currentRef.y, secondCurrentRef.x, secondCurrentRef.y) > Math.Distance(currentRef.x, currentRef.y, c.x, c.y))
+                    {
+                        secondCurrentRef = c;
                     }
                 }
 
-                if (current != null)
+                if (currentRef != null)
                 {
-                    checkList.Remove(current);
-                    completed.Add(current);
-                    CreateCorridor(current.x, current.y, secondCurrent.x, secondCurrent.y, false);
+                    checkList.Remove(currentRef);
+                    completed.Add(currentRef);
+                    CreateCorridor(currentRef.x, currentRef.y, secondCurrentRef.x, secondCurrentRef.y, false);
                 }
 
-                if (checkList.Count == 0) 
+                if (checkList.Count == 0)
                 {
-                    return;
+                    creatingPassages = false;
                 }
+
             }
-            /*
-            for (int i = 0; i < 1; i++)
+
+            Room current = null;
+            Room secondCurrent = null;
+
+            foreach (Room c in completed)
             {
-                Room firstRoom = null;
-                Room secondRoom = null;
+                bool valid = true;
 
-                foreach (Room room in rooms)
+                foreach (Room c2 in completed)
                 {
-                    if (firstRoom == null) 
-                    {
-                        firstRoom = room;
-                    }
-                    else if (room.connectionCount < firstRoom.connectionCount)
-                    {
-                        firstRoom = room;
-                    }
-                }
-
-                foreach (Room room in rooms)
-                {
-                    if (secondRoom == null && room != firstRoom)
-                    {
-                        secondRoom = room;
-                    }
-                    else if (room != firstRoom && secondRoom != null)
-                    {
-                        if (room.connectionCount <= secondRoom.connectionCount && Math.Distance(firstRoom.x, firstRoom.y, room.x, room.y) <
-                        Math.Distance(firstRoom.x, firstRoom.y, secondRoom.x, secondRoom.y))
-                        {
-                            secondRoom = room;
-                        }
-                    }
-                }
-
-                if (firstRoom == secondRoom)
-                {
-                    i--;
-                    continue;
-                }
-                else
-                {
-                    if (!CreateCorridor(firstRoom.x, firstRoom.y, secondRoom.x, secondRoom.y))
+                    if (AStar.ReturnPath(new Vector(c.x, c.y), new Vector(c2.x, c2.y)) != null)
                     {
                         continue;
                     }
                     else
                     {
-                        firstRoom.connectionCount++;
+                        valid = false;
                     }
-                    //secondRoom.connectionCount++;
+
+                    if (secondCurrent == null)
+                    {
+                        secondCurrent = c2;
+                    }
+                    if (current == null)
+                    {
+                        current = c;
+                    }
+
+                    if (Math.Distance(current.x, current.y, c2.x, c2.y) > Math.Distance(c.x, c.y, c2.x, c2.y))
+                    {
+                        current = c;
+                    }
+
+                    if (Math.Distance(c.x, c.y, secondCurrent.x, secondCurrent.y) > Math.Distance(c.x, c.y, c2.x, c2.y))
+                    {
+                        secondCurrent = c2;
+                    }
+                }
+
+                if (!valid)
+                {
+                    CreateCorridor(current.x, current.y, secondCurrent.x, secondCurrent.y, false);
                 }
             }
-            */
+
+
+            foreach (Room c in completed)
+            {
+                if (current == null)
+                {
+                    current = c;
+                }
+
+                if (Math.Distance(current.x, current.y, Program.dungeonGenerator.rooms[0].x, Program.dungeonGenerator.rooms[0].y) >
+                    Math.Distance(c.x, c.y, Program.dungeonGenerator.rooms[0].x, Program.dungeonGenerator.rooms[0].y))
+                {
+                    current = c;
+                }
+            }
+
+            CreateCorridor(current.x, current.y, Program.dungeonGenerator.rooms[0].x, Program.dungeonGenerator.rooms[0].y, false);
         }
         public void CreateStaircase()
         {
-            if (rooms.Count != 0)
-            {
-                List<Tile> viableTiles = new List<Tile>();
-
-                foreach (Tile tile in rooms[rooms.Count - 1].tiles)
-                {
-                    if (tile != null && tile.terrainType == 1)
-                    {
-                        Vector vector = tile.GetComponent<Vector>();
-                        int x = vector.x - rooms[rooms.Count - 1].corner.x;
-                        int y = vector.y - rooms[rooms.Count - 1].corner.y;
-                        if (x > 0 && y > 0 && x < rooms[rooms.Count - 1].width - 1 && y < rooms[rooms.Count - 1].height - 1)
-                        {
-                            viableTiles.Add(tile);
-                        }
-                    }
-                }
-                Tile chosenTile = viableTiles[seed.Next(viableTiles.Count)];
-                stairSpot = chosenTile.GetComponent<Vector>();
-            }
+            stairSpot = new Vector(rooms[0].x + 5, rooms[0].y);
 
             if (Program.floor == 10)
             {
@@ -985,25 +1259,144 @@ namespace Servants_of_Arcana
 
             return true;
         }
-        public Room CreateRoom(int _x, int _y, int roomWidth, int roomHeight)
+        public Room CreateRoom(int _x, int _y, int roomWidth, int roomHeight, bool circle = false)
         {
             Room room = new Room(roomWidth, roomHeight, new Vector(_x, _y));
+
+            if (circle)
+            {
+                float radius = (roomWidth + roomHeight) / 4;
+
+                int top = (int)MathF.Ceiling(room.y - radius),
+                    bottom = (int)MathF.Floor(room.y + radius);
+
+                for (int y = top; y <= bottom; y++)
+                {
+                    int dy = y - room.y;
+                    float dx = MathF.Sqrt(radius * radius - dy * dy);
+                    int left = (int)MathF.Ceiling(room.x - dx),
+                        right = (int)MathF.Floor(room.x + dx);
+
+                    for (int x = left; x <= right; x++)
+                    {
+                        if (CheckIfHasSpace(x, y, roomWidth, roomHeight))
+                        {
+                            Program.dungeonGenerator.CreateFloor(x, y);
+                        }
+                    }
+                }
+
+                for (int x = 0; x < roomWidth; x++)
+                {
+                    for (int y = 0; y < roomHeight; y++)
+                    {
+                        int _X = room.corner.x + x;
+                        int _Y = room.corner.y + y;
+
+                        room.tiles[x, y] = Program.tiles[_X, _Y];
+                    }
+                }
+            }
+            else
+            {
+                for (int x = 0; x < roomWidth; x++)
+                {
+                    for (int y = 0; y < roomHeight; y++)
+                    {
+                        int _X = _x + x;
+                        int _Y = _y + y;
+
+                        if (x <= 0 || y <= 0 || x >= room.width - 1 || y >= room.height - 1)
+                        {
+                            room.tiles[x, y] = CreateWall(_X, _Y);
+                        }
+                        else
+                        {
+                            room.tiles[x, y] = CreateFloor(_X, _Y);
+                        }
+                    }
+                }
+            }
+
+            return room;
+        }
+        public Room CreateFirstRoom(int _x, int _y, int roomWidth, int roomHeight)
+        {
+            Room room = new Room(roomWidth, roomHeight, new Vector(_x, _y));
+
+            float radius = (roomWidth + roomHeight) / 4;
+
+            int top = (int)MathF.Ceiling(room.y - radius),
+                bottom = (int)MathF.Floor(room.y + radius);
+
+            for (int y = top; y <= bottom; y++)
+            {
+                int dy = y - room.y;
+                float dx = MathF.Sqrt(radius * radius - dy * dy);
+                int left = (int)MathF.Ceiling(room.x - dx),
+                    right = (int)MathF.Floor(room.x + dx);
+
+                for (int x = left; x <= right; x++)
+                {
+                    Program.dungeonGenerator.CreateFloor(x, y);
+                }
+            }
+
+            if (Program.floor == 1)
+            {
+                radius = (roomWidth + roomHeight) / 8;
+
+                top = (int)MathF.Ceiling(room.y - radius);
+                bottom = (int)MathF.Floor(room.y + radius);
+
+                for (int y = top; y <= bottom; y++)
+                {
+                    int dy = y - room.y;
+                    float dx = MathF.Sqrt(radius * radius - dy * dy);
+                    int left = (int)MathF.Ceiling(room.x - dx),
+                        right = (int)MathF.Floor(room.x + dx);
+
+                    for (int x = left; x <= right; x++)
+                    {
+                        Draw draw = new Draw(Color.LightGray, Color.Black, '.');
+                        Tile tile = new Tile(x, y, draw.fColor, draw.bColor, draw.character, "Retaining Wall", "A short wall easily walked over and only used to hold vital ichor.", 1, false);
+
+                        Program.tiles[x, y] = tile;
+                    }
+                }
+
+
+                radius = (roomWidth + roomHeight) / 9;
+
+                top = (int)MathF.Ceiling(room.y - radius);
+                bottom = (int)MathF.Floor(room.y + radius);
+
+                for (int y = top; y <= bottom; y++)
+                {
+                    int dy = y - room.y;
+                    float dx = MathF.Sqrt(radius * radius - dy * dy);
+                    int left = (int)MathF.Ceiling(room.x - dx),
+                        right = (int)MathF.Floor(room.x + dx);
+
+                    for (int x = left; x <= right; x++)
+                    {
+                        Draw draw = new Draw(Color.DarkSlateBlue, Color.Black, (char)247);
+                        Tile tile = new Tile(x, y, draw.fColor, draw.bColor, draw.character, "Black Ichor", "A thick black liquid, it pulses with life.", 1, false);
+
+                        Program.tiles[x, y] = tile;
+                    }
+                }
+            }
+
 
             for (int x = 0; x < roomWidth; x++)
             {
                 for (int y = 0; y < roomHeight; y++)
                 {
-                    int _X = _x + x;
-                    int _Y = _y + y;
+                    int _X = room.corner.x + x;
+                    int _Y = room.corner.y + y;
 
-                    if (x <= 0 || y <= 0 || x >= room.width - 1 || y >= room.height - 1)
-                    {
-                        room.tiles[x, y] = CreateWall(_X, _Y);
-                    }
-                    else
-                    {
-                        room.tiles[x, y] = CreateFloor(_X, _Y);
-                    }
+                    room.tiles[x, y] = Program.tiles[_X, _Y];
                 }
             }
             return room;
@@ -1027,6 +1420,14 @@ namespace Servants_of_Arcana
                     }
                 }
             }
+
+            /*
+            foreach (Room room in rooms)
+            {
+                if (Math.Distance((sX + eX) / 2, (sY + eY) / 2, room.x, room.y) < 10) return false;
+            } 
+            */
+
             return true;
         }
         public void PlacePlayer()
@@ -1045,19 +1446,28 @@ namespace Servants_of_Arcana
             }
             else
             {
-                List<Tile> viableTiles = new List<Tile>();
+                Vector vector;
 
-                foreach (Tile tile in rooms[0].tiles)
+                if (Program.tiles[rooms[0].x, rooms[0].y].actor == null)
                 {
-                    if (tile != null && tile.terrainType == 1)
-                    {
-                        viableTiles.Add(tile);
-                    }
+                    vector = new Vector(rooms[0].x, rooms[0].y);
                 }
+                else
+                {
+                    List<Tile> viableTiles = new List<Tile>();
 
-                Tile chosenTile = viableTiles[seed.Next(viableTiles.Count)];
-                chosenTile.actor = Program.player;
-                Vector vector = chosenTile.GetComponent<Vector>();
+                    foreach (Tile tile in rooms[0].tiles)
+                    {
+                        if (tile != null && tile.terrainType == 1)
+                        {
+                            viableTiles.Add(tile);
+                        }
+                    }
+
+                    Tile chosenTile = viableTiles[seed.Next(viableTiles.Count)];
+                    chosenTile.actor = Program.player;
+                    vector = chosenTile.GetComponent<Vector>();
+                }
 
                 Program.player.GetComponent<Vector>().x = vector.x;
                 Program.player.GetComponent<Vector>().y = vector.y;
@@ -1074,26 +1484,37 @@ namespace Servants_of_Arcana
 
             int t = seed.Next(4);
 
+            Description description;
+
+            if (Program.floor == 1)
+            {
+                description = new Description("Roiling Sea", "The furious ocean, an unending force that erodes all.");
+            }
+            else
+            {
+                description = new Description("Open Air", "The open air, you can see straight to the ocean.");
+            }
+
             switch (t)
             {
                 case 0:
                     {
-                        tile = new Tile(x, y, Color.SkyBlue, Color.Black, '~', "Open Air.", "The open air.", 3, false);
+                        tile = new Tile(x, y, Color.SkyBlue, Color.Black, '~', description.name, description.description, 3, false);
                         break;
                     }
                 case 1:
                     {
-                        tile = new Tile(x, y, Color.SkyBlue, Color.Black, (char)247, "Open Air.", "The open air.", 3, false);
+                        tile = new Tile(x, y, Color.SkyBlue, Color.Black, (char)247, description.name, description.description, 3, false);
                         break;
                     }
                 case 2:
                     {
-                        tile = new Tile(x, y, Color.DarkBlue, Color.Black, '~', "Open Air.", "The open air.", 3, false);
+                        tile = new Tile(x, y, Color.DarkBlue, Color.Black, '~', description.name, description.description, 3, false);
                         break;
                     }
                 case 3:
                     {
-                        tile = new Tile(x, y, Color.DarkBlue, Color.Black, (char)247, "Open Air.", "The open air.", 3, false);
+                        tile = new Tile(x, y, Color.DarkBlue, Color.Black, (char)247, description.name, description.description, 3, false);
                         break;
                     }
             }
@@ -1103,7 +1524,7 @@ namespace Servants_of_Arcana
         }
         public Tile CreateFloor(int x, int y, bool thick = false)
         {
-            Draw draw = new Draw(Color.Brown, Color.Black, '.');
+            Draw draw = new Draw(Color.DarkRed, Color.Black, '.');
             if (thick)
             {
                 draw.character = (char)176;
@@ -1121,7 +1542,7 @@ namespace Servants_of_Arcana
         }
         public Tile CreateWall(int x, int y)
         {
-            Draw draw = new Draw(Color.LightGray, Color.Black, (char)177);
+            Draw draw = new Draw(Color.LightGray, Color.AnsiBlackBright, (char)177);
             Description description = baseWallDescription;
 
             if (seed.Next(0, 101) < decayChance)
@@ -1140,6 +1561,79 @@ namespace Servants_of_Arcana
             }
             Program.tiles[x, y] = tile;
             return tile;
+        }
+        public Tile CreateWater(int x, int y)
+        {
+            Draw draw = new Draw(Color.Blue, Color.Black, '÷');
+            Description description = new Description("Water", "A deep pool.");
+
+            Tile tile;
+            if (seed.Next(1, 101) < 25)
+            {
+                tile = new Tile(x, y, draw.fColor, draw.bColor, '~', description.name, description.description, 2, false);
+            }
+            else if (seed.Next(1, 101) < 25)
+            {
+                tile = new Tile(x, y, Color.DarkBlue, draw.bColor, '~', description.name, description.description, 2, false);
+            }
+            else if (seed.Next(1, 101) < 25)
+            {
+                tile = new Tile(x, y, Color.DarkBlue, draw.bColor, draw.character, description.name, description.description, 2, false);
+            }
+            else
+            {
+                tile = new Tile(x, y, draw.fColor, draw.bColor, draw.character, description.name, description.description, 2, false);
+            }
+            Program.tiles[x, y] = tile;
+            return tile;
+        }
+        public List<Vector> ReturnSectionTiles(int section)
+        {
+            switch (section)
+            {
+                case 1:
+                    {
+                        return subdivision1Tiles;
+                    }
+                case 2:
+                    {
+                        return subdivision2Tiles;
+                    }
+                case 3:
+                    {
+                        return subdivision3Tiles;
+                    }
+                case 4:
+                    {
+                        return subdivision4Tiles;
+                    }
+            }
+
+            return null;
+        }
+        public List<Room> ReturnSectionRoom(int section)
+        {
+            switch (section)
+            {
+                case 1:
+                    {
+                        return subdivision1Rooms;
+                    }
+                case 2:
+                    {
+                        return subdivision2Rooms;
+                    }
+                case 3:
+                    {
+                        return subdivision3Rooms;
+                    }
+                case 4:
+                    {
+                        return subdivision4Rooms;
+                    }
+            }
+
+            return null;
         }
     }
     public class Room

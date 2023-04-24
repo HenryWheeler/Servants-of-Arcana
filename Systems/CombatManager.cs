@@ -39,7 +39,10 @@ namespace Servants_of_Arcana
 
                 if (Program.random.Next(1, 21) + attackerAttributes.strength + toHitBonus >= recieverAttributes.armorValue && dmg > 0)
                 {
-                    weaponComponent?.onHit?.Invoke(attacker, reciever);
+                    if (recieverAttributes.health - dmg > 0)
+                    {
+                        weaponComponent?.onHit?.Invoke(attacker, reciever);
+                    }
 
                     harmable.RecieveDamage(dmg, attacker);
 
@@ -91,7 +94,10 @@ namespace Servants_of_Arcana
                 }
             }
 
-            attacker.GetComponent<TurnComponent>().EndTurn();
+            if (attacker.GetComponent<TurnComponent>() != null)
+            {
+                attacker.GetComponent<TurnComponent>().EndTurn();
+            }
         }
     }
 }

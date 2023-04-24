@@ -36,7 +36,9 @@ namespace Servants_of_Arcana
 
             display += $"Floor: {Program.floor}{spacer}";
 
-            display += $"{spacer}{spacer}Open Manual with Yellow*?.";
+            display += $"Status: {spacer} {stats.status?.Invoke()}";
+
+            display += $"{spacer}Open Manual with Yellow*?.";
 
             Program.inventoryConsole.UpdateLists(entity.GetComponent<InventoryComponent>().items);
 

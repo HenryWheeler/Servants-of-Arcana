@@ -1,0 +1,66 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278222848
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "/"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Orb of Affliction",
+        "description": "A putrid sphere up of bile and rot. It is all that remains of the putrid filth that comprised its owner. Each use causes it to dry more and more."
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2,
+            3
+          ]
+        },
+        "range": 15,
+        "strength": 5,
+        "requiredTargets": 0,
+        "action": "Squeeze",
+        "message": "squeezes the orb, from which putrid bile and filth spew out."
+      },
+      {
+        "$type": "Servants_of_Arcana.ApplyPoison, Servants of Arcana",
+        "timeRemaining": 10,
+        "strength": 5,
+        "radius": 0,
+        "type": "Line"
+      },
+      {
+        "$type": "Servants_of_Arcana.Charges, Servants of Arcana",
+        "chargesRemaining": 10
+      }
+    ]
+  }
+}

@@ -15,6 +15,7 @@ namespace Servants_of_Arcana
         public int intelligence { get; set; }
         public int armorValue { get; set; }
         public int sight { get; set; }
+        public Func<string> status;
         public override void SetDelegates() { }
         public Attributes(int health, float maxEnergy, int strength, int intelligence, int armorValue, int sight) 
         {

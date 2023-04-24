@@ -10,6 +10,7 @@ namespace Servants_of_Arcana
     {
         public bool isAlive { get; set; } = true;
         public bool isTurnActive { get; set; } = false;
+        public Action<Vector> onTurnEnd;
         public float currentEnergy { get; set; }
         public Controller controller { get; set; }
         public void StartTurn()
@@ -36,6 +37,8 @@ namespace Servants_of_Arcana
                 }
 
                 //Program.DrawMap();
+
+                onTurnEnd?.Invoke(entity.GetComponent<Vector>());
 
                 TurnManager.ProgressActorTurn(this);
             }

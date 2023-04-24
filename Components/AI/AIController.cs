@@ -31,13 +31,14 @@ namespace Servants_of_Arcana
             Curious,
             Awake,
             Bored,
+            Recall
         }
         public enum Input
         {
             Noise,
             Hunger,
             Hurt,
-            Call,
+            Recall,
             Tired,
             Hatred,
             Bored,
@@ -69,6 +70,7 @@ namespace Servants_of_Arcana
         public Input currentInput = Input.None;
         public List<Entity> hatedEntities = new List<Entity>();
         public List<string> hatedFactions = new List<string>();
+        public int dungeonSection;
         public Entity target { get; set; }
         public int interest { get; set; }
         public int baseInterest { get; set; }
@@ -105,6 +107,11 @@ namespace Servants_of_Arcana
                     throw new Exception("Entity transition count equals zero.");
                 }
 
+                if (!Program.dungeonGenerator.ReturnSectionTiles(dungeonSection).Contains(entity.GetComponent<Vector>()))
+                {
+                    currentInput = Input.Recall;
+                }
+
                 State tempRecord = currentState;
 
                 Observe();
@@ -113,8 +120,6 @@ namespace Servants_of_Arcana
                 {
                     currentState = transitions[stateMachine];
                     currentInput = Input.None;
-
-                    //StateParticleCreation();
                 }
 
                 if (tempRecord != currentState)

@@ -1,0 +1,66 @@
+{
+  "$type": "Servants_of_Arcana.Tile, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Visibility, Servants of Arcana",
+        "opaque": false,
+        "visible": false,
+        "explored": false
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4294901760
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "~"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Water",
+        "description": "A deep pool."
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnDetails, Servants of Arcana",
+        "onSpawn": null,
+        "minWidth": 0,
+        "minHeight": 0,
+        "maxWidth": 0,
+        "maxHeight": 0,
+        "type": "None",
+        "usedRoom": null
+      },
+      {
+        "$type": "Servants_of_Arcana.SpawnTiles, Servants of Arcana",
+        "tileNames": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            "Water 1",
+            "Water 2",
+            "Water 3",
+            "Water 4"
+          ]
+        },
+        "amountToSpawn": 4
+      }
+    ]
+  },
+  "actor": null,
+  "item": null,
+  "terrainType": 2
+}

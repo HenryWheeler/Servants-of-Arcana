@@ -23,7 +23,7 @@
         },
         "bColor": {
           "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
-          "_packedValue": 4278232575
+          "_packedValue": 4278190080
         },
         "character": "/"
       },
@@ -58,7 +58,7 @@
         "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",
         "strength": 3,
         "message": "A fireball shoots from the wand!",
-        "onUse": true,
+        "type": "Use",
         "fireball": true
       }
     ]

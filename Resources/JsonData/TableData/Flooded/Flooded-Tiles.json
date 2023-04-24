@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "None",
+    "2": "None",
+    "3": "None",
+    "4": "None",
+    "5": "None",
+    "6": "None",
+    "7": "None",
+    "8": "None",
+    "9": "None",
+    "10": "None",
+    "11": "None",
+    "12": "None",
+    "13": "None",
+    "14": "None",
+    "15": "None",
+    "16": "None",
+    "17": "None",
+    "18": "None",
+    "19": "None",
+    "20": "None"
+  },
+  "name": "Flooded-Tiles"
+}

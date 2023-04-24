@@ -10,6 +10,7 @@ using Servants_of_Arcana.Components;
 using Servants_of_Arcana.Systems;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using Console = SadConsole.Console;
 
@@ -31,7 +32,7 @@ namespace Servants_of_Arcana
         public static Entity player { get; set; }
         public static bool isGameActive { get; set; } = false;
         public static bool isPlayerCreatingCharacter { get; set; } = false;
-        public static bool devTesting = false;
+        public static bool devTesting = true;
         public static string playerName { get; set; }
         public static DungeonGenerator generator { get; set; }
 
@@ -47,8 +48,8 @@ namespace Servants_of_Arcana
         public static int interactionHeight = 35;
 
         //The size of the ingame map
-        public static int gameWidth = 115;
-        public static int gameHeight = 115;
+        public static int gameWidth = 120;
+        public static int gameHeight = 120;
 
         private static int messageWidth = 70;
         private static int messageHeight = 15;
@@ -60,10 +61,10 @@ namespace Servants_of_Arcana
         private static int inventoryHeight = 32;
 
         private static int targetWidth = 30;
-        private static int targetHeight = 40;
+        private static int targetHeight = 55;
 
         private static int lookWidth = 30;
-        private static int lookHeight = 40;
+        private static int lookHeight = 55;
         public static int offSetX { get; set; }
         public static int offSetY { get; set; }
         public static int minX { get; set; }
@@ -192,6 +193,7 @@ namespace Servants_of_Arcana
             isPlayerCreatingCharacter = false;
             rootConsole.Children.MoveToBottom(titleConsole);
 
+            ItemIdentityManager itemIdentityManager = new ItemIdentityManager();
             JsonDataManager jsonDataManager = new JsonDataManager();
             RandomTableManager randomTableManager = new RandomTableManager();
             AStar aStar = new AStar();
@@ -204,7 +206,7 @@ namespace Servants_of_Arcana
             player.AddComponent(new Vector(0, 0));
             player.AddComponent(new Draw(Color.Lime, Color.Black, '@'));
             player.AddComponent(new Description(playerName, "It's you."));
-            player.AddComponent(new Attributes(20, 1f, 1, 1, 10, 50));
+            player.AddComponent(new Attributes(30, 1f, 1, 1, 10, 10));
             player.AddComponent(new TurnComponent());
             player.AddComponent(new Movement(new List<int> { 1, 2 }));
             player.AddComponent(new InventoryComponent());
@@ -220,248 +222,7 @@ namespace Servants_of_Arcana
             rootConsole.particles.Clear();
             ClearSFX();
 
-            Event mushroomSpawn = new Event(0, 0, new List<Component>()
-            {
-                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
-                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-            }, 7, 7, 15, 15, "Sphere");
-            JsonDataManager.SaveEvent(mushroomSpawn, "Mushroom Spawn Event 1");
-
-            Event mushroomSpawn2 = new Event(0, 0, new List<Component>()
-            {
-                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
-                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-                new SpawnMinions(new List<string>() { "Purple Mushroam" }, 1, "Spawn"),
-            }, 7, 7, 15, 15, "Sphere");
-            JsonDataManager.SaveEvent(mushroomSpawn2, "Mushroom Spawn Event 2");
-
-            Event mushroomSpawn3 = new Event(0, 0, new List<Component>()
-            {
-                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
-                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-                new SpawnMinions(new List<string>() { "Green Mushroam" }, 1, "Spawn"),
-            }, 7, 7, 15, 15, "Sphere");
-            JsonDataManager.SaveEvent(mushroomSpawn3, "Mushroom Spawn Event 3");
-
-            Event mushroomSpawn4 = new Event(0, 0, new List<Component>()
-            {
-                new SpawnTiles(new List<string>() { "Fungus-Covered Ground" }, 50),
-                new SpawnTiles(new List<string>() { "Purple Mushroom", "Green Mushroom", "Red Mushroom" }, 3),
-                new SpawnMinions(new List<string>() { "Red Mushroam" }, 1, "Spawn"),
-            }, 7, 7, 15, 15, "Sphere");
-            JsonDataManager.SaveEvent(mushroomSpawn4, "Mushroom Spawn Event 4");
-
-            Event torusTest = new Event(0, 0, new List<Component>()
-            {
-            }, 7, 7, 15, 15, "Torus");
-            JsonDataManager.SaveEvent(torusTest, "Torus Test");
-
-
-            Tile mushroom = new Tile(0, 0, Color.MediumPurple, Color.Black, (char)6, "Purple Mushroom", "A large immobile purple mushroom.", 1, true);
-            JsonDataManager.SaveEntity(mushroom, "Purple Mushroom");
-
-            Tile mushroom2 = new Tile(0, 0, Color.Green, Color.Black, (char)6, "Green Mushroom", "A large immobile green mushroom.", 1, true);
-            JsonDataManager.SaveEntity(mushroom2, "Green Mushroom");
-
-            Tile mushroom3 = new Tile(0, 0, Color.MediumVioletRed, Color.Black, (char)6, "Red Mushroom", "A large immobile red mushroom.", 1, true);
-            JsonDataManager.SaveEntity(mushroom3, "Red Mushroom");
-
-            Tile fungusCoveredGround = new Tile(0, 0, Color.DarkGreen, Color.Black, '`', "Fungus-Covered Ground", "A dense patch of small mushrooms and fungus.", 1, false);
-            JsonDataManager.SaveEntity(fungusCoveredGround, "Fungus-Covered Ground");
-
-
-            Entity fungi1 = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.MediumPurple, Color.Black, (char)6),
-                new Description("Purple Mushroam", "A large seemingly immobile purple mushroom. You do not feel comfortable around it."),
-                new InventoryComponent(),
-                new Faction("Plant"),
-                new Harmable(),
-                new Attributes(5, .6f, 1, -3, 8, 2),
-                new Movement(new List<int>() { 1 }),
-                new TurnComponent(),
-                new PlantAI(10, 0, 1, 10, 150, 0, 0),
-
-            });
-
-            Entity fungiweapon = new Entity(new List<Component>()
-            {
-                new Item(),
-                new Vector(0, 0),
-                new Draw(Color.White, Color.Black, '/'),
-                new Description("Fungal Protuberance", "Fungus Thing."),
-                new Equipable(false, "Weapon"),
-                new WeaponComponent(2, 0, 1, 3),
-            });
-
-            InventoryManager.EquipItem(fungi1, fungiweapon);
-            Math.ClearTransitions(fungi1);
-            JsonDataManager.SaveEntity(fungi1, "Purple Mushroam");
-
-            Entity fungi2 = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.Green, Color.Black, (char)6),
-                new Description("Green Mushroam", "A large seemingly immobile green mushroom. You do not feel comfortable around it."),
-                new InventoryComponent(),
-                new Faction("Plant"),
-                new Harmable(),
-                new Attributes(5, .6f, 1, -3, 8, 2),
-                new Movement(new List<int>() { 1 }),
-                new TurnComponent(),
-                new PlantAI(10, 0, 1, 10, 150, 0, 0),
-
-            });
-
-            InventoryManager.EquipItem(fungi2, fungiweapon);
-            Math.ClearTransitions(fungi2);
-            JsonDataManager.SaveEntity(fungi2, "Green Mushroam");
-
-            Entity fungi3 = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.MediumVioletRed, Color.Black, (char)6),
-                new Description("Red Mushroam", "A large seemingly immobile red mushroom. You do not feel comfortable around it."),
-                new InventoryComponent(),
-                new Faction("Plant"),
-                new Harmable(),
-                new Attributes(5, .6f, 1, -3, 8, 2),
-                new Movement(new List<int>() { 1 }),
-                new TurnComponent(),
-                new PlantAI(10, 0, 1, 10, 150, 0, 0),
-
-            });
-
-            InventoryManager.EquipItem(fungi3, fungiweapon);
-            Math.ClearTransitions(fungi3);
-            JsonDataManager.SaveEntity(fungi3, "Red Mushroam");
-
-
-            Entity ram = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.SandyBrown, Color.Black, 'r'),
-                new Description("Cave-Dweller Ram", "A shaggy ram with knotted long fur. It is highly aggresive and seems to attack anything that it sees move."),
-                new InventoryComponent(),
-                new Faction("Beast"),
-                new Harmable(),
-                new Attributes(5, .6f, 1, -1, 8, 3),
-                new Movement(new List<int>() { 1, 2 }),
-                new TurnComponent(),
-                new BeastAI(15, 0, 1, 10, 150, 0, 0),
-
-            });
-
-            Entity horns = new Entity(new List<Component>()
-            {
-                new Item(),
-                new Vector(0, 0),
-                new Draw(Color.White, Color.Black, '/'),
-                new Description("Horns", "Pointy Horns."),
-                new Equipable(false, "Weapon"),
-                new WeaponComponent(0, 2, 2, 2),
-            });
-
-            InventoryManager.EquipItem(ram, horns);
-            Math.ClearTransitions(ram);
-            JsonDataManager.SaveEntity(ram, "Cave-Dweller Ram");
-
-
-            Entity boneling = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.SlateBlue, Color.Black, 's'),
-                new Description("Skeletal Boneling", "While one of the weakest of those past death, it still strikes a deep fear into you."),
-                new InventoryComponent(),
-                new Faction("Undead"),
-                new Harmable(),
-                new Attributes(6, .8f, 1, 0, 6, 4),
-                new Movement(new List<int>() { 1, 2 }),
-                new TurnComponent(),
-                new MinionAI(50, 0, 1, 10, 150, 0, 0),
-
-            });
-
-            Math.ClearTransitions(boneling);
-            JsonDataManager.SaveEntity(boneling, "Skeletal Boneling");
-
-            Entity boneLord = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.SlateGray, Color.Black, 's'),
-                new Description("Skeletal Bonelord", "A lord of the those past death, while made of little more than bone and sinew the strength from which it commands strikes fear into you."),
-                new InventoryComponent(),
-                new Faction("Undead"),
-                new Harmable(),
-                new Attributes(15, .8f, 2, 1, 8, 6),
-                new Movement(new List<int>() { 1, 2 }),
-                new TurnComponent(),
-                new UndeadAI(50, 0, 1, 10, 150, 0, 0),
-                new SpawnDetails(),
-                new SpawnMinions(new List<string>() { "Skeletal Boneling" }, 2, "Spawn"),
-            });
-
-            Math.ClearTransitions(boneLord);
-            JsonDataManager.SaveEntity(boneLord, "Skeletal Bonelord");
-
-            Entity hawk = new Entity(new List<Component>()
-            {
-                new Actor(),
-                new Vector(0, 0),
-                new Draw(Color.LightBlue, Color.Black, 'h'),
-                new Description("Seafoam Hawk", "A small hawk the color of seafoam, it is most comfortable flying above rough seas and roosting in the crevices of ancient structures."),
-                new InventoryComponent(),
-                new Faction("Beast"),
-                new Harmable(),
-                new Attributes(5, .8f, 1, 1, 6, 8),
-                new Movement(new List<int>() { 1, 2, 3 }),
-                new TurnComponent(),
-                new BeastAI(30, 0, 1, 10, 50, 5, 0),
-
-            });
-
-            Entity hawkTalon = new Entity(new List<Component>()
-            {
-                new Item(),
-                new Vector(0, 0),
-                new Draw(Color.White, Color.Black, '/'),
-                new Description("Talons", "Talons."),
-                new Equipable(false, "Weapon"),
-                new WeaponComponent(0, 0, 2, 2),
-            });
-
-            InventoryManager.EquipItem(hawk, hawkTalon);
-            Math.ClearTransitions(hawk);
-            JsonDataManager.SaveEntity(hawk, "Seafoam Hawk");
-
-            Event hawkRoom = new Event(0, 0, new List<Component>()
-            {
-                new SpawnTiles(new List<string>() { "Nest" }, 3),
-                new SpawnMinions(new List<string>() { "Seafoam Hawk" }, 4, "Spawn"),
-                new SpawnItems(new List<string>() { "Hawk Egg" }, 3),
-            }, 4, 4, 10, 10, "Sphere");
-            JsonDataManager.SaveEvent(hawkRoom, "Hawk Nest");
-
-            Entity hawkEgg = new Entity(new List<Component>()
-            {
-                new Item(),
-                new Vector(0, 0),
-                new Draw(Color.White, Color.Black, '%'),
-                new Description("Hawk Egg", "A small white egg speckled with blue."),
-                new Heal(3),
-                new Usable(0, 3, 1, "Consume", "devours the egg."),
-                new Charges(1),
-            });
-
-            JsonDataManager.SaveEntity(hawkEgg, "Hawk Egg");
-
+            /*
             Tile nest = new Tile(0, 0, Color.LightGray, Color.Black, '*', "Nest", "A large messy pile of soft down, sticks, and fur. It is rather comfortable, no wonder eggs tend to like it.", 1, false);
             JsonDataManager.SaveEntity(nest, "Nest");
 
@@ -487,7 +248,6 @@ namespace Servants_of_Arcana
                 new Usable(15, 3, 0, "", "shoots a ball of flame!", new List<int>() { 1, 2, 3 }),
                 new Explode(3, true, true),
             });
-
             Entity seaDrakeTalons = new Entity(new List<Component>()
             {
                 new Item(),
@@ -497,51 +257,232 @@ namespace Servants_of_Arcana
                 new Equipable(false, "Weapon"),
                 new WeaponComponent(0, 0, 2, 8),
             });
-
             InventoryManager.EquipItem(seaDrake, seaDrakeTalons);
             Math.ClearTransitions(seaDrake);
             JsonDataManager.SaveEntity(seaDrake, "Sea-Drake");
 
-            Entity boomerang = new Entity(new List<Component>()
+            Entity orbOfAffliction = new Entity(new List<Component>()
             {
                 new Item(),
                 new Vector(0, 0),
-                new Draw(Color.LightGray, Color.Black, ')'),
-                new Description("Boomerang", "A curved projectile made of carved bone. It can be thrown or held but looks somewhat fragile."),
-                new Equipable(true, "Weapon"),
-                new WeaponComponent(0, 0, 1, 4),
-                new Fragile(10, "fractures into many small shards."),
-                new Boomerang(),
-                new Usable(20, 0, 0, "Throw", "throws the boomerang.", new List<int>() { 1, 2, 3 }),
+                new Draw(Color.Green, Color.Black, '/'),
+                new Description("Orb of Affliction", "A putrid sphere made from bile and rot. It was created by foul creatures for even fouler purposes. Each use causes it to dry more and more."),
+                new Usable(15, 5, 0, "Squeeze", "squeezes the orb, from which putrid bile and filth spew out.", new List<int>() { 1, 2, 3 }),
+                new ApplyPoison(10, 5, 0, "Line"),
+                new Charges(10),
+            });
+            JsonDataManager.SaveEntity(orbOfAffliction, "Orb of Affliction");
+            */
+
+            Entity scion = new Entity(new List<Component>()
+            {
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.DarkGreen, Color.Black, 'E'),
+                new Description("Scion of Affliction", "A lithe foul humanoid, it is covered in bulging pustules and warts, each seeping with bile. " +
+                "Beneath its foul exterior lies a more horrid core, an air of burning trash and scum is about this creature."),
+                new InventoryComponent(),
+                new Faction("Elemental"),
+                new Harmable(),
+                new Attributes(20, .8f, 2, 0, 11, 6),
+                new Movement(new List<int>() { 1 }),
+                new TurnComponent(),
+                new ElementalAI(50, 0, 10, 25, 100, 0, 0),
+                new Usable(15, 3, 0, "", "spits a fetid ball of bile!", new List<int>() { 1, 2, 3 }),
+                new ApplyPoison(3, 1, 3, "Sphere"),
+                new SpawnDetails(),
+                new SpawnItems(1),
+                new SpawnItems(new List<string>() { "Wretched Claw" })
+            });
+            Entity scionClaw = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Wretched Claw", "A horrid thing."),
+                new Equipable(false, "Weapon"),
+                new ApplyPoison(3, 1, 0, "Hit"),
+                new WeaponComponent(0, 0, 2, 3),
             });
 
-            JsonDataManager.SaveEntity(boomerang, "Boomerang");
+            JsonDataManager.SaveEntity(scionClaw, "Wretched Claw");
 
-            for (int i = 0; i < 2; i++)
+            Math.ClearTransitions(scion);
+            JsonDataManager.SaveEntity(scion, "Scion of Affliction");
+
+            Entity wandofDigging = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Boomerang"), player);
-            }
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Wand of Digging", "A brown rod with the appearance of rusted iron. The sharpened tip files off with each use."),
+                new Usable(3, 0, 0, "Dig", "activates the wand, from which white light blazes from the wand destroying the matter in front of it.", new List<int>() { 0, 1, 2, 3 }),
+                new Charges(10),
+                new Dig(),
+            });
 
-            for (int i = 0; i < 2; i++)
+            JsonDataManager.SaveEntity(wandofDigging, "Wand of Digging");
+
+            Entity ringOfGreed = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Scroll of Mapping"), player);
-            }
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.Gold, Color.Black, '='),
+                new Description("Ring of Greed", "A small golden band, it is the last remnant of a creature whose existence was dominated by greed. Donning the ring is a choice one cannot return from. Will you repeat that cycle?"),
+                new Equipable(false, "Magic Item"),
+                new TrueSight(50, "Item")
+            });
 
-            for (int i = 0; i < 2; i++)
+            JsonDataManager.SaveEntity(ringOfGreed, "Ring of Greed");
+
+            Entity dagger = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Fireball"), player);
-            }
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, ')'),
+                new Description("Dagger", "A small sharp pointy item."),
+                new Equipable(true, "Weapon"),
+                new WeaponComponent(2, 0, 1, 4),
+            });
 
-            for (int i = 0; i < 2; i++)
+            JsonDataManager.SaveEntity(dagger, "Dagger");
+
+            Entity manBeast = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Lightning"), player);
-            }
+                new Vector(0, 0),
+                new Draw(Color.DarkBlue, Color.Black, 'm'),
+                new Description("Man Beast", "There is nothing left here, not in this place any longer. All of man has abandoned their creations, " +
+                "their monuments left to crumble into the sea. Even still there remains these creatures, " +
+                "large and highly intelligent are these bipedal humanoids. Their eyes glint in the dark, watching, waiting."),
+                new Actor(),
+                new InventoryComponent(),
+                new Faction("Evil-Humanoid"),
+                new Harmable(),
+                new Attributes(15, .8f, 1, 3, 8, 6),
+                new Movement(new List<int>() { 1, 2 }),
+                new TurnComponent(),
+                new BeastAI(25, 0, 10, 25, 100, 10, 0),
+                new SpawnDetails(),
+                new SpawnItems("Man Beast", 2),
+            });
 
-            for (int i = 0; i < 2; i++)
+            Tile explosionTrap = new Tile(0, 0, Color.Orange, Color.Black, '^', "Firebomb Trap", "A handmade trap lodged into broken rubble, " +
+                "it is clearly not a native part of the tower, be careful not to disturb it.", 1, false);
+            explosionTrap.AddComponent(new SpawnDetails());
+            explosionTrap.AddComponent(new Trap());
+            explosionTrap.AddComponent(new Explode(3, "Step", false));
+            explosionTrap.AddComponent(new Attributes(0, 0, 0, 2, 0, 0));
+
+            JsonDataManager.SaveEntity(explosionTrap, "Firebomb Trap");
+
+            Tile fern1 = new Tile(0, 0, Color.LightGreen, Color.Black, (char)244, "Ferns", "A dense patch of ferns.", 1, true);
+            Tile fern2 = new Tile(0, 0, Color.Green, Color.Black, (char)244, "Ferns", "A dense patch of ferns.", 1, true);
+            Tile fern3 = new Tile(0, 0, Color.DarkGreen, Color.Black, (char)244, "Ferns", "A dense patch of ferns.", 1, true);
+
+            JsonDataManager.SaveEntity(fern1, "Fern 1");
+            JsonDataManager.SaveEntity(fern2, "Fern 2");
+            JsonDataManager.SaveEntity(fern3, "Fern 3");
+
+            Tile plantClump = new Tile(0, 0, Color.Green, Color.Black, (char)244, "Ferns", "A dense patch of ferns.", 1, true);
+            plantClump.AddComponent(new SpawnDetails());
+            plantClump.AddComponent(new SpawnTiles(new List<string>() { "Fern 1", "Fern 2", "Fern 3" }, 4));
+
+            JsonDataManager.SaveEntity(plantClump, "Plants");
+
+            Tile water1 = new Tile(0, 0, Color.DarkBlue, Color.Black, (char)247, "Water", "A deep pool.", 2, false);
+            Tile water2 = new Tile(0, 0, Color.Blue, Color.Black, (char)247, "Water", "A deep pool.", 2, false);
+            Tile water3 = new Tile(0, 0, Color.DarkBlue, Color.Black, '~', "Water", "A deep pool.", 2, false);
+            Tile water4 = new Tile(0, 0, Color.Blue, Color.Black, '~', "Water", "A deep pool.", 2, false);
+
+            JsonDataManager.SaveEntity(water1, "Water 1");
+            JsonDataManager.SaveEntity(water2, "Water 2");
+            JsonDataManager.SaveEntity(water3, "Water 3");
+            JsonDataManager.SaveEntity(water4, "Water 4");
+
+            Tile waterpool = new Tile(0, 0, Color.Blue, Color.Black, '~', "Water", "A deep pool.", 2, false);
+            waterpool.AddComponent(new SpawnDetails());
+            waterpool.AddComponent(new SpawnTiles(new List<string>() { "Water 1", "Water 2", "Water 3", "Water 4" }, 4));
+
+            JsonDataManager.SaveEntity(waterpool, "Pool of Water");
+
+
+            Entity fish = new Entity(new List<Component>()
             {
-                InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Transposition"), player);
-            }
+                new Actor(),
+                new Vector(0, 0),
+                new Draw(Color.LightBlue, Color.Black, 'f'),
+                new Description("Fish", "A very bland nondescript fish. It is not your friend. You do not feel safe around it."),
+                new InventoryComponent(),
+                new Faction("Beast"),
+                new Harmable(),
+                new Attributes(8, .8f, 0, -1, 12, 10),
+                new Movement(new List<int>() { 2 }),
+                new TurnComponent(),
+                new BeastAI(50, 0, 10, 25, 100, 5, 40),
+            });
+            Entity fishPower = new Entity(new List<Component>()
+            {
+                new Item(),
+                new Vector(0, 0),
+                new Draw(Color.White, Color.Black, '/'),
+                new Description("Fish Teeth", "Fishy."),
+                new Equipable(false, "Weapon"),
+                new WeaponComponent(0, 0, 1, 3),
+            });
+            InventoryManager.EquipItem(fish, fishPower);
+            Math.ClearTransitions(fish);
+            JsonDataManager.SaveEntity(fish, "Fish");
 
+
+            /*
+            if (devTesting)
+            {
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Skin Coat"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Ring of Greed"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Digging"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Hidden Fang"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Boomerang"), player);
+                }
+
+                for (int i = 0; i < 2; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Scroll of Mapping"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Fireball"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Lightning"), player);
+                }
+
+                for (int i = 0; i < 1; i++)
+                {
+                    InventoryManager.AddToInventory(JsonDataManager.ReturnEntity("Wand of Transposition"), player);
+                }
+            }
+            */
 
             GenerateNewFloor();
 
@@ -633,13 +574,13 @@ namespace Servants_of_Arcana
         {
             string deathMessage = " < You have died. > ";
             string newGame = "< New Game: N >";
-            string quitGame = "< Quit Game: Q ";
-            int baseLength = deathMessage.Length + 2;
+            string quitGame = "< Quit Game: Q >";
+            int baseLength = deathMessage.Length + 4;
 
-            playerConsole.DrawBox(new Rectangle(3, 4, playerConsole.Width - 6, playerConsole.Height - 7),
+            playerConsole.DrawBox(new Rectangle(0, 0, playerConsole.Width, playerConsole.Height),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.AntiqueWhite, Color.Black, 177)));
 
-            playerConsole.DrawBox(new Rectangle((playerConsole.Width / 2) - (baseLength / 2), (playerConsole.Height / 3) - 3, baseLength, playerConsole.Height / 2),
+            playerConsole.DrawBox(new Rectangle((playerConsole.Width / 2) - (baseLength / 2), 1, baseLength, playerConsole.Height - 2),
                 ShapeParameters.CreateStyledBoxFilled(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black), new ColoredGlyph(Color.Black, Color.Black, 177)));
 
             int startY = (playerConsole.Height / 2) - 7;
@@ -655,7 +596,7 @@ namespace Servants_of_Arcana
         {
             string deathMessage = " < You have ascended!. > ";
             string newGame = "< New Game: N >";
-            string quitGame = "< Quit Game: Q ";
+            string quitGame = "< Quit Game: Q >";
             int baseLength = deathMessage.Length + 2;
 
             playerConsole.DrawBox(new Rectangle(3, 4, playerConsole.Width - 6, playerConsole.Height - 7),
@@ -992,13 +933,29 @@ namespace Servants_of_Arcana
 
                 if (item != null)
                 {
-                    if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                    Description description = item.GetComponent<Description>();
+
+                    if (ItemIdentityManager.IsItemIdentified(description.name))
                     {
-                        parent.Print(corner.x, corner.y + 1, $"{item.GetComponent<Description>().name} - Equipped".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                        if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                        {
+                            parent.Print(corner.x, corner.y + 1, $"{item.GetComponent<Description>().name} - Equipped".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                        }
+                        else
+                        {
+                            parent.Print(corner.x, corner.y + 1, item.GetComponent<Description>().name.Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                        }
                     }
                     else
                     {
-                        parent.Print(corner.x, corner.y + 1, item.GetComponent<Description>().name.Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                        if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                        {
+                            parent.Print(corner.x, corner.y + 1, $"Unknown Item - Equipped".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                        }
+                        else
+                        {
+                            parent.Print(corner.x, corner.y + 1, "Unknown Item".Align(HorizontalAlignment.Center, width), Color.Black, Color.White);
+                        }
                     }
                 }
                 else
@@ -1016,13 +973,29 @@ namespace Servants_of_Arcana
 
                 if (item != null)
                 {
-                    if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped) 
+                    Description description = item.GetComponent<Description>();
+
+                    if (ItemIdentityManager.IsItemIdentified(description.name))
                     {
-                        parent.Print(corner.x, corner.y + 1, $"{item.GetComponent<Description>().name} - Equipped".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                        if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                        {
+                            parent.Print(corner.x, corner.y + 1, $"{item.GetComponent<Description>().name} - Equipped".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                        }
+                        else
+                        {
+                            parent.Print(corner.x, corner.y + 1, item.GetComponent<Description>().name.Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                        }
                     }
                     else
                     {
-                        parent.Print(corner.x, corner.y + 1, item.GetComponent<Description>().name.Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                        if (item.GetComponent<Equipable>() != null && item.GetComponent<Equipable>().equipped)
+                        {
+                            parent.Print(corner.x, corner.y + 1, $"Unknown Item - Equipped".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                        }
+                        else
+                        {
+                            parent.Print(corner.x, corner.y + 1, "Unknown Item".Align(HorizontalAlignment.Center, width), Color.White, Color.Black);
+                        }
                     }
                 }
                 else
@@ -1121,7 +1094,7 @@ namespace Servants_of_Arcana
                 }
                 else
                 {
-                    this.Print(1, equipY, "Use - U".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Gray, Color.Black);
+                    this.Print(1, useY, "Use - U".Align(HorizontalAlignment.Center, Program.interactionWidth - 2), Color.Gray, Color.Black);
                 }
                 this.DrawBox(new Rectangle(1, useY - 1, Program.interactionWidth - 2, 3),
                     ShapeParameters.CreateStyledBox(ICellSurface.ConnectedLineThin, new ColoredGlyph(Color.Gray, Color.Black)));

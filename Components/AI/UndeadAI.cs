@@ -23,6 +23,11 @@ namespace Servants_of_Arcana
                         AIActions.ActionEngage(this);
                         break;
                     }
+                case State.Recall:
+                    {
+                        AIActions.ActionRecall(this);
+                        break;
+                    }
             }
         }
         public override void SetTransitions()
@@ -32,6 +37,14 @@ namespace Servants_of_Arcana
                 { new StateMachine(State.Angry, Input.Bored), State.Bored },
                 { new StateMachine(State.Bored, Input.Hatred), State.Angry },
                 { new StateMachine(State.Bored, Input.Hurt), State.Angry },
+
+                { new StateMachine(State.Asleep, Input.Recall), State.Recall },
+                { new StateMachine(State.Angry, Input.Recall), State.Recall },
+                { new StateMachine(State.Bored, Input.Recall), State.Recall },
+
+                { new StateMachine(State.Recall, Input.Hurt), State.Angry },
+                { new StateMachine(State.Recall, Input.Hatred), State.Angry },
+                { new StateMachine(State.Recall, Input.Bored), State.Bored },
             };
             currentInput = Input.None;
         }

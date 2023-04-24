@@ -48,6 +48,10 @@ namespace Servants_of_Arcana
                     bool inRange = rangeLimit < 0 || Math.Distance(oX, oY, tx, ty) <= rangeLimit;
                     if (inRange && (y != topY || top.Y * x >= top.X * y) && (y != bottomY || bottom.Y * x <= bottom.X * y))
                     {
+                        if (Math.CheckBounds(tx, ty) && Program.tiles[tx, ty].GetComponent<Trap>() != null && Program.random.Next(1, 101) < 6 + Program.player.GetComponent<Attributes>().intelligence)
+                        {
+                            Program.tiles[tx, ty].GetComponent<Trap>().Reveal();
+                        }
                         SetVisible(new Vector(tx, ty), true, rangeLimit - 3, oX, oY);
                     }
 
