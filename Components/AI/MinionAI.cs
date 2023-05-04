@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Servants_of_Arcana.Components;
 
 namespace Servants_of_Arcana
 {
@@ -32,15 +31,18 @@ namespace Servants_of_Arcana
                             }
                             else
                             {
-                                Vector nextPosition = AStar.ReturnPath(vector, masterVector)[1].position;
-                                if (nextPosition != null)
+                                List<Node> nodes = AStar.ReturnPath(vector, masterVector);
+                                if (nodes != null)
                                 {
-                                    entity.GetComponent<Movement>().Move(nextPosition);
+                                    Vector nextPosition = nodes[1].position;
+                                    if (nextPosition != null)
+                                    {
+                                        entity.GetComponent<Movement>().Move(nextPosition);
+                                        return;
+                                    }
                                 }
-                                else
-                                {
-                                    entity.GetComponent<TurnComponent>().EndTurn();
-                                }
+
+                                entity.GetComponent<TurnComponent>().EndTurn();
                             }
                         }
                         else
@@ -62,7 +64,7 @@ namespace Servants_of_Arcana
                         }
                         else
                         {
-                            entity.GetComponent<TurnComponent>().EndTurn();
+                            AIActions.RecallMinion(this);
                         }
                         break;
                     }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SadRogue.Primitives;
-
 namespace Servants_of_Arcana
 {
     [Serializable]

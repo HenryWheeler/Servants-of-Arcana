@@ -1,0 +1,200 @@
+{
+  "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+  "collectionsToRemove": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": []
+  },
+  "components": {
+    "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Servants_of_Arcana.Actor, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+        "fColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190219
+        },
+        "bColor": {
+          "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+          "_packedValue": 4278190080
+        },
+        "character": "i"
+      },
+      {
+        "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+        "name": "Broken Sentinel",
+        "description": "A broken sentinel, while made of perfected ichor stone like its brothers, this one has cracked. Deadened and weakened it is no longer welcome, it takes out its fury on everything around it."
+      },
+      {
+        "$type": "Servants_of_Arcana.InventoryComponent, Servants of Arcana",
+        "items": {
+          "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
+          "$values": []
+        },
+        "equipment": {
+          "$type": "Servants_of_Arcana.EquipmentSlot[], Servants of Arcana",
+          "$values": [
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Armor"
+            },
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Off Hand"
+            },
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": null,
+              "slotName": "Magic Item"
+            },
+            {
+              "$type": "Servants_of_Arcana.EquipmentSlot, Servants of Arcana",
+              "item": {
+                "$type": "Servants_of_Arcana.Entity, Servants of Arcana",
+                "collectionsToRemove": {
+                  "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "components": {
+                  "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Component, Servants of Arcana]], System.Private.CoreLib",
+                  "$values": [
+                    {
+                      "$type": "Servants_of_Arcana.Item, Servants of Arcana"
+                    },
+                    {
+                      "$type": "Servants_of_Arcana.Vector, Servants of Arcana",
+                      "x": 0,
+                      "y": 0
+                    },
+                    {
+                      "$type": "Servants_of_Arcana.Draw, Servants of Arcana",
+                      "fColor": {
+                        "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+                        "_packedValue": 4294967295
+                      },
+                      "bColor": {
+                        "$type": "SadRogue.Primitives.Color, TheSadRogue.Primitives",
+                        "_packedValue": 4278190080
+                      },
+                      "character": "/"
+                    },
+                    {
+                      "$type": "Servants_of_Arcana.Description, Servants of Arcana",
+                      "name": "Ichor Spike",
+                      "description": "A horrid thing."
+                    },
+                    {
+                      "$type": "Servants_of_Arcana.Equipable, Servants of Arcana",
+                      "equipped": true,
+                      "onEquip": null,
+                      "removable": false,
+                      "slot": "Weapon"
+                    },
+                    {
+                      "$type": "Servants_of_Arcana.WeaponComponent, Servants of Arcana",
+                      "onHit": null,
+                      "toHitBonus": 0,
+                      "damageBonus": 0,
+                      "damageDie1": 1,
+                      "damageDie2": 4
+                    }
+                  ]
+                }
+              },
+              "slotName": "Weapon"
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Servants_of_Arcana.Faction, Servants of Arcana",
+        "faction": "Broken-Construct"
+      },
+      {
+        "$type": "Servants_of_Arcana.Harmable, Servants of Arcana"
+      },
+      {
+        "$type": "Servants_of_Arcana.Attributes, Servants of Arcana",
+        "status": null,
+        "maxHealth": 10,
+        "health": 10,
+        "maxEnergy": 0.5,
+        "strength": 1,
+        "intelligence": -3,
+        "armorValue": 11,
+        "sight": 4
+      },
+      {
+        "$type": "Servants_of_Arcana.Movement, Servants of Arcana",
+        "moveTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": [
+            1,
+            2
+          ]
+        }
+      },
+      {
+        "$type": "Servants_of_Arcana.TurnComponent, Servants of Arcana",
+        "onTurnEnd": null,
+        "isAlive": true,
+        "isTurnActive": false,
+        "currentEnergy": 0.0,
+        "controller": null
+      },
+      {
+        "$type": "Servants_of_Arcana.Usable, Servants of Arcana",
+        "onUse": null,
+        "areaOfEffect": null,
+        "tileTypes": {
+          "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": []
+        },
+        "range": 10,
+        "strength": 2,
+        "requiredTargets": 1,
+        "action": "",
+        "message": "A spike of ichor is formed and fired from the Tower Sentinel's arm."
+      },
+      {
+        "$type": "Servants_of_Arcana.IchorSpike, Servants of Arcana",
+        "strength": 2
+      },
+      {
+        "$type": "Servants_of_Arcana.GuardAI, Servants of Arcana",
+        "transitions": {
+          "$type": "System.Collections.Generic.Dictionary`2[[Servants_of_Arcana.AIController+StateMachine, Servants of Arcana],[Servants_of_Arcana.AIController+State, Servants of Arcana]], System.Private.CoreLib"
+        },
+        "currentState": 5,
+        "currentInput": 9,
+        "hatedEntities": {
+          "$type": "System.Collections.Generic.List`1[[Servants_of_Arcana.Entity, Servants of Arcana]], System.Private.CoreLib",
+          "$values": []
+        },
+        "hatedFactions": {
+          "$type": "System.Collections.Generic.List`1[[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+          "$values": []
+        },
+        "dungeonSection": 0,
+        "target": null,
+        "interest": 50,
+        "baseInterest": 50,
+        "maxDistance": 10,
+        "minDistance": 0,
+        "hate": 100,
+        "fear": 0,
+        "greed": 0,
+        "abilityChance": 25
+      }
+    ]
+  }
+}

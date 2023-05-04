@@ -49,7 +49,8 @@
         "$type": "Servants_of_Arcana.Trap, Servants of Arcana",
         "onStep": null,
         "defaultDraw": null,
-        "revealed": true
+        "revealed": true,
+        "set": true
       },
       {
         "$type": "Servants_of_Arcana.Components.Explode, Servants of Arcana",

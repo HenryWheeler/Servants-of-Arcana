@@ -1,0 +1,27 @@
+{
+  "$type": "Servants_of_Arcana.RandomTable, Servants of Arcana",
+  "table": {
+    "$type": "System.Collections.Generic.Dictionary`2[[System.Int32, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+    "1": "Boomerang",
+    "2": "Dagger",
+    "3": "Dagger",
+    "4": "Wand of Lightning",
+    "5": "Short Blade",
+    "6": "Boomerang",
+    "7": "Short Blade",
+    "8": "Wand of Transposition",
+    "9": "Long Blade",
+    "10": "Long Blade",
+    "11": "Rusty Mail",
+    "12": "Scroll of Mapping",
+    "13": "Skin Coat",
+    "14": "Skin Coat",
+    "15": "Wand of Fireball",
+    "16": "Boomerang",
+    "17": "Scroll of Mapping",
+    "18": "Wand of Transposition",
+    "19": "Wooden Buckler",
+    "20": "Wooden Buckler"
+  },
+  "name": "Overgrown-Unique"
+}

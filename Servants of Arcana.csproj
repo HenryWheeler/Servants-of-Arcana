@@ -19,17 +19,22 @@
     <None Remove="Resources\JsonData\TableData\Flooded-Enemies.json" />
     <None Remove="Resources\JsonData\TableData\Flooded\Flooded-Items.json" />
     <None Remove="Resources\JsonData\TableData\Flooded\Flooded-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Flooded\Flooded-Unique.json" />
     <None Remove="Resources\JsonData\TableData\Infested\Infested-Enemies.json" />
     <None Remove="Resources\JsonData\TableData\Infested\Infested-Items.json" />
     <None Remove="Resources\JsonData\TableData\Infested\Infested-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Infested\Infested-Unique.json" />
     <None Remove="Resources\JsonData\TableData\Items - Copy.json" />
     <None Remove="Resources\JsonData\TableData\Normal\Normal-Enemies.json" />
     <None Remove="Resources\JsonData\TableData\Normal\Normal-Items.json" />
     <None Remove="Resources\JsonData\TableData\Normal\Normal-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Normal\Normal-Unique.json" />
     <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Enemies.json" />
     <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Items.json" />
     <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Tiles.json" />
+    <None Remove="Resources\JsonData\TableData\Overgrown\Overgrown-Unique.json" />
     <None Remove="Resources\logo.ans" />
+    <None Remove="Resources\title.xp" />
   </ItemGroup>
 
   <ItemGroup>

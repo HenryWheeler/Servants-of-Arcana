@@ -1,12 +1,13 @@
 ﻿using SadConsole.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Servants_of_Arcana.Components
+namespace Servants_of_Arcana
 {
     public class AIActions
     {
@@ -38,6 +39,7 @@ namespace Servants_of_Arcana.Components
         }
         public static void ActionRecall(AIController AI)
         {
+            /*
             switch (AI.dungeonSection)
             {
                 case 1:
@@ -101,6 +103,7 @@ namespace Servants_of_Arcana.Components
                         return;
                     }
             }
+            */
 
             AI.entity.GetComponent<TurnComponent>().EndTurn();
         }
@@ -128,6 +131,17 @@ namespace Servants_of_Arcana.Components
             {
                 AI.entity.GetComponent<TurnComponent>().EndTurn();
             }
+        }
+        public static void RecallMinion(MinionAI AI)
+        {
+            Vector nextPosition = AStar.ReturnPath(AI.entity.GetComponent<Vector>(), AI.master.GetComponent<Vector>())[1].position;
+            if (nextPosition != null)
+            {
+                AI.entity.GetComponent<Movement>().Move(nextPosition);
+                return;
+            }
+
+            AI.entity.GetComponent<TurnComponent>().EndTurn();
         }
         public static void ActionEngage(AIController AI)
         {

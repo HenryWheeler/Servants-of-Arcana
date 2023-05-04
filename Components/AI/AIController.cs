@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json.Bson;
+using Servants_of_Arcana.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Servants_of_Arcana
 {
@@ -105,11 +105,6 @@ namespace Servants_of_Arcana
                 if (transitions.Count == 0)
                 {
                     throw new Exception("Entity transition count equals zero.");
-                }
-
-                if (!Program.dungeonGenerator.ReturnSectionTiles(dungeonSection).Contains(entity.GetComponent<Vector>()))
-                {
-                    currentInput = Input.Recall;
                 }
 
                 State tempRecord = currentState;
